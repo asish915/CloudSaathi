@@ -1,0 +1,36 @@
+# Terraform working directory and state (state may contain sensitive infrastructure data)
+**/.terraform/*
+*.tfstate
+*.tfstate.*
+terraform.tfvars
+*.tfvars
+!*.tfvars.example
+
+# Keep the dependency lock file committed
+!terraform/.terraform.lock.hcl
+
+# Build outputs
+/build/*
+!/build/.gitkeep
+/frontend/node_modules/
+/frontend/dist/
+/frontend/dist.zip
+
+# Local environment and credentials
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.ppk
+.aws/
+
+# Python
+__pycache__/
+*.py[cod]
+.pytest_cache/
+
+# OS/editor
+.DS_Store
+Thumbs.db
+.vscode/

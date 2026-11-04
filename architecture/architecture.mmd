@@ -1,0 +1,19 @@
+flowchart TD
+    USER[User Browser] --> EC2[Single EC2 / NGINX / React]
+    EC2 --> API[API Gateway HTTP API]
+    API --> L[Lambda Chat Backend]
+    L --> KB[Packaged Markdown Knowledge]
+    L --> BED[Amazon Bedrock Inference Profile]
+    BED --> L
+    L --> API
+    API --> EC2
+
+    GH[GitHub] --> GA[GitHub Actions]
+    GA --> CI[Lint / Build / Terraform Validate / Security Scan]
+    GA --> OIDC[GitHub OIDC]
+    OIDC --> AWS[AWS]
+    GA --> S3[S3 Frontend Artifact]
+    GA --> SSM[Systems Manager Command]
+    SSM --> EC2
+    GA --> L
+    AWS --> CW[CloudWatch]

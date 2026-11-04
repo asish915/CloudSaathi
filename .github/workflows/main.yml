@@ -1,0 +1,173 @@
+name: CloudSaathi CI-CD DevSecOps
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: cloudsaathi-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate-build-deploy:
+    name: Validate, build and deploy
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+    env:
+      AWS_REGION: ${{ vars.AWS_REGION }}
+      PROJECT_NAME: ${{ vars.PROJECT_NAME }}
+      S3_BUCKET: ${{ vars.S3_BUCKET }}
+      LAMBDA_FUNCTION_NAME: ${{ vars.LAMBDA_FUNCTION_NAME }}
+      VITE_API_URL: ${{ vars.VITE_API_URL }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: "1.9.8"
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Package Lambda
+        run: |
+          python -m py_compile backend/lambda/handler.py
+          mkdir -p build
+          cd backend/lambda
+          zip -qr ../../build/lambda.zip .
+
+      - name: Terraform format and validate
+        working-directory: terraform
+        run: |
+          terraform init -backend=false
+          terraform fmt -check -recursive
+          terraform validate
+
+      - name: Terraform security scan
+        uses: aquasecurity/tfsec-action@v1.0.3
+        with:
+          working_directory: terraform
+          soft_fail: true
+
+      - name: Install frontend dependencies
+        working-directory: frontend
+        run: npm ci
+
+      - name: Lint frontend
+        working-directory: frontend
+        run: npm run lint
+
+      - name: Build frontend
+        working-directory: frontend
+        run: |
+          test -n "$VITE_API_URL" || (echo "Configure the VITE_API_URL repository variable." && exit 1)
+          printf 'VITE_API_URL=%s\\n' "$VITE_API_URL" > .env.production
+          npm run build
+          echo "healthy" > dist/health.html
+          cd dist
+          zip -qr ../dist.zip .
+
+      - name: Scan repository with Trivy
+        uses: aquasecurity/trivy-action@0.28.0
+        with:
+          scan-type: fs
+          scan-ref: .
+          format: table
+          severity: CRITICAL
+          ignore-unfixed: true
+          exit-code: "1"
+
+      # Pull requests validate and scan only. AWS deployment is restricted to pushes to main.
+      - name: Configure AWS credentials with GitHub OIDC
+        if: github.event_name != 'pull_request'
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          aws-region: ${{ vars.AWS_REGION }}
+
+      - name: Validate deployment configuration
+        if: github.event_name != 'pull_request'
+        run: |
+          test -n "$AWS_REGION" || (echo "Missing AWS_REGION repository variable." && exit 1)
+          test -n "$PROJECT_NAME" || (echo "Missing PROJECT_NAME repository variable." && exit 1)
+          test -n "$S3_BUCKET" || (echo "Missing S3_BUCKET repository variable." && exit 1)
+          test -n "$LAMBDA_FUNCTION_NAME" || (echo "Missing LAMBDA_FUNCTION_NAME repository variable." && exit 1)
+
+      - name: Upload frontend bundle to S3
+        if: github.event_name != 'pull_request'
+        run: |
+          aws s3 cp frontend/dist.zip "s3://${S3_BUCKET}/frontend/dist.zip" --region "$AWS_REGION" --sse AES256
+
+      - name: Update Lambda code
+        if: github.event_name != 'pull_request'
+        run: |
+          aws lambda update-function-code \\
+            --function-name "$LAMBDA_FUNCTION_NAME" \\
+            --zip-file fileb://build/lambda.zip \\
+            --region "$AWS_REGION"
+          aws lambda wait function-updated-v2 \\
+            --function-name "$LAMBDA_FUNCTION_NAME" \\
+            --region "$AWS_REGION"
+
+      - name: Deploy frontend to the single EC2 instance through SSM
+        if: github.event_name != 'pull_request'
+        env:
+          DEPLOY_INSTANCE_NAME: ${{ vars.EC2_INSTANCE_NAME }}
+        run: |
+          INSTANCE_NAME="${DEPLOY_INSTANCE_NAME:-${PROJECT_NAME}-frontend}"
+          INSTANCE_ID=$(aws ec2 describe-instances \\
+            --filters "Name=tag:Name,Values=${INSTANCE_NAME}" "Name=instance-state-name,Values=running" \\
+            --query 'Reservations[].Instances[].InstanceId | [0]' --output text \\
+            --region "$AWS_REGION")
+          test -n "$INSTANCE_ID" && test "$INSTANCE_ID" != "None" || (echo "Could not find a running EC2 instance tagged Name=${INSTANCE_NAME}." && exit 1)
+
+          DEPLOY_COMMAND="set -euo pipefail; aws s3 cp s3://${S3_BUCKET}/frontend/dist.zip /tmp/cloudsaathi-dist.zip --region ${AWS_REGION}; sudo mkdir -p /usr/share/nginx/html; sudo unzip -o /tmp/cloudsaathi-dist.zip -d /usr/share/nginx/html/; echo healthy | sudo tee /usr/share/nginx/html/health.html >/dev/null; sudo chown -R nginx:nginx /usr/share/nginx/html; sudo systemctl enable nginx; sudo systemctl restart nginx; curl --fail --silent http://localhost/health.html"
+
+          PARAMETERS=$(jq -nc --arg command "$DEPLOY_COMMAND" '{commands: [$command]}')
+          COMMAND_ID=$(aws ssm send-command \\
+            --instance-ids "$INSTANCE_ID" \\
+            --document-name "AWS-RunShellScript" \\
+            --comment "CloudSaathi frontend deployment ${GITHUB_SHA}" \\
+            --parameters "$PARAMETERS" \\
+            --query 'Command.CommandId' --output text \\
+            --region "$AWS_REGION")
+
+          aws ssm wait command-executed \\
+            --command-id "$COMMAND_ID" \\
+            --instance-id "$INSTANCE_ID" \\
+            --region "$AWS_REGION"
+
+          STATUS=$(aws ssm get-command-invocation \\
+            --command-id "$COMMAND_ID" --instance-id "$INSTANCE_ID" \\
+            --query 'Status' --output text --region "$AWS_REGION")
+          echo "SSM deployment status: $STATUS"
+          if [ "$STATUS" != "Success" ]; then
+            aws ssm get-command-invocation --command-id "$COMMAND_ID" --instance-id "$INSTANCE_ID" --region "$AWS_REGION"
+            exit 1
+          fi
+
+      - name: Print deployment endpoints
+        if: github.event_name != 'pull_request'
+        run: |
+          echo "Frontend: http://$(aws ec2 describe-instances --filters "Name=tag:Name,Values=${PROJECT_NAME}-frontend" "Name=instance-state-name,Values=running" --query 'Reservations[].Instances[].PublicIpAddress | [0]' --output text --region "$AWS_REGION")"
+          echo "API base URL: ${VITE_API_URL}"

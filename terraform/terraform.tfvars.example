@@ -1,0 +1,18 @@
+# Copy to terraform/terraform.tfvars and customize before the first apply.
+# Never commit terraform.tfvars or Terraform state files.
+
+aws_region           = "ap-south-1"
+project_name         = "cloudsaathi"
+artifact_bucket_name = "cloudsaathi-asish-unique-lowercase-name"
+model_id             = "apac.amazon.nova-micro-v1:0"
+
+# Set this to the exact GitHub repository owner/name used by Actions.
+github_repository = "YOUR_GITHUB_USERNAME/YOUR_REPOSITORY"
+github_branch     = "main"
+
+# "*" is acceptable for an initial demo with a changing EC2 public IP.
+# Restrict this to your exact frontend origin when you have a stable domain.
+cors_origin = "*"
+
+ec2_instance_type = "t3.micro"
+ec2_ami_arch      = "x86_64"
