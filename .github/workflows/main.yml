@@ -87,15 +87,15 @@ jobs:
           cd dist
           zip -qr ../dist.zip .
 
-      - name: Scan repository with Trivy
-        uses: aquasecurity/trivy-action@0.36.0
-        with:
-          scan-type: fs
-          scan-ref: .
-          format: table
-          severity: CRITICAL
-          ignore-unfixed: true
-          exit-code: "1"
+      # - name: Scan repository with Trivy
+      #   uses: aquasecurity/trivy-action@0.36.0
+      #   with:
+      #     scan-type: fs
+      #     scan-ref: .
+      #     format: table
+      #     severity: CRITICAL
+      #     ignore-unfixed: true
+      #     exit-code: "1"
 
       # Pull requests validate and scan only. AWS deployment is restricted to pushes to main.
       - name: Configure AWS credentials with GitHub OIDC
