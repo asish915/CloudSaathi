@@ -36,7 +36,7 @@ function getInputQuickReply(question) {
 
   if (/^(hi+|hello+|hey+|hii+|good morning|good afternoon|good evening|how are you|thanks|thank you|ok+|okay+)[!.\s😊👋]*$/iu.test(value)) {
 
-    if (/^(hi+|hello+|hey+|hii+)/i.test(value)) return "Hello! 👋 What cloud or DevOps topic can I help you learn?";
+    if (/^(hi+|hello+|hey+|hii+)/i.test(value)) return "Hello!👋 What cloud or DevOps topic can I help you learn?";
 
     if (/^good morning/i.test(value)) return "Good morning! ☀️ What would you like to learn today?";
 
