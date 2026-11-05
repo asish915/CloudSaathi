@@ -148,12 +148,12 @@ jobs:
       id-token: write
 
     env:
-      AWS_REGION: ${{ secrets.AWS_REGION }}
-      PROJECT_NAME: ${{ secrets.PROJECT_NAME }}
-      S3_BUCKET: ${{ secrets.S3_BUCKET }}
-      LAMBDA_FUNCTION_NAME: ${{ secrets.LAMBDA_FUNCTION_NAME }}
-      EC2_INSTANCE_NAME: ${{ secrets.EC2_INSTANCE_NAME }}
-      VITE_API_URL: ${{ secrets.VITE_API_URL }}
+      AWS_REGION: ${{ vars.AWS_REGION }}
+      PROJECT_NAME: ${{ vars.PROJECT_NAME }}
+      S3_BUCKET: ${{ vars.S3_BUCKET }}
+      LAMBDA_FUNCTION_NAME: ${{ vars.LAMBDA_FUNCTION_NAME }}
+      VITE_API_URL: ${{ vars.VITE_API_URL }}
+      EC2_INSTANCE_NAME: ${{ vars.EC2_INSTANCE_NAME }}
 
     steps:
       - name: Download deployment artifacts
