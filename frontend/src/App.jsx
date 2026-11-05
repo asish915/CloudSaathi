@@ -34,7 +34,7 @@ function getInputQuickReply(question) {
 
   const value = question.trim();
 
-  if (/^(hi+|hello+|hey+|hii+|good morning|good afternoon|good evening|how are you|thanks|thank you|ok+|okay+)[!.\s😊👋]*$/i.test(value)) {
+  if (/^(hi+|hello+|hey+|hii+|good morning|good afternoon|good evening|how are you|thanks|thank you|ok+|okay+)[!.\s😊👋]*$/iu.test(value)) {
 
     if (/^(hi+|hello+|hey+|hii+)/i.test(value)) return "Hello! 👋 What cloud or DevOps topic can I help you learn?";
 
@@ -50,7 +50,7 @@ function getInputQuickReply(question) {
 
   }
 
-  if (!/[a-z0-9]/i.test(value) || /^[\W\_]+$/.test(value)) {
+  if (!/[a-z0-9]/i.test(value) || /^[\W_]+$/.test(value)) {
 
     return "I couldn't identify a question. Please ask about AWS, cloud computing, DevOps, DevSecOps,  CI/CD, Linux, containers, infrastructure, or security.";
 
