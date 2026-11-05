@@ -26,7 +26,7 @@ jobs:
       PROJECT_NAME: ${{ vars.PROJECT_NAME }}
       S3_BUCKET: ${{ vars.S3_BUCKET }}
       LAMBDA_FUNCTION_NAME: ${{ vars.LAMBDA_FUNCTION_NAME }}
-      VITE_API_URL: ${{ vars.VITE_API_URL }}
+      VITE_API_URL: ${{ secrets.VITE_API_URL }}
 
     steps:
       - name: Checkout
