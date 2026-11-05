@@ -52,7 +52,7 @@ function getInputQuickReply(question) {
 
   if (!/[a-z0-9]/i.test(value) || /^[\W\_]+$/.test(value)) {
 
-    return "I couldn't identify a question. Please ask about AWS, cloud computing, DevOps, CI/CD, Linux, containers, infrastructure, or security.";
+    return "I couldn't identify a question. Please ask about AWS, cloud computing, DevOps, DevSecOps,  CI/CD, Linux, containers, infrastructure, or security.";
 
   }
 
