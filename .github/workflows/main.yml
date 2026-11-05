@@ -173,7 +173,7 @@ jobs:
           test -n "$EC2_INSTANCE_NAME" || (echo "Missing EC2_INSTANCE_NAME variable." && exit 1)
           test -n "$VITE_API_URL" || (echo "Missing VITE_API_URL variable." && exit 1)
 
-            - name: Inspect GitHub OIDC claims
+      - name: Inspect GitHub OIDC claims
         uses: actions/github-script@v7
         with:
           script: |
@@ -189,7 +189,7 @@ jobs:
             console.log("Event:", payload.event_name);
             console.log("Workflow:", payload.workflow);
             console.log("Environment:", payload.environment || "None");
-            
+
       - name: Configure AWS credentials with GitHub OIDC
         uses: aws-actions/configure-aws-credentials@v4
         with:
