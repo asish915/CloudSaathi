@@ -43,6 +43,13 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: "3.12"
+      
+      - name: Prepare Lambda package for Terraform validation
+        run: |
+          python -m py_compile backend/lambda/handler.py
+          mkdir -p build
+          cd backend/lambda
+          zip -qr ../../build/lambda.zip .
 
       - name: Validate Python backend
         run: |
