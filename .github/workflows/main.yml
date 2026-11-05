@@ -149,11 +149,12 @@ jobs:
 
     env:
       AWS_REGION: ${{ vars.AWS_REGION }}
+      AWS_ROLE_ARN: ${{ vars.AWS_ROLE_ARN }}
       PROJECT_NAME: ${{ vars.PROJECT_NAME }}
       S3_BUCKET: ${{ vars.S3_BUCKET }}
       LAMBDA_FUNCTION_NAME: ${{ vars.LAMBDA_FUNCTION_NAME }}
-      VITE_API_URL: ${{ vars.VITE_API_URL }}
       EC2_INSTANCE_NAME: ${{ vars.EC2_INSTANCE_NAME }}
+      VITE_API_URL: ${{ vars.VITE_API_URL }}
 
     steps:
       - name: Download deployment artifacts
@@ -165,11 +166,12 @@ jobs:
       - name: Validate deployment configuration
         run: |
           test -n "$AWS_REGION" || (echo "Missing AWS_REGION variable." && exit 1)
+          test -n "$AWS_ROLE_ARN" || (echo "Missing AWS_ROLE_ARN variable." && exit 1)
           test -n "$PROJECT_NAME" || (echo "Missing PROJECT_NAME variable." && exit 1)
           test -n "$S3_BUCKET" || (echo "Missing S3_BUCKET variable." && exit 1)
           test -n "$LAMBDA_FUNCTION_NAME" || (echo "Missing LAMBDA_FUNCTION_NAME variable." && exit 1)
+          test -n "$EC2_INSTANCE_NAME" || (echo "Missing EC2_INSTANCE_NAME variable." && exit 1)
           test -n "$VITE_API_URL" || (echo "Missing VITE_API_URL variable." && exit 1)
-          test -n "${{ secrets.AWS_ROLE_ARN }}" || (echo "Missing AWS_ROLE_ARN variable." && exit 1)
 
       - name: Configure AWS credentials with GitHub OIDC
         uses: aws-actions/configure-aws-credentials@v4
