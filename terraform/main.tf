@@ -398,6 +398,7 @@ resource "aws_iam_role" "github_actions" {
 }
 
 
+
 resource "aws_iam_role_policy" "github_actions" {
   name = "${var.project_name}-github-actions-policy"
   role = aws_iam_role.github_actions.id
@@ -413,8 +414,12 @@ resource "aws_iam_role_policy" "github_actions" {
         Resource = "${aws_s3_bucket.artifacts.arn}/frontend/*"
       },
       {
-        Effect   = "Allow"
-        Action   = ["lambda:UpdateFunctionCode", "lambda:GetFunctionConfiguration"]
+        Effect = "Allow"
+        Action = [
+          "lambda:UpdateFunctionCode",
+          "lambda:GetFunction",
+          "lambda:GetFunctionConfiguration"
+        ]
         Resource = aws_lambda_function.chat.arn
       },
       {
