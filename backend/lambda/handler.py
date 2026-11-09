@@ -137,5 +137,5 @@ Answer as CloudSaathi. Give a useful mentor-style response.
         print(f"ERROR: {type(exc).__name__}: {exc}")
         return make_response(
             500,
-            {"error": "The mentor could not process the request."},
+            {"error": "CloudSaathi could not process the request."},
         )
