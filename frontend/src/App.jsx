@@ -1574,7 +1574,13 @@ function App() {
       const response = await fetch(`${API_URL}/chat`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ message: teachingInstructions }),
+        body: JSON.stringify({
+          message: teachingInstructions,
+          history: messages.slice(-8).map(({ role, text }) => ({
+            role,
+            content: text,
+          })),
+        }),
         signal: controller.signal,
       });
 

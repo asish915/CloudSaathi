@@ -37,6 +37,9 @@ CORE BEHAVIOR
 
 TECHNICAL ACCURACY
 - Do not invent services, commands, configuration fields, APIs, limits, pricing, or behavior.
+- For follow-up questions, use recent conversation history to resolve references and preserve the
+  learner's topic. Do not silently substitute a related service or comparison; ask a brief clarifying
+  question if the intended subject cannot be established from context.
 - Distinguish AWS-managed control planes from customer-managed data planes/workers when relevant.
 - A managed service does not mean all underlying infrastructure is managed for the customer.
 - If a question contains a misconception, politely correct it before proceeding.
@@ -195,7 +198,10 @@ def lambda_handler(event, context):
         if history and history[-1]["role"] == "user" and history[-1]["content"][0]["text"] == question:
             history.pop()
 
-        context_text = retrieve_context(question)
+        retrieval_query = "\n".join(
+            item["content"][0]["text"] for item in history
+        )
+        context_text = retrieve_context(f"{retrieval_query}\n{question}")
         prompt = f"""Relevant curated knowledge (may be empty or imperfectly relevant):
 {context_text or "No directly relevant curated knowledge was found."}
 
