@@ -1,237 +1,833 @@
 import { useEffect, useRef, useState } from "react";
-
-
+import awsLogo from "./assets/logos/aws.svg";
+import dockerLogo from "./assets/logos/docker.svg";
+import kubernetesLogo from "./assets/logos/kubernetes.svg";
+import terraformLogo from "./assets/logos/terraform.svg";
+import jenkinsLogo from "./assets/logos/jenkins.svg";
+import githubLogo from "./assets/logos/github.svg";
+import gitLogo from "./assets/logos/git.svg";
+import gitlabLogo from "./assets/logos/gitlab.svg";
+import githubActionsLogo from "./assets/logos/githubactions.svg";
+import linuxLogo from "./assets/logos/linux.svg";
+import ansibleLogo from "./assets/logos/ansible.svg";
+import prometheusLogo from "./assets/logos/prometheus.svg";
+import snykLogo from "./assets/logos/snyk.svg";
+import cloudSaathiLogo from "./assets/logos/cloudsaathi.svg";
 
 function CloudSaathiLogo({ small = false }) {
-  return <svg className={`cloudsaathi-logo ${small ? "small" : ""}`} viewBox="0 0 48 48" role="img" aria-label="CloudSaathi logo">
-    <defs><linearGradient id="csLogoGradient" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stopColor="#72e0ff"/><stop offset="55%" stopColor="#28a9ee"/><stop offset="100%" stopColor="#0877c9"/></linearGradient></defs>
-    <path d="M24 3.5 42 13.8v20.4L24 44.5 6 34.2V13.8Z" fill="url(#csLogoGradient)" opacity=".98"/>
-    <path d="M24 10.5 35.5 17v14L24 37.5 12.5 31V17Z" fill="#07182e" opacity=".95"/>
-    <path d="M14.2 25.6c0-4 3-7 6.8-7 1.3-3.2 5.7-4.2 8.2-1.8 2.3.1 4.3 2 4.3 4.4 0 2.6-2.1 4.7-4.7 4.7H19" fill="none" stroke="#72e0ff" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round"/>
-    <circle cx="16" cy="30.5" r="1.7" fill="#72e0ff"/>
-  </svg>;
+  return (
+    <img
+      className={`cloudsaathi-logo ${small ? "small" : ""}`}
+      src={cloudSaathiLogo}
+      alt=""
+      width="48"
+      height="48"
+      loading="eager"
+      decoding="async"
+    />
+  );
 }
 
 const API_URL = (import.meta.env.VITE_API_URL || "").replace(/\/+$/, "");
 
-
-
 function getTimeGreeting(date = new Date()) {
-
   const hour = date.getHours();
 
   if (hour < 12) return "Good morning";
-
   if (hour < 17) return "Good afternoon";
-
   return "Good evening";
-
 }
 
-
-
 function getInputQuickReply(question) {
-
   const value = question.trim();
 
-  if (/^(hi+|hello+|hey+|hii+|good morning|good afternoon|good evening|how are you|haow are u |thanks|thank you|ok+|okay+)[!.\s😊👋]*$/iu.test(value)) {
+  if (
+    /^(hi+|hello+|hey+|hii+|good morning|good afternoon|good evening|how are you|haow are u |thanks|thank you|ok+|okay+)[!.\s😊👋]*$/iu.test(
+      value,
+    )
+  ) {
+    if (/^(hi+|hello+|hey+|hii+)/i.test(value))
+      return "Hello!👋 What cloud or DevOps topic can I help you learn?";
 
-    if (/^(hi+|hello+|hey+|hii+)/i.test(value)) return "Hello!👋 What cloud or DevOps topic can I help you learn?";
+    if (/^good morning/i.test(value))
+      return "Good morning! ☀️ What would you like to learn today?";
 
-    if (/^good morning/i.test(value)) return "Good morning! ☀️ What would you like to learn today?";
+    if (/^good afternoon/i.test(value))
+      return "Good afternoon! What cloud or DevOps question can I help with?";
 
-    if (/^good afternoon/i.test(value)) return "Good afternoon! What cloud or DevOps question can I help with?";
+    if (/^good evening/i.test(value))
+      return "Good evening! What would you like to explore?";
 
-    if (/^good evening/i.test(value)) return "Good evening! What would you like to explore?";
-
-    if (/^how are you/i.test(value)) return "I'm ready to help! What cloud or DevOps question do you have?";
+    if (/^how are you/i.test(value))
+      return "I'm ready to help! What cloud or DevOps question do you have?";
 
     return "You're welcome! 😊 Ask whenever you're ready to learn.";
-
   }
 
   if (!/[a-z0-9]/i.test(value) || /^[\W_]+$/.test(value)) {
-
     return "I couldn't identify a question. Please ask about AWS, cloud computing, DevOps, DevSecOps,  CI/CD, Linux, containers, infrastructure, or security.";
-
   }
 
   return null;
-
 }
 
-
-
 function cleanMentorAnswer(answer) {
-
   return String(answer || "")
+    .replace(
+      /^\s\*(?:Certainly!?\s\*)?(?:Here(?:'s| is) a mentor-style response to your question:?|User question:.\*|Answer as CloudSaathi:?)/gim,
+      "",
+    )
 
-    .replace(/^\s*(?:Certainly!?\s*)?(?:Here(?:'s| is) a mentor-style response to your question:?|User question:.*|Answer as CloudSaathi:?)/gim, "")
-
-    .replace(/^\s*(?:As CloudSaathi,?\s*)?(?:the answer is:?)/gim, "")
+    .replace(/^\s\*(?:As CloudSaathi,?\s\*)?(?:the answer is:?)/gim, "")
 
     .replace(/\n{3,}/g, "\n\n")
 
     .trim();
-
 }
 
-
-
 function getIntroReply(question) {
+  const q = question
+    .toLowerCase()
+    .trim()
+    .replace(/[^a-z0-9\s]/g, " ")
+    .replace(/\s+/g, " ");
 
-  const q = question.toLowerCase().trim().replace(/[^a-z0-9\s]/g, " ").replace(/\s+/g, " ");
-
-  if (/\b(who are you|who r u|who r you|what are you|introduce yourself|tell me about yourself|about you|about cloudsaathi|who built you|who built u|who created you|who created u|who made you|who made u|who developed you|who developed u|who is your creator|who is your developer|who owns you)\b/.test(q)) {
-
+  if (
+    /\b(who are you|who r u|who r you|what are you|introduce yourself|tell me about yourself|about you|about cloudsaathi|who built you|who built u|who created you|who created u|who made you|who made u|who developed you|who developed u|who is your creator|who is your developer|who owns you)\b/.test(
+      q,
+    )
+  ) {
     return "I'm CloudSaathi, a cloud and DevOps AI mentor created by Asish Sarangi as a learning project. I help explain concepts, plan architectures, troubleshoot deployments, and provide practical examples.";
-
   }
 
-  if (/\b(what can you do|how can you help|how do you help|what do you help with|your capabilities|what can i ask|how to use you)\b/.test(q)) {
-
+  if (
+    /\b(what can you do|how can you help|how do you help|what do you help with|your capabilities|what can i ask|how to use you)\b/.test(
+      q,
+    )
+  ) {
     return "I can teach cloud and DevOps concepts step by step, compare technologies, plan architectures, explain commands, and troubleshoot errors. Ask a specific question and we'll work through it together.";
-
   }
 
   return null;
-
 }
 
+const stackBrandAssets = {
+  AWS: awsLogo,
+  Docker: dockerLogo,
+  Kubernetes: kubernetesLogo,
+  Terraform: terraformLogo,
+  Jenkins: jenkinsLogo,
+  "Git & GitHub": gitLogo,
+  "CI/CD & GitOps": githubActionsLogo,
+  "Linux & Shell": linuxLogo,
+  Ansible: ansibleLogo,
+  "Monitoring & Observability": prometheusLogo,
+  DevSecOps: snykLogo,
+};
 
+function StackBrandIcon({ name, fallback }) {
+  const logo = stackBrandAssets[name];
+
+  if (!logo) {
+    return (
+      <span className="stack-icon" aria-hidden="true">
+        {fallback}
+      </span>
+    );
+  }
+
+  return (
+    <span className="stack-icon brand-stack-icon" aria-hidden="true">
+      <img
+        src={logo}
+        alt={`${name} logo`}
+        width="24"
+        height="24"
+        loading="lazy"
+        decoding="async"
+      />
+    </span>
+  );
+}
 
 const topics = [
+  {
+    name: "AWS",
+    icon: "☁",
+    categories: [
+      {
+        name: "Compute",
+        items: [
+          "EC2",
+          "Auto Scaling",
+          "Elastic Load Balancing (ALB/NLB)",
+          "Lambda",
+          "Elastic Beanstalk",
+          "AWS Batch",
+          "Lightsail",
+          "App Runner",
+          "ECS",
+          "EKS",
+          "Fargate",
+          "Outposts",
+        ],
+      },
 
-  { name: "AWS", icon: "☁", categories: [
+      {
+        name: "Storage",
+        items: [
+          "S3",
+          "S3 Glacier",
+          "EBS",
+          "EFS",
+          "FSx",
+          "Storage Gateway",
+          "AWS Backup",
+          "DataSync",
+          "Transfer Family",
+        ],
+      },
 
-    { name: "Compute", items: ["EC2", "Auto Scaling", "Elastic Load Balancing (ALB/NLB)", "Lambda", "Elastic Beanstalk", "AWS Batch", "Lightsail", "App Runner", "ECS", "EKS", "Fargate", "Outposts"] },
+      {
+        name: "Networking & CDN",
+        items: [
+          "VPC",
+          "Subnets",
+          "Route Tables",
+          "Internet Gateway",
+          "NAT Gateway",
+          "Security Groups",
+          "Network ACLs",
+          "Route 53",
+          "CloudFront",
+          "Direct Connect",
+          "Site-to-Site VPN",
+          "Transit Gateway",
+          "PrivateLink",
+          "Global Accelerator",
+          "AWS WAF",
+          "AWS Shield",
+        ],
+      },
 
-    { name: "Storage", items: ["S3", "S3 Glacier", "EBS", "EFS", "FSx", "Storage Gateway", "AWS Backup", "DataSync", "Transfer Family"] },
+      {
+        name: "Identity & Security",
+        items: [
+          "IAM",
+          "IAM Identity Center",
+          "Organizations",
+          "Control Tower",
+          "KMS",
+          "Secrets Manager",
+          "Systems Manager Parameter Store",
+          "Certificate Manager (ACM)",
+          "Cognito",
+          "GuardDuty",
+          "Inspector",
+          "Security Hub",
+          "Macie",
+          "Detective",
+          "CloudHSM",
+          "Artifact",
+        ],
+      },
 
-    { name: "Networking & CDN", items: ["VPC", "Subnets", "Route Tables", "Internet Gateway", "NAT Gateway", "Security Groups", "Network ACLs", "Route 53", "CloudFront", "Direct Connect", "Site-to-Site VPN", "Transit Gateway", "PrivateLink", "Global Accelerator", "AWS WAF", "AWS Shield"] },
+      {
+        name: "Databases",
+        items: [
+          "RDS",
+          "Aurora",
+          "DynamoDB",
+          "ElastiCache",
+          "DocumentDB",
+          "Neptune",
+          "Redshift",
+          "Keyspaces",
+          "MemoryDB",
+          "Timestream",
+          "QLDB",
+        ],
+      },
 
-    { name: "Identity & Security", items: ["IAM", "IAM Identity Center", "Organizations", "Control Tower", "KMS", "Secrets Manager", "Systems Manager Parameter Store", "Certificate Manager (ACM)", "Cognito", "GuardDuty", "Inspector", "Security Hub", "Macie", "Detective", "CloudHSM", "Artifact"] },
+      {
+        name: "AI & Machine Learning",
+        items: [
+          "Amazon Bedrock",
+          "SageMaker AI",
+          "Rekognition",
+          "Textract",
+          "Comprehend",
+          "Lex",
+          "Polly",
+          "Transcribe",
+          "Translate",
+          "Kendra",
+          "Personalize",
+          "Q Developer",
+        ],
+      },
 
-    { name: "Databases", items: ["RDS", "Aurora", "DynamoDB", "ElastiCache", "DocumentDB", "Neptune", "Redshift", "Keyspaces", "MemoryDB", "Timestream", "QLDB"] },
+      {
+        name: "Data Analytics & Streaming",
+        items: [
+          "Athena",
+          "Glue",
+          "Lake Formation",
+          "EMR",
+          "OpenSearch Service",
+          "Kinesis Data Streams",
+          "Kinesis Data Firehose",
+          "Managed Service for Apache Flink",
+          "QuickSight",
+          "DataZone",
+          "MSK (Managed Kafka)",
+        ],
+      },
 
-    { name: "AI & Machine Learning", items: ["Amazon Bedrock", "SageMaker AI", "Rekognition", "Textract", "Comprehend", "Lex", "Polly", "Transcribe", "Translate", "Kendra", "Personalize", "Q Developer"] },
+      {
+        name: "Application Integration",
+        items: [
+          "API Gateway",
+          "SQS",
+          "SNS",
+          "EventBridge",
+          "Step Functions",
+          "Amazon MQ",
+          "AppFlow",
+          "AppSync",
+        ],
+      },
 
-    { name: "Data Analytics & Streaming", items: ["Athena", "Glue", "Lake Formation", "EMR", "OpenSearch Service", "Kinesis Data Streams", "Kinesis Data Firehose", "Managed Service for Apache Flink", "QuickSight", "DataZone", "MSK (Managed Kafka)"] },
+      {
+        name: "Developer Tools & CI/CD",
+        items: [
+          "CodeBuild",
+          "CodeDeploy",
+          "CodePipeline",
+          "CodeArtifact",
+          "CloudShell",
+          "X-Ray",
+          "Cloud Development Kit (CDK)",
+        ],
+      },
 
-    { name: "Application Integration", items: ["API Gateway", "SQS", "SNS", "EventBridge", "Step Functions", "Amazon MQ", "AppFlow", "AppSync"] },
+      {
+        name: "Management & Governance",
+        items: [
+          "CloudWatch",
+          "CloudTrail",
+          "AWS Config",
+          "Trusted Advisor",
+          "Systems Manager",
+          "Service Catalog",
+          "CloudFormation",
+          "AWS Health Dashboard",
+          "Compute Optimizer",
+          "Cost Explorer",
+          "Budgets",
+          "Pricing Calculator",
+          "Well-Architected Tool",
+        ],
+      },
+    ],
+  },
 
-    { name: "Developer Tools & CI/CD", items: ["CodeBuild", "CodeDeploy", "CodePipeline", "CodeArtifact", "CloudShell", "X-Ray", "Cloud Development Kit (CDK)"] },
+  {
+    name: "Docker",
+    icon: "▣",
+    categories: [
+      {
+        name: "Core Concepts",
+        items: [
+          "Images",
+          "Containers",
+          "Docker Engine",
+          "Dockerfile",
+          "Docker CLI",
+          "Docker Hub",
+          "Registries",
+          "Volumes",
+          "Bind Mounts",
+          "Docker Networks",
+          "Container Lifecycle",
+        ],
+      },
 
-    { name: "Management & Governance", items: ["CloudWatch", "CloudTrail", "AWS Config", "Trusted Advisor", "Systems Manager", "Service Catalog", "CloudFormation", "AWS Health Dashboard", "Compute Optimizer", "Cost Explorer", "Budgets", "Pricing Calculator", "Well-Architected Tool"] }
+      {
+        name: "Build & Compose",
+        items: [
+          "Multi-stage Builds",
+          "BuildKit",
+          "Docker Compose",
+          "Environment Variables",
+          "Health Checks",
+          "Secrets in Compose",
+        ],
+      },
 
-  ]},
+      {
+        name: "Security & Operations",
+        items: [
+          "Non-root Containers",
+          "Image Scanning",
+          "Image Tagging",
+          "Resource Limits",
+          "Logging Drivers",
+          "Troubleshooting Containers",
+        ],
+      },
+    ],
+  },
 
-  { name: "Docker", icon: "▣", categories: [
+  {
+    name: "Kubernetes",
+    icon: "⎈",
+    categories: [
+      {
+        name: "Architecture & Workloads",
+        items: [
+          "Cluster Architecture",
+          "Control Plane",
+          "Nodes",
+          "Pods",
+          "ReplicaSets",
+          "Deployments",
+          "StatefulSets",
+          "DaemonSets",
+          "Jobs & CronJobs",
+          "Namespaces",
+          "Labels & Selectors",
+        ],
+      },
 
-    { name: "Core Concepts", items: ["Images", "Containers", "Docker Engine", "Dockerfile", "Docker CLI", "Docker Hub", "Registries", "Volumes", "Bind Mounts", "Docker Networks", "Container Lifecycle"] },
+      {
+        name: "Networking & Traffic",
+        items: [
+          "Services",
+          "ClusterIP",
+          "NodePort",
+          "LoadBalancer Service",
+          "Ingress",
+          "Ingress Controllers",
+          "Network Policies",
+          "CoreDNS",
+          "Service Mesh",
+        ],
+      },
 
-    { name: "Build & Compose", items: ["Multi-stage Builds", "BuildKit", "Docker Compose", "Environment Variables", "Health Checks", "Secrets in Compose"] },
+      {
+        name: "Configuration & Storage",
+        items: [
+          "ConfigMaps",
+          "Secrets",
+          "PersistentVolumes",
+          "PersistentVolumeClaims",
+          "StorageClasses",
+          "Probes",
+        ],
+      },
 
-    { name: "Security & Operations", items: ["Non-root Containers", "Image Scanning", "Image Tagging", "Resource Limits", "Logging Drivers", "Troubleshooting Containers"] }
+      {
+        name: "Security & Access",
+        items: [
+          "RBAC",
+          "Service Accounts",
+          "Pod Security Standards",
+          "Security Context",
+          "Sealed Secrets",
+          "External Secrets",
+        ],
+      },
 
-  ]},
+      {
+        name: "Scaling & Operations",
+        items: [
+          "HPA",
+          "VPA",
+          "Cluster Autoscaler",
+          "Requests & Limits",
+          "Rolling Updates",
+          "Helm",
+          "Kustomize",
+          "kubectl",
+          "Troubleshooting",
+          "EKS",
+        ],
+      },
+    ],
+  },
 
-  { name: "Kubernetes", icon: "⎈", categories: [
+  {
+    name: "Terraform",
+    icon: "⌘",
+    categories: [
+      {
+        name: "Core & Language",
+        items: [
+          "Providers",
+          "Resources",
+          "Data Sources",
+          "Variables",
+          "Outputs",
+          "Locals",
+          "Expressions & Functions",
+          "For Each & Count",
+        ],
+      },
 
-    { name: "Architecture & Workloads", items: ["Cluster Architecture", "Control Plane", "Nodes", "Pods", "ReplicaSets", "Deployments", "StatefulSets", "DaemonSets", "Jobs & CronJobs", "Namespaces", "Labels & Selectors"] },
+      {
+        name: "State & Modules",
+        items: [
+          "Terraform State",
+          "Remote State",
+          "State Locking",
+          "Import",
+          "Modules",
+          "Workspaces",
+        ],
+      },
 
-    { name: "Networking & Traffic", items: ["Services", "ClusterIP", "NodePort", "LoadBalancer Service", "Ingress", "Ingress Controllers", "Network Policies", "CoreDNS", "Service Mesh"] },
+      {
+        name: "Workflow & Quality",
+        items: [
+          "init",
+          "fmt",
+          "validate",
+          "plan",
+          "apply",
+          "destroy",
+          "Lifecycle Meta-Arguments",
+          "TFLint",
+          "tfsec",
+          "Checkov",
+        ],
+      },
 
-    { name: "Configuration & Storage", items: ["ConfigMaps", "Secrets", "PersistentVolumes", "PersistentVolumeClaims", "StorageClasses", "Probes"] },
+      {
+        name: "AWS Infrastructure Patterns",
+        items: [
+          "VPC with Terraform",
+          "EC2 with Terraform",
+          "S3 with Terraform",
+          "ALB & ASG",
+          "IAM Policies",
+          "EKS with Terraform",
+        ],
+      },
+    ],
+  },
 
-    { name: "Security & Access", items: ["RBAC", "Service Accounts", "Pod Security Standards", "Security Context", "Sealed Secrets", "External Secrets"] },
+  {
+    name: "Jenkins",
+    icon: "♾",
+    categories: [
+      {
+        name: "Pipeline Fundamentals",
+        items: [
+          "Jenkins Architecture",
+          "Controller & Agents",
+          "Pipeline Jobs",
+          "Declarative Pipeline",
+          "Scripted Pipeline",
+          "Jenkinsfile",
+          "Stages & Steps",
+          "Parameters",
+        ],
+      },
+      {
+        name: "Integrations & Delivery",
+        items: [
+          "GitHub Webhooks",
+          "SCM Checkout",
+          "Credentials Store",
+          "Docker Builds",
+          "Kubernetes Agents",
+          "Artifact Publishing",
+          "Deployment Pipelines",
+        ],
+      },
+    ],
+  },
 
-    { name: "Scaling & Operations", items: ["HPA", "VPA", "Cluster Autoscaler", "Requests & Limits", "Rolling Updates", "Helm", "Kustomize", "kubectl", "Troubleshooting", "EKS"] }
+  {
+    name: "Git & GitHub",
+    icon: "⑂",
+    categories: [
+      {
+        name: "Git Basics",
+        items: [
+          "Repositories",
+          "clone",
+          "status",
+          "add & commit",
+          "branch & switch",
+          "merge",
+          "rebase",
+          "stash",
+          "reset & revert",
+          "tags",
+        ],
+      },
+      {
+        name: "GitHub Collaboration",
+        items: [
+          "Pull Requests",
+          "Code Reviews",
+          "Branch Protection",
+          "GitHub Actions",
+          "GitHub Secrets",
+          "Environments",
+          "GitHub Releases",
+        ],
+      },
+    ],
+  },
 
-  ]},
+  {
+    name: "CI/CD & GitOps",
+    icon: "⇄",
+    categories: [
+      {
+        name: "Pipelines",
+        items: [
+          "CI vs CD",
+          "Build-Test-Deploy Workflow",
+          "GitHub Actions",
+          "GitLab CI/CD",
+          "Azure Pipelines",
+          "AWS CodePipeline",
+          "Build Artifacts",
+          "Deployment Strategies",
+        ],
+      },
+      {
+        name: "Release Strategies",
+        items: [
+          "Rolling Deployment",
+          "Blue-Green Deployment",
+          "Canary Deployment",
+          "Rollback Strategy",
+          "GitOps Principles",
+          "Argo CD",
+          "Flux CD",
+        ],
+      },
+    ],
+  },
 
-  { name: "Terraform", icon: "⌘", categories: [
+  {
+    name: "Linux & Shell",
+    icon: "⌁",
+    categories: [
+      {
+        name: "System Fundamentals",
+        items: [
+          "Linux Filesystem",
+          "Users & Groups",
+          "Permissions",
+          "Processes",
+          "systemd & Services",
+          "Package Managers",
+          "Environment Variables",
+          "SSH",
+          "Cron Jobs",
+        ],
+      },
+      {
+        name: "Networking & Troubleshooting",
+        items: [
+          "grep, awk & sed",
+          "curl & wget",
+          "DNS Tools",
+          "Ports & Sockets",
+          "Disk & Memory",
+          "Logs & journalctl",
+          "Bash Scripting",
+          "Exit Codes",
+        ],
+      },
+    ],
+  },
 
-    { name: "Core & Language", items: ["Providers", "Resources", "Data Sources", "Variables", "Outputs", "Locals", "Expressions & Functions", "For Each & Count"] },
+  {
+    name: "Ansible",
+    icon: "✣",
+    categories: [
+      {
+        name: "Automation Basics",
+        items: [
+          "Inventory",
+          "Ad-hoc Commands",
+          "Playbooks",
+          "Tasks & Handlers",
+          "Variables",
+          "Facts",
+          "Templates",
+          "Conditionals & Loops",
+        ],
+      },
+      {
+        name: "Reusable Automation",
+        items: [
+          "Roles",
+          "Collections",
+          "Ansible Galaxy",
+          "Vault",
+          "Dynamic Inventory",
+          "Configuration Management",
+          "Idempotency",
+        ],
+      },
+    ],
+  },
 
-    { name: "State & Modules", items: ["Terraform State", "Remote State", "State Locking", "Import", "Modules", "Workspaces"] },
+  {
+    name: "Monitoring & Observability",
+    icon: "◉",
+    categories: [
+      {
+        name: "Metrics & Dashboards",
+        items: [
+          "Prometheus",
+          "Grafana",
+          "Alertmanager",
+          "CloudWatch Metrics",
+          "Dashboards",
+          "SLI / SLO / SLA",
+        ],
+      },
+      {
+        name: "Logs & Traces",
+        items: [
+          "ELK / Elastic Stack",
+          "OpenSearch Dashboards",
+          "Fluent Bit",
+          "Loki",
+          "Jaeger",
+          "OpenTelemetry",
+          "Distributed Tracing",
+        ],
+      },
+    ],
+  },
 
-    { name: "Workflow & Quality", items: ["init", "fmt", "validate", "plan", "apply", "destroy", "Lifecycle Meta-Arguments", "TFLint", "tfsec", "Checkov"] },
-
-    { name: "AWS Infrastructure Patterns", items: ["VPC with Terraform", "EC2 with Terraform", "S3 with Terraform", "ALB & ASG", "IAM Policies", "EKS with Terraform"] }
-
-  ]},
-
-  { name: "Jenkins", icon: "♾", categories: [{name:"Pipeline Fundamentals",items:["Jenkins Architecture","Controller & Agents","Pipeline Jobs","Declarative Pipeline","Scripted Pipeline","Jenkinsfile","Stages & Steps","Parameters"]},{name:"Integrations & Delivery",items:["GitHub Webhooks","SCM Checkout","Credentials Store","Docker Builds","Kubernetes Agents","Artifact Publishing","Deployment Pipelines"]}]},
-
-  { name: "Git & GitHub", icon: "⑂", categories: [{name:"Git Basics",items:["Repositories","clone","status","add & commit","branch & switch","merge","rebase","stash","reset & revert","tags"]},{name:"GitHub Collaboration",items:["Pull Requests","Code Reviews","Branch Protection","GitHub Actions","GitHub Secrets","Environments","GitHub Releases"]}]},
-
-  { name: "CI/CD & GitOps", icon: "⇄", categories: [{name:"Pipelines",items:["CI vs CD","Build-Test-Deploy Workflow","GitHub Actions","GitLab CI/CD","Azure Pipelines","AWS CodePipeline","Build Artifacts","Deployment Strategies"]},{name:"Release Strategies",items:["Rolling Deployment","Blue-Green Deployment","Canary Deployment","Rollback Strategy","GitOps Principles","Argo CD","Flux CD"]}]},
-
-  { name: "Linux & Shell", icon: "⌁", categories: [{name:"System Fundamentals",items:["Linux Filesystem","Users & Groups","Permissions","Processes","systemd & Services","Package Managers","Environment Variables","SSH","Cron Jobs"]},{name:"Networking & Troubleshooting",items:["grep, awk & sed","curl & wget","DNS Tools","Ports & Sockets","Disk & Memory","Logs & journalctl","Bash Scripting","Exit Codes"]}]},
-
-  { name: "Ansible", icon: "✣", categories: [{name:"Automation Basics",items:["Inventory","Ad-hoc Commands","Playbooks","Tasks & Handlers","Variables","Facts","Templates","Conditionals & Loops"]},{name:"Reusable Automation",items:["Roles","Collections","Ansible Galaxy","Vault","Dynamic Inventory","Configuration Management","Idempotency"]}]},
-
-  { name: "Monitoring & Observability", icon: "◉", categories: [{name:"Metrics & Dashboards",items:["Prometheus","Grafana","Alertmanager","CloudWatch Metrics","Dashboards","SLI / SLO / SLA"]},{name:"Logs & Traces",items:["ELK / Elastic Stack","OpenSearch Dashboards","Fluent Bit","Loki","Jaeger","OpenTelemetry","Distributed Tracing"]}]},
-
-  { name: "DevSecOps", icon: "⬡", categories: [{name:"Code & Dependency Security",items:["SAST vs DAST","SonarQube","Semgrep","Dependency Scanning","OWASP Top 10","Secret Scanning","Software Composition Analysis"]},{name:"Container & IaC Security",items:["Trivy","Snyk","tfsec","Checkov","Container Image Hardening","SBOM","Image Signing","Policy as Code"]},{name:"Secrets & Cloud Security",items:["Least Privilege","Secrets Management","Kubernetes Sealed Secrets","HashiCorp Vault","IAM Best Practices","Threat Modeling","Incident Response"]}]}
-
-];
-
-
-
-const starters = [
-  { text: "Explain AWS EC2 and when to use it" },
-  { text: "Design a secure AWS three-tier architecture" },
-  { text: "Compare Docker and Kubernetes" },
-  { text: "Build a GitHub Actions CI/CD pipeline" }
+  {
+    name: "DevSecOps",
+    icon: "⬡",
+    categories: [
+      {
+        name: "Code & Dependency Security",
+        items: [
+          "SAST vs DAST",
+          "SonarQube",
+          "Semgrep",
+          "Dependency Scanning",
+          "OWASP Top 10",
+          "Secret Scanning",
+          "Software Composition Analysis",
+        ],
+      },
+      {
+        name: "Container & IaC Security",
+        items: [
+          "Trivy",
+          "Snyk",
+          "tfsec",
+          "Checkov",
+          "Container Image Hardening",
+          "SBOM",
+          "Image Signing",
+          "Policy as Code",
+        ],
+      },
+      {
+        name: "Secrets & Cloud Security",
+        items: [
+          "Least Privilege",
+          "Secrets Management",
+          "Kubernetes Sealed Secrets",
+          "HashiCorp Vault",
+          "IAM Best Practices",
+          "Threat Modeling",
+          "Incident Response",
+        ],
+      },
+    ],
+  },
 ];
 
 function formatMessageTime(value) {
-  return new Intl.DateTimeFormat(undefined, { hour: "numeric", minute: "2-digit" }).format(new Date(value || Date.now()));
+  return new Intl.DateTimeFormat(undefined, {
+    hour: "numeric",
+    minute: "2-digit",
+  }).format(new Date(value || Date.now()));
 }
-
-
 
 function renderInline(text) {
   const tokens = String(text).split(/(`[^`]+`|\*\*[^*]+\*\*|\*[^*]+\*)/g);
+
   return tokens.map((token, index) => {
     if (token.startsWith("`") && token.endsWith("`")) {
-      return <code className="inline-code" key={index}>{token.slice(1, -1)}</code>;
+      return (
+        <code className="inline-code" key={index}>
+          {token.slice(1, -1)}
+        </code>
+      );
     }
+
     if (token.startsWith("**") && token.endsWith("**")) {
       return <strong key={index}>{token.slice(2, -2)}</strong>;
     }
+
     if (token.startsWith("*") && token.endsWith("*")) {
       return <em key={index}>{token.slice(1, -1)}</em>;
     }
+
     return <span key={index}>{token}</span>;
   });
 }
 
 function renderMarkdownTable(lines, key) {
   const tableLines = lines.filter((line) => line.trim().startsWith("|"));
+
   if (tableLines.length < 2) return null;
 
   const parseRow = (line) =>
-    line.trim().replace(/^\|/, "").replace(/\|$/, "").split("|").map((cell) => cell.trim());
+    line
+      .trim()
+      .replace(/^\|/, "")
+      .replace(/\|$/, "")
+      .split("|")
+      .map((cell) => cell.trim());
 
   const isSeparator = (line) =>
     /^\|?\s*:?-{3,}:?\s*(\|\s*:?-{3,}:?\s*)+\|?$/.test(line.trim());
 
   const rows = tableLines.filter((line) => !isSeparator(line)).map(parseRow);
+
   if (rows.length < 2) return null;
 
   const headers = rows[0];
+
   const bodyRows = rows.slice(1);
+
   return (
     <div className="table-scroll" key={key}>
       <table className="answer-table">
-        <thead><tr>{headers.map((cell, i) => <th key={i}>{renderInline(cell)}</th>)}</tr></thead>
+        <thead>
+          <tr>
+            {headers.map((cell, i) => (
+              <th key={i}>{renderInline(cell)}</th>
+            ))}
+          </tr>
+        </thead>
+
         <tbody>
           {bodyRows.map((row, ri) => (
             <tr key={ri}>
-              {headers.map((_, ci) => <td key={ci}>{renderInline(row[ci] || "")}</td>)}
+              {headers.map((_, ci) => (
+                <td key={ci}>{renderInline(row[ci] || "")}</td>
+              ))}
             </tr>
           ))}
         </tbody>
@@ -239,123 +835,596 @@ function renderMarkdownTable(lines, key) {
     </div>
   );
 }
+
 function MarkdownContent({ text }) {
+  const blocks = String(text || "")
+    .replace(/\r\n/g, "\n")
+    .split(/\n{2,}/);
 
-  const blocks = String(text || "").replace(/\r\n/g, "\n").split(/\n{2,}/);
+  return (
+    <div className="formatted-answer">
+      {blocks.map((block, index) => {
+        const trimmed = block.trim();
 
-  return <div className="formatted-answer">
+        if (!trimmed) return null;
 
-    {blocks.map((block, index) => {
+        const lines = trimmed.split("\n");
 
-      const trimmed = block.trim();
+        if (
+          lines.some((line) => line.trim().startsWith("|")) &&
+          lines.filter((line) => line.trim().startsWith("|")).length >= 2
+        ) {
+          const table = renderMarkdownTable(lines, `table-${index}`);
 
-      if (!trimmed) return null;
+          if (table) return table;
+        }
 
-      const lines = trimmed.split("\n");
+        if (trimmed.startsWith("```")) {
+          const match = trimmed.match(/^```([^\n]\*)\n([\s\S]\*?)\n?```$/);
 
-      if (lines.some(line => line.trim().startsWith("|")) && lines.filter(line => line.trim().startsWith("|")).length >= 2) {
+          if (match)
+            return (
+              <div className="code-card" key={index}>
+                <div className="code-card-header">
+                  <span>{match[1] || "CODE"}</span>
+                  <button
+                    type="button"
+                    onClick={() => navigator.clipboard?.writeText(match[2])}
+                  >
+                    Copy code
+                  </button>
+                </div>
+                <pre>
+                  <code>{match[2]}</code>
+                </pre>
+              </div>
+            );
+        }
 
-        const table = renderMarkdownTable(lines, `table-${index}`);
+        if (/^#{1,4}\s/.test(lines[0])) {
+          const level = Math.min(4, lines[0].match(/^#+/)[0].length);
 
-        if (table) return table;
+          const heading = lines[0].replace(/^#{1,4}\s+/, "");
 
-      }
+          const rest = lines.slice(1);
 
-      if (trimmed.startsWith("```")) {
+          const Tag = `h${level + 2}`;
 
-        const match = trimmed.match(/^```([^\n]*)\n([\s\S]*?)\n?```$/);
+          return (
+            <section className="answer-section" key={index}>
+              <Tag className="answer-heading">{renderInline(heading)}</Tag>
+              {rest.length > 0 && <MarkdownContent text={rest.join("\n")} />}
+            </section>
+          );
+        }
 
-        if (match) return <div className="code-card" key={index}><div className="code-card-header"><span>{match[1] || "CODE"}</span><button type="button" onClick={() => navigator.clipboard?.writeText(match[2])}>Copy code</button></div><pre><code>{match[2]}</code></pre></div>;
+        if (lines.every((line) => /^\s*[-*]\s+/.test(line)))
+          return (
+            <ul className="answer-list" key={index}>
+              {lines.map((line, i) => (
+                <li key={i}>{renderInline(line.replace(/^\s*[-*]\s+/, ""))}</li>
+              ))}
+            </ul>
+          );
 
-      }
+        if (lines.every((line) => /^\s*\d+[.)]\s+/.test(line)))
+          return (
+            <ol className="answer-list numbered" key={index}>
+              {lines.map((line, i) => (
+                <li key={i}>
+                  {renderInline(line.replace(/^\s*\d+[.)]\s+/, ""))}
+                </li>
+              ))}
+            </ol>
+          );
 
-      if (/^#{1,4}\s/.test(lines[0])) {
-
-        const level = Math.min(4, lines[0].match(/^#+/)[0].length);
-
-        const heading = lines[0].replace(/^#{1,4}\s+/, "");
-
-        const rest = lines.slice(1);
-
-        const Tag = `h${level + 2}`;
-
-        return <section className="answer-section" key={index}><Tag className="answer-heading">{renderInline(heading)}</Tag>{rest.length > 0 && <MarkdownContent text={rest.join("\n")} />}</section>;
-
-      }
-
-      if (lines.every(line => /^\s*[-*]\s+/.test(line))) return <ul className="answer-list" key={index}>{lines.map((line, i) => <li key={i}>{renderInline(line.replace(/^\s*[-*]\s+/, ""))}</li>)}</ul>;
-
-      if (lines.every(line => /^\s*\d+[.)]\s+/.test(line))) return <ol className="answer-list numbered" key={index}>{lines.map((line, i) => <li key={i}>{renderInline(line.replace(/^\s*\d+[.)]\s+/, ""))}</li>)}</ol>;
-
-      return <p className="answer-paragraph" key={index}>{lines.map((line, i) => <span key={i}>{renderInline(line)}{i < lines.length - 1 && <br />}</span>)}</p>;
-
-    })}
-
-  </div>;
-
+        return (
+          <p className="answer-paragraph" key={index}>
+            {lines.map((line, i) => (
+              <span key={i}>
+                {renderInline(line)}
+                {i < lines.length - 1 && <br />}
+              </span>
+            ))}
+          </p>
+        );
+      })}
+    </div>
+  );
 }
-
-
 
 function MessageContent({ text, role }) {
-
   return role === "assistant" ? <MarkdownContent text={text} /> : <>{text}</>;
-
 }
-
-
 
 const bootSteps = [
-
   { status: "INIT", text: "Starting CloudSaathi runtime" },
-  { status: "LOAD", text: "Loading cloud and DevOps learning library" },
-  { status: "INIT", text: "Preparing chat interface and Markdown renderer" },
-  { status: "CHECK", text: "Chat API will be contacted when you send a message" },
-  { status: "READY", text: "Frontend startup sequence complete" }
 
+  { status: "LOAD", text: "Loading cloud and DevOps learning library" },
+
+  { status: "INIT", text: "Preparing chat interface and Markdown renderer" },
+
+  {
+    status: "CHECK",
+    text: "Chat API will be contacted when you send a message",
+  },
+
+  { status: "READY", text: "Frontend startup sequence complete" },
 ];
 
-
-
 function BootScreen({ onComplete, step }) {
-
   const visibleSteps = bootSteps.slice(0, step + 1);
 
-  const progress = Math.min(100, Math.round((step / (bootSteps.length - 1)) * 100));
+  const progress = Math.min(
+    100,
+    Math.round((step / (bootSteps.length - 1)) * 100),
+  );
 
-  return <div className="boot-screen" role="status" aria-live="polite"><div className="boot-window">
+  return (
+    <div className="boot-screen" role="status" aria-live="polite">
+      <div className="boot-window">
+        <div className="boot-titlebar">
+          <div className="boot-lights">
+            <i />
+            <i />
+            <i />
+          </div>
+          <span>cloudsaathi — startup console</span>
+          <span className="boot-version">v1.0</span>
+        </div>
 
-    <div className="boot-titlebar"><div className="boot-lights"><i/><i/><i/></div><span>cloudsaathi — startup console</span><span className="boot-version">v1.0</span></div>
+        <div className="boot-brand">
+          <div className="boot-logo">
+            <CloudSaathiLogo />
+          </div>
+          <div>
+            <h1 className="cloudsaathi-wordmark">
+              CloudSaathi<span>.</span>
+            </h1>
+            <p>Cloud &amp; DevOps Mentor</p>
+          </div>
+        </div>
 
-    <div className="boot-brand"><div className="boot-logo"><CloudSaathiLogo /></div><div><h1>CloudSaathi</h1><p>Cloud &amp; DevOps Mentor</p></div></div>
+        <div className="boot-terminal">
+          <div className="boot-command">
+            <span>$</span> cloudsaathi --initialize
+          </div>
+          {visibleSteps.map((line, index) => (
+            <div
+              className={`boot-line ${line.status === "READY" ? "is-ready" : ""}`}
+              key={line.text}
+            >
+              <span className="boot-time">
+                [{String(index + 1).padStart(2, "0")}]
+              </span>
+              <span className="boot-status">{line.status}</span>
+              <span className="boot-line-text">{line.text}</span>
+            </div>
+          ))}
+          {step < bootSteps.length - 1 && (
+            <div className="boot-cursor-line">
+              <span className="boot-cursor" /> executing startup tasks...
+            </div>
+          )}
+        </div>
 
-    <div className="boot-terminal"><div className="boot-command"><span>$</span> cloudsaathi --initialize</div>{visibleSteps.map((line,index)=><div className={`boot-line ${line.status==="READY"?"is-ready":""}`} key={line.text}><span className="boot-time">[{String(index+1).padStart(2,"0")}]</span><span className="boot-status">{line.status}</span><span className="boot-line-text">{line.text}</span></div>)}{step<bootSteps.length-1&&<div className="boot-cursor-line"><span className="boot-cursor"/> executing startup tasks...</div>}</div>
-
-    <div className="boot-progress-meta"><span>{step===bootSteps.length-1?"SYSTEM READY":"INITIALIZING SYSTEM"}</span><span>{progress}%</span></div><div className="boot-progress"><div style={{width:`${progress}%`}}/></div><div className="boot-footer"><span><i/> Frontend initialized locally</span><button type="button" onClick={onComplete}>Skip intro ↗</button></div>
-
-  </div></div>;
-
+        <div className="boot-progress-meta">
+          <span>
+            {step === bootSteps.length - 1
+              ? "SYSTEM READY"
+              : "INITIALIZING SYSTEM"}
+          </span>
+          <span>{progress}%</span>
+        </div>
+        <div className="boot-progress">
+          <div style={{ width: `${progress}%` }} />
+        </div>
+        <div className="boot-footer">
+          <span>
+            <i /> Frontend initialized locally
+          </span>
+          <button type="button" onClick={onComplete}>
+            Skip intro ↗
+          </button>
+        </div>
+      </div>
+    </div>
+  );
 }
 
+function LandingPage({
+  onEnter,
+  onExitComplete,
+  isExiting,
+  theme,
+  onThemeToggle,
+}) {
+  useEffect(() => {
+    const nodes = document.querySelectorAll(".landing-reveal");
 
+    if (!("IntersectionObserver" in window)) {
+      nodes.forEach((node) => node.classList.add("is-visible"));
+
+      return undefined;
+    }
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add("is-visible");
+
+            observer.unobserve(entry.target);
+          }
+        });
+      },
+      { threshold: 0.14, rootMargin: "0px 0px -35px 0px" },
+    );
+
+    nodes.forEach((node) => observer.observe(node));
+
+    return () => observer.disconnect();
+  }, []);
+
+  return (
+    <div
+      className={`landing-page ${theme === "light" ? "landing-light" : ""} ${isExiting ? "is-exiting" : ""}`}
+      onAnimationEnd={(event) => {
+        if (isExiting && event.target === event.currentTarget) onExitComplete();
+      }}
+    >
+      <div className="landing-ambient ambient-one" />
+      <div className="landing-ambient ambient-two" />
+      <div className="landing-grid" />
+
+      <header className="landing-nav glass-surface">
+        <a className="landing-brand" href="#home" aria-label="CloudSaathi home">
+          <span className="landing-brand-icon">
+            <CloudSaathiLogo small />
+          </span>
+          <span>
+            <strong className="cloudsaathi-wordmark">
+              CloudSaathi<span>.</span>
+            </strong>
+            <small>YOUR CLOUD LEARNING COMPANION</small>
+          </span>
+        </a>
+
+        <nav className="landing-nav-links" aria-label="Main navigation">
+          <a href="#experience">Experience</a>
+          <a href="#journey">Your journey</a>
+          <a href="#toolkit">What you can learn</a>
+        </nav>
+
+        <div className="landing-nav-actions">
+          <button
+            className="landing-theme"
+            type="button"
+            onClick={onThemeToggle}
+            aria-label="Toggle theme"
+          >
+            {theme === "dark" ? "☼" : "☾"}
+          </button>
+          <button className="landing-nav-cta" type="button" onClick={onEnter}>
+            Open mentor <span>↗</span>
+          </button>
+        </div>
+      </header>
+
+      <main id="home">
+        <section className="landing-hero">
+          <div className="landing-hero-copy landing-reveal">
+            <div className="landing-eyebrow">
+              <span className="eyebrow-pulse" /> A smarter way to master cloud &
+              DevOps
+            </div>
+
+            <h1>
+              Build your future
+              <br />
+              in the <span>cloud.</span>
+            </h1>
+
+            <p>
+              From your first Linux command to production-ready cloud
+              architecture — learn, experiment, and grow with an AI mentor by
+              your side.
+            </p>
+
+            <div className="landing-hero-actions">
+              <button
+                className="landing-primary"
+                type="button"
+                onClick={onEnter}
+              >
+                Start learning <span>↗</span>
+              </button>
+              <a className="landing-secondary" href="#experience">
+                Explore the experience <span>↓</span>
+              </a>
+            </div>
+
+            <div className="landing-trust-row">
+              <div className="avatar-stack">
+                <i>
+                  <img src={awsLogo} alt="AWS" />
+                </i>
+                <i>
+                  <img src={terraformLogo} alt="Terraform" />
+                </i>
+                <i>
+                  <img src={kubernetesLogo} alt="Kubernetes" />
+                </i>
+              </div>
+              <span>One learning space. A whole world of cloud skills.</span>
+            </div>
+          </div>
+
+          <div
+            className="landing-visual landing-reveal"
+            aria-label="CloudSaathi learning ecosystem illustration"
+          >
+            <div className="visual-orbit orbit-a" />
+            <div className="visual-orbit orbit-b" />
+            <div className="visual-core">
+              <CloudSaathiLogo />
+              <span>CLOUDSAATHI</span>
+              <small>AI LEARNING ENGINE</small>
+            </div>
+
+            <div className="float-card float-aws glass-surface">
+              <b className="float-icon">
+                <img src={awsLogo} alt="" />
+              </b>
+              <span>
+                <strong>AWS</strong>
+                <small>Cloud foundations</small>
+              </span>
+              <i>↗</i>
+            </div>
+
+            <div className="float-card float-k8s glass-surface">
+              <b className="float-icon">
+                <img src={kubernetesLogo} alt="" />
+              </b>
+              <span>
+                <strong>Kubernetes</strong>
+                <small>Container orchestration</small>
+              </span>
+            </div>
+
+            <div className="float-card float-ci glass-surface">
+              <b className="float-icon">
+                <img src={gitlabLogo} alt="" />
+              </b>
+              <span>
+                <strong>CI / CD</strong>
+                <small>Ship with confidence</small>
+              </span>
+            </div>
+
+            <div className="visual-caption glass-surface">
+              <span className="caption-dot" /> YOUR IDEAS, DEPLOYED
+            </div>
+          </div>
+
+          <a href="#experience" className="landing-scroll-cue">
+            <span /> SCROLL TO EXPLORE
+          </a>
+        </section>
+
+        <section className="landing-intro landing-reveal" id="experience">
+          <div className="section-kicker">THE CLOUDSAATHI EXPERIENCE</div>
+          <h2>
+            Less memorizing.
+            <br />
+            <em>More understanding.</em>
+          </h2>
+          <p>
+            Cloud technology makes more sense when every concept connects to a
+            bigger picture. Learn at your pace, ask without hesitation, and turn
+            theory into practical skills.
+          </p>
+        </section>
+
+        <section className="landing-feature-grid" id="toolkit">
+          <article className="landing-feature feature-large glass-surface landing-reveal">
+            <div className="feature-topline">
+              <span>01 / LEARN</span>
+              <b>↗</b>
+            </div>
+            <div className="feature-art art-terminal">
+              <div className="terminal-top">
+                <i />
+                <i />
+                <i />
+                <span>cloudsaathi / lesson</span>
+              </div>
+              <div className="terminal-lines">
+                <span>
+                  <i>$</i> docker build -t my-app .
+                </span>
+                <span className="terminal-muted">
+                  Building your understanding...
+                </span>
+                <span className="terminal-success">✓ Concept connected</span>
+              </div>
+            </div>
+            <h3>
+              Understand the why,
+              <br />
+              not just the what.
+            </h3>
+            <p>
+              Explore beginner-friendly explanations, real examples,
+              comparisons, and step-by-step breakdowns.
+            </p>
+          </article>
+
+          <article className="landing-feature glass-surface landing-reveal">
+            <div className="feature-topline">
+              <span>02 / EXPLORE</span>
+              <b>↗</b>
+            </div>
+            <div className="feature-art art-orbit">
+              <span>
+                <img src={awsLogo} alt="AWS" />
+              </span>
+              <i>
+                <img src={terraformLogo} alt="Terraform" />
+              </i>
+              <i>
+                <img src={dockerLogo} alt="Docker" />
+              </i>
+              <i>
+                <img src={githubLogo} alt="GitHub" />
+              </i>
+              <i>
+                <img src={kubernetesLogo} alt="Kubernetes" />
+              </i>
+            </div>
+            <h3>
+              Your whole tech stack,
+              <br />
+              in one place.
+            </h3>
+            <p>
+              Move across AWS, Docker, Kubernetes, Terraform, Linux, CI/CD and
+              more.
+            </p>
+          </article>
+
+          <article className="landing-feature glass-surface landing-reveal">
+            <div className="feature-topline">
+              <span>03 / BUILD</span>
+              <b>↗</b>
+            </div>
+            <div className="feature-art art-flow">
+              <span>CODE</span>
+              <b>→</b>
+              <span>BUILD</span>
+              <b>→</b>
+              <span>DEPLOY</span>
+            </div>
+            <h3>
+              Connect concepts
+              <br />
+              to real workflows.
+            </h3>
+            <p>
+              See how tools work together in infrastructure, automation, and
+              delivery pipelines.
+            </p>
+          </article>
+        </section>
+
+        <section className="landing-journey landing-reveal" id="journey">
+          <div className="journey-heading">
+            <div>
+              <div className="section-kicker">YOUR NEXT CHAPTER</div>
+              <h2>
+                Curiosity is a<br />
+                <em>great place to start.</em>
+              </h2>
+            </div>
+            <p>
+              No perfect starting point needed. Bring a question, choose a
+              technology, or follow your curiosity wherever it leads.
+            </p>
+          </div>
+          <div className="journey-steps">
+            <div className="journey-step">
+              <span>01</span>
+              <div>
+                <b>Pick a direction</b>
+                <small>Choose a topic from the technology library.</small>
+              </div>
+            </div>
+            <div className="journey-connector" />
+            <div className="journey-step">
+              <span>02</span>
+              <div>
+                <b>Ask anything</b>
+                <small>Get clear explanations and practical examples.</small>
+              </div>
+            </div>
+            <div className="journey-connector" />
+            <div className="journey-step">
+              <span>03</span>
+              <div>
+                <b>Keep building</b>
+                <small>Connect the dots and strengthen your skills.</small>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section className="landing-final-cta landing-reveal">
+          <div className="cta-glow" />
+          <div className="section-kicker">READY WHEN YOU ARE</div>
+          <h2>
+            Your cloud journey
+            <br />
+            starts with <em>one question.</em>
+          </h2>
+          <p>Let's make the complex feel clear.</p>
+          <button className="landing-primary" type="button" onClick={onEnter}>
+            Meet your AI mentor <span>↗</span>
+          </button>
+        </section>
+      </main>
+
+      <footer className="landing-footer">
+        <a className="landing-brand" href="#home">
+          <span className="landing-brand-icon">
+            <CloudSaathiLogo small />
+          </span>
+          <span>
+            <strong className="cloudsaathi-wordmark">
+              CloudSaathi<span>.</span>
+            </strong>
+            <small>LEARN · BUILD · GROW</small>
+          </span>
+        </a>
+        <span>Made for curious minds building in the cloud.</span>
+        <a href="#home">Back to top ↑</a>
+      </footer>
+    </div>
+  );
+}
 
 function App() {
-
   const user = "Learner";
 
-  const [booting, setBooting] = useState(true);
+  const [showLanding, setShowLanding] = useState(true);
+
+  const [landingExiting, setLandingExiting] = useState(false);
+
+  const [homeEntering, setHomeEntering] = useState(false);
+
+  const [booting, setBooting] = useState(false);
+
+  const [mobileLibraryOpen, setMobileLibraryOpen] = useState(false);
 
   const [bootStep, setBootStep] = useState(0);
 
-  const createWelcomeMessage = () => ({role:"assistant",text:`${getTimeGreeting()}. I'm CloudSaathi, an AI assistant focused on cloud computing and DevOps. I can help you understand AWS services, design cloud architectures, troubleshoot deployment issues, and work through practical examples. What would you like to work on?`, timestamp: Date.now()});
-
-  const [messages, setMessages] = useState(() => [createWelcomeMessage()]);
+  const [messages, setMessages] = useState([]);
 
   const [input, setInput] = useState("");
 
   const [loading, setLoading] = useState(false);
-  const [theme, setTheme] = useState(() => localStorage.getItem("cloudsaathi-theme") || "dark");
-  const [recentlyAsked, setRecentlyAsked] = useState(() => { try { return JSON.parse(localStorage.getItem("cloudsaathi-recent") || "[]"); } catch { return []; } });
+
+  const [theme, setTheme] = useState(
+    () => localStorage.getItem("cloudsaathi-theme") || "dark",
+  );
+
+  const [recentlyAsked, setRecentlyAsked] = useState(() => {
+    try {
+      return JSON.parse(localStorage.getItem("cloudsaathi-recent") || "[]");
+    } catch {
+      return [];
+    }
+  });
 
   const [activeTopic, setActiveTopic] = useState("");
 
@@ -366,26 +1435,31 @@ function App() {
   const [expandedCategories, setExpandedCategories] = useState([]);
 
   const messagesEndRef = useRef(null);
+
   const chatScrollRef = useRef(null);
+
   const requestVersionRef = useRef(0);
+
   const abortControllerRef = useRef(null);
 
-
-
   useEffect(() => {
-
     if (!booting) return undefined;
 
-    const timer = window.setInterval(() => setBootStep(current => {
+    const timer = window.setInterval(
+      () =>
+        setBootStep((current) => {
+          if (current >= bootSteps.length - 1) {
+            window.clearInterval(timer);
+            window.setTimeout(() => setBooting(false), 650);
+            return current;
+          }
 
-      if (current >= bootSteps.length - 1) { window.clearInterval(timer); window.setTimeout(() => setBooting(false), 650); return current; }
-
-      return current + 1;
-
-    }), 650);
+          return current + 1;
+        }),
+      650,
+    );
 
     return () => window.clearInterval(timer);
-
   }, [booting]);
 
   useEffect(() => {
@@ -393,53 +1467,83 @@ function App() {
   }, [theme]);
 
   useEffect(() => {
-    localStorage.setItem("cloudsaathi-recent", JSON.stringify(recentlyAsked.slice(0, 5)));
+    localStorage.setItem(
+      "cloudsaathi-recent",
+      JSON.stringify(recentlyAsked.slice(0, 5)),
+    );
   }, [recentlyAsked]);
 
-  useEffect(() => {
-    // Scroll only the conversation pane after a message is added. scrollIntoView()
-    // can scroll the page and move the welcome panel on initial render/refresh.
-    if (messages.length <= 1 && !loading) return;
-    const pane = chatScrollRef.current;
-    if (!pane) return;
-    pane.scrollTo({ top: pane.scrollHeight, behavior: "smooth" });
-  }, [messages, loading]);
-
-
-
   async function send(text = input) {
-
     const question = text.trim();
 
     if (!question || loading) return;
 
     const requestVersion = requestVersionRef.current;
+
     const now = Date.now();
-    setRecentlyAsked(current => [question, ...current.filter(item => item.toLowerCase() !== question.toLowerCase())].slice(0, 5));
-    setMessages(current => [...current,{role:"user",text:question,timestamp:now}]);
+
+    setRecentlyAsked((current) =>
+      [
+        question,
+        ...current.filter(
+          (item) => item.toLowerCase() !== question.toLowerCase(),
+        ),
+      ].slice(0, 5),
+    );
+
+    setMessages((current) => [
+      ...current,
+      { role: "user", text: question, timestamp: now },
+    ]);
+
+    // Scroll to the new message once when the learner sends it.
+
+    // Assistant replies do not trigger automatic scrolling, so older messages
+
+    // remain readable while the response is being generated.
+
+    window.requestAnimationFrame(() => {
+      const pane = chatScrollRef.current;
+
+      if (pane) pane.scrollTop = pane.scrollHeight;
+    });
 
     setInput("");
 
     const quick = getIntroReply(question) || getInputQuickReply(question);
 
-    if (quick) { setMessages(current => [...current,{role:"assistant",text:quick,timestamp:Date.now()}]); return; }
+    if (quick) {
+      setMessages((current) => [
+        ...current,
+        { role: "assistant", text: quick, timestamp: Date.now() },
+      ]);
+      return;
+    }
 
     setLoading(true);
+
     const controller = new AbortController();
+
     abortControllerRef.current = controller;
 
     try {
-
       if (!API_URL) throw new Error("VITE_API_URL is not configured.");
 
-      const isComparison = /\b(vs\.?|versus|difference(?:s)? between|compare|comparison)\b/i.test(question);
+      const isComparison =
+        /\b(vs\.?|versus|difference(?:s)? between|compare|comparison)\b/i.test(
+          question,
+        );
 
-      const isExplain = /\b(explain|teach me|what is|what are|how does|how do|describe|meaning of|define|walk me through)\b/i.test(question);
+      const isExplain =
+        /\b(explain|teach me|what is|what are|how does|how do|describe|meaning of|define|walk me through)\b/i.test(
+          question,
+        );
 
-      const isBroad = /\b(all|every|complete|list)\b/i.test(question) && /\b(aws|services|resources|tools)\b/i.test(question);
+      const isBroad =
+        /\b(all|every|complete|list)\b/i.test(question) &&
+        /\b(aws|services|resources|tools)\b/i.test(question);
 
       const teachingInstructions = [
-
         "IDENTITY: You are CloudSaathi, a patient, accurate cloud and DevOps mentor teaching a beginner. Your job is to teach understanding, not just summarize.",
 
         "SCOPE: Answer the exact question and stay relevant. If a term is ambiguous, briefly state your assumption. Do not hallucinate service features, commands, prices, guarantees, or successful execution.",
@@ -464,91 +1568,527 @@ function App() {
 
         `Intent hints: explain=${isExplain}; comparison=${isComparison}; broad_catalog=${isBroad}. Use these as hints only and answer the actual question.`,
 
-        `Learner question: ${question}`
-
+        `Learner question: ${question}`,
       ].join("\n\n");
 
-      const response = await fetch(`${API_URL}/chat`,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({message:teachingInstructions}),signal:controller.signal});
+      const response = await fetch(`${API_URL}/chat`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ message: teachingInstructions }),
+        signal: controller.signal,
+      });
 
       const data = await response.json();
 
       if (!response.ok) throw new Error(data.error || "API request failed");
 
-      if (requestVersion === requestVersionRef.current) setMessages(current => [...current,{role:"assistant",text:cleanMentorAnswer(data.answer) || "I couldn't find an answer for that yet.",timestamp:Date.now()}]);
-
-    } catch(error) {
-      if (requestVersion === requestVersionRef.current && error.name !== "AbortError") setMessages(current => [...current,{role:"assistant",text:`I couldn't reach the backend.\n\n${error.message}\n\nCheck API Gateway, Lambda, Bedrock and VITE_API_URL.`,timestamp:Date.now()}]);
+      if (requestVersion === requestVersionRef.current)
+        setMessages((current) => [
+          ...current,
+          {
+            role: "assistant",
+            text:
+              cleanMentorAnswer(data.answer) ||
+              "I couldn't find an answer for that yet.",
+            timestamp: Date.now(),
+          },
+        ]);
+    } catch (error) {
+      if (
+        requestVersion === requestVersionRef.current &&
+        error.name !== "AbortError"
+      )
+        setMessages((current) => [
+          ...current,
+          {
+            role: "assistant",
+            text: `I couldn't reach the backend.\n\n${error.message}\n\nCheck API Gateway, Lambda, Bedrock and VITE_API_URL.`,
+            timestamp: Date.now(),
+          },
+        ]);
     } finally {
       if (requestVersion === requestVersionRef.current) setLoading(false);
-      if (abortControllerRef.current === controller) abortControllerRef.current = null;
+
+      if (abortControllerRef.current === controller)
+        abortControllerRef.current = null;
     }
-
   }
-
-
 
   function stopGenerating() {
     requestVersionRef.current += 1;
+
     abortControllerRef.current?.abort();
+
     abortControllerRef.current = null;
+
     setLoading(false);
   }
 
   function startNewChat() {
     // Invalidate and abort any response still returning from the previous conversation.
+
     requestVersionRef.current += 1;
+
     abortControllerRef.current?.abort();
+
     abortControllerRef.current = null;
-    setMessages([createWelcomeMessage()]);
+
+    setMessages([]);
+
     setInput("");
+
     setLoading(false);
+
     setActiveTopic("");
+
     setFilter("");
   }
 
-  function chooseTopic(topic) { setActiveTopic(topic); setInput(`Teach me ${topic} from beginner level with a real-world example, how it works, and use cases.`); }
+  function chooseTopic(topic) {
+    setActiveTopic(topic);
+    setInput(
+      `Teach me ${topic} from beginner level with a real-world example, how it works, and use cases.`,
+    );
+  }
 
   const normalizedFilter = filter.trim().toLowerCase();
 
-  const filteredTopics = topics.map(stack=>({...stack,categories:stack.categories.map(category=>({...category,items:category.items.filter(item=>!normalizedFilter||`${stack.name} ${category.name} ${item}`.toLowerCase().includes(normalizedFilter))})).filter(category=>category.items.length>0)})).filter(stack=>stack.categories.length>0);
+  const filteredTopics = topics
+    .map((stack) => ({
+      ...stack,
+      categories: stack.categories
+        .map((category) => ({
+          ...category,
+          items: category.items.filter(
+            (item) =>
+              !normalizedFilter ||
+              `${stack.name} ${category.name} ${item}`
+                .toLowerCase()
+                .includes(normalizedFilter),
+          ),
+        }))
+        .filter((category) => category.items.length > 0),
+    }))
+    .filter((stack) => stack.categories.length > 0);
 
-  const topicCount = topics.reduce((total,stack)=>total+stack.categories.reduce((sub,cat)=>sub+cat.items.length,0),0);
+  const topicCount = topics.reduce(
+    (total, stack) =>
+      total + stack.categories.reduce((sub, cat) => sub + cat.items.length, 0),
+    0,
+  );
 
-  const toggleStack = name=>setExpandedStacks(current=>current.includes(name)?current.filter(x=>x!==name):[...current,name]);
+  const toggleStack = (name) =>
+    setExpandedStacks((current) =>
+      current.includes(name)
+        ? current.filter((x) => x !== name)
+        : [...current, name],
+    );
 
-  const toggleCategory = key=>setExpandedCategories(current=>current.includes(key)?current.filter(x=>x!==key):[...current,key]);
+  const toggleCategory = (key) =>
+    setExpandedCategories((current) =>
+      current.includes(key)
+        ? current.filter((x) => x !== key)
+        : [...current, key],
+    );
 
+  const beginMentorTransition = () => {
+    if (landingExiting) return;
 
+    // Respect the visitor's reduced-motion preference and avoid waiting for
 
-  return <>{booting&&<BootScreen step={bootStep} onComplete={()=>setBooting(false)}/>}<div className={`app-shell ${theme === "light" ? "light-theme" : ""}`} data-theme={theme}>
+    // an animation event when animations are disabled by the browser.
 
-    <aside className="sidebar"><div className="brand"><div className="brand-mark"><CloudSaathiLogo /></div><div className="brand-copy"><strong>CloudSaathi</strong><span>Cloud & DevOps Mentor</span></div></div>
+    if (window.matchMedia?.("(prefers-reduced-motion: reduce)").matches) {
+      setShowLanding(false);
 
-      <button className="new-chat-button" type="button" onClick={startNewChat} title="Start a fresh conversation"><span className="new-chat-plus" aria-hidden="true">+</span><span className="new-chat-label">New chat</span></button>
+      setHomeEntering(false);
 
-      {recentlyAsked.length > 0 && <section className="recently-asked" aria-label="Recently asked"><div className="recent-heading"><span>RECENTLY ASKED</span><button type="button" onClick={() => setRecentlyAsked([])} aria-label="Clear recently asked">Clear</button></div><div className="recent-list">{recentlyAsked.map((item,index)=><button className="recent-item" type="button" key={`${item}-${index}`} onClick={() => send(item)} title={item}><span className="recent-dot"/><span>{item}</span></button>)}</div></section>}
+      return;
+    }
 
+    setLandingExiting(true);
+  };
 
-      <div className="topic-heading"><span>TECHNOLOGY LIBRARY</span><span className="topic-count">{topicCount}</span></div><input className="topic-search" value={filter} onChange={e=>setFilter(e.target.value)} placeholder="Search technologies..." aria-label="Search technologies"/>
+  const finishMentorTransition = () => {
+    setShowLanding(false);
 
-      <nav className="topics-scroll" aria-label="Technology topics">{filteredTopics.map(stack=>{const stackOpen=normalizedFilter?true:expandedStacks.includes(stack.name);return <div className="stack-group" key={stack.name}><div className={`stack-heading ${stackOpen?"expanded":""}`}><button className="stack-toggle" type="button" onClick={()=>toggleStack(stack.name)} aria-expanded={stackOpen}><span className="stack-icon">{stack.icon}</span><span className="stack-name">{stack.name}</span><span className="stack-chevron">{stackOpen?"▾":"▸"}</span></button></div>{stackOpen&&<div className="stack-children">{stack.categories.map(category=>{const key=`${stack.name}::${category.name}`;const open=normalizedFilter?true:expandedCategories.includes(key);return <div className="library-category" key={key}><button className="category-toggle" type="button" onClick={()=>toggleCategory(key)} aria-expanded={open}><span className="category-chevron">{open?"▾":"▸"}</span><span>{category.name}</span><span className="category-count">{category.items.length}</span></button>{open&&<div className="resource-list">{category.items.map(topic=><button className={`topic-button ${activeTopic===topic?"active":""}`} key={topic} type="button" onClick={()=>chooseTopic(topic)} title={`Ask CloudSaathi about ${topic}`}><span className="topic-dot"/><span className="resource-name">{topic}</span><span className="topic-arrow">↗</span></button>)}</div>}</div>})}</div>}</div>})}{filteredTopics.length===0&&<p className="no-topics">No topics match your search.</p>}</nav>
+    setHomeEntering(true);
+  };
 
-    </aside>
+  if (showLanding)
+    return (
+      <LandingPage
+        theme={theme}
+        isExiting={landingExiting}
+        onThemeToggle={() =>
+          setTheme((current) => (current === "dark" ? "light" : "dark"))
+        }
+        onEnter={beginMentorTransition}
+        onExitComplete={finishMentorTransition}
+      />
+    );
 
-    <main className="chat-main"><header className="topbar"><div className="connection-status"><span className="status-dot"/></div><div className="topbar-actions"><button className="theme-toggle" type="button" onClick={() => setTheme(current => current === "dark" ? "light" : "dark")} aria-label={`Switch to ${theme === "dark" ? "light" : "dark"} theme`} title={`Switch to ${theme === "dark" ? "light" : "dark"} theme`}>{theme === "dark" ? "☀ Light mode" : "☾ Dark mode"}</button><div className="topbar-tags"><span>AWS</span><span>Bedrock</span><span>Lambda</span><span>API Gateway</span></div></div></header>
+  return (
+    <>
+      {booting && (
+        <BootScreen step={bootStep} onComplete={() => setBooting(false)} />
+      )}
+      <div
+        className={`app-shell ${theme === "light" ? "light-theme" : ""} ${homeEntering ? "home-entering" : ""}`}
+        data-theme={theme}
+      >
+        <aside className={`sidebar ${mobileLibraryOpen ? "library-open" : ""}`}>
+          <div className="brand">
+            <div className="brand-mark">
+              <CloudSaathiLogo />
+            </div>
+            <div className="brand-copy">
+              <strong className="cloudsaathi-wordmark">
+                CloudSaathi<span>.</span>
+              </strong>
+              <span>Cloud & DevOps Mentor</span>
+            </div>
+          </div>
 
-      <div className="chat-scroll" ref={chatScrollRef}><section className="welcome-panel"><div className="welcome-label"><span/> CLOUD LEARNING, SIMPLIFIED</div><div className="welcome-emblem"><CloudSaathiLogo /></div><h1>Your AI mentor for<br/><em>cloud &amp; DevOps.</em></h1><p>Understand concepts. Build architectures. Debug deployments.<br className="desktop-break"/> Learn step by step, at your own pace.</p><div className="starter-grid">{starters.map((starter,i)=><button className="starter-card" key={starter.text} onClick={()=>send(starter.text)}><span className="starter-number">0{i+1}</span><span>{starter.text}</span><b>↗</b></button>)}</div></section>
+          <button
+            className="new-chat-button"
+            type="button"
+            onClick={startNewChat}
+            title="Start a fresh conversation"
+          >
+            <span className="new-chat-plus" aria-hidden="true">
+              +
+            </span>
+            <span className="new-chat-label">New chat</span>
+          </button>
 
-        <section className="messages" aria-live="polite">{messages.map((message,index)=><div className={`message-row ${message.role}`} key={`${index}-${message.role}`}><div className={`message-avatar ${message.role==="assistant"?"assistant-avatar":"user-avatar"}`}>{message.role==="assistant"?<CloudSaathiLogo small />:"Y"}</div><div className="message-content"><div className="message-meta"><strong>{message.role==="assistant"?"CloudSaathi":user}</strong><span>{message.role==="assistant"?"AI MENTOR":"YOU"}</span><time>{formatMessageTime(message.timestamp)}</time></div><div className="message-bubble"><MessageContent text={message.text} role={message.role}/></div></div></div>)}{loading&&<div className="message-row assistant"><div className="message-avatar assistant-avatar">☁</div><div className="message-content"><div className="message-meta"><strong>CloudSaathi</strong><span>THINKING</span><time>now</time></div><div className="message-bubble thinking"><i/><i/><i/></div></div></div>}<div ref={messagesEndRef}/></section>
+          {recentlyAsked.length > 0 && (
+            <section className="recently-asked" aria-label="Recently asked">
+              <div className="recent-heading">
+                <span>RECENTLY ASKED</span>
+                <button
+                  type="button"
+                  onClick={() => setRecentlyAsked([])}
+                  aria-label="Clear recently asked"
+                >
+                  Clear
+                </button>
+              </div>
 
+              <div className="recent-list">
+                {recentlyAsked.map((item, index) => (
+                  <div className="recent-row" key={`${item}-${index}`}>
+                    <button
+                      className="recent-item"
+                      type="button"
+                      onClick={() => send(item)}
+                      title={item}
+                    >
+                      <span className="recent-dot" />
+
+                      <span className="recent-question-text">{item}</span>
+                    </button>
+
+                    <button
+                      className="recent-delete"
+                      type="button"
+                      onClick={() =>
+                        setRecentlyAsked((current) =>
+                          current.filter((_, i) => i !== index),
+                        )
+                      }
+                      aria-label={`Delete recent question: ${item}`}
+                      title="Delete this question"
+                    >
+                      <svg viewBox="0 0 24 24" aria-hidden="true">
+                        <path d="M3 6h18" />
+
+                        <path d="M8 6V4h8v2" />
+
+                        <path d="m19 6-1 14H6L5 6" />
+
+                        <path d="M10 11v5M14 11v5" />
+                      </svg>
+                    </button>
+                  </div>
+                ))}
+              </div>
+            </section>
+          )}
+
+          <div className="topic-heading">
+            <span>TECHNOLOGY LIBRARY</span>
+            <span className="topic-count">{topicCount}</span>
+          </div>
+          <input
+            className="topic-search"
+            value={filter}
+            onChange={(e) => setFilter(e.target.value)}
+            placeholder="Search technologies..."
+            aria-label="Search technologies"
+          />
+
+          <nav className="topics-scroll" aria-label="Technology topics">
+            {filteredTopics.map((stack) => {
+              const stackOpen = normalizedFilter
+                ? true
+                : expandedStacks.includes(stack.name);
+              return (
+                <div className="stack-group" key={stack.name}>
+                  <div
+                    className={`stack-heading ${stackOpen ? "expanded" : ""}`}
+                  >
+                    <button
+                      className="stack-toggle"
+                      type="button"
+                      onClick={() => toggleStack(stack.name)}
+                      aria-expanded={stackOpen}
+                    >
+                      <StackBrandIcon name={stack.name} fallback={stack.icon} />
+                      <span className="stack-name">{stack.name}</span>
+                      <span className="stack-chevron">
+                        {stackOpen ? "▾" : "▸"}
+                      </span>
+                    </button>
+                  </div>
+                  {stackOpen && (
+                    <div className="stack-children">
+                      {stack.categories.map((category) => {
+                        const key = `${stack.name}::${category.name}`;
+                        const open = normalizedFilter
+                          ? true
+                          : expandedCategories.includes(key);
+                        return (
+                          <div className="library-category" key={key}>
+                            <button
+                              className="category-toggle"
+                              type="button"
+                              onClick={() => toggleCategory(key)}
+                              aria-expanded={open}
+                            >
+                              <span className="category-chevron">
+                                {open ? "▾" : "▸"}
+                              </span>
+                              <span>{category.name}</span>
+                              <span className="category-count">
+                                {category.items.length}
+                              </span>
+                            </button>
+                            {open && (
+                              <div className="resource-list">
+                                {category.items.map((topic) => (
+                                  <button
+                                    className={`topic-button ${activeTopic === topic ? "active" : ""}`}
+                                    key={topic}
+                                    type="button"
+                                    onClick={() => {
+                                      chooseTopic(topic);
+                                      setMobileLibraryOpen(false);
+                                    }}
+                                    title={`Ask CloudSaathi about ${topic}`}
+                                  >
+                                    <span className="topic-dot" />
+                                    <span className="resource-name">
+                                      {topic}
+                                    </span>
+                                    <span className="topic-arrow">↗</span>
+                                  </button>
+                                ))}
+                              </div>
+                            )}
+                          </div>
+                        );
+                      })}
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+            {filteredTopics.length === 0 && (
+              <p className="no-topics">No topics match your search.</p>
+            )}
+          </nav>
+        </aside>
+
+        {mobileLibraryOpen && (
+          <button
+            className="library-backdrop"
+            type="button"
+            aria-label="Close technology library"
+            onClick={() => setMobileLibraryOpen(false)}
+          />
+        )}
+
+        <main className="chat-main">
+          <header className="topbar">
+            <div className="topbar-leading">
+              <button
+                className="library-menu-toggle"
+                type="button"
+                onClick={() => setMobileLibraryOpen((open) => !open)}
+                aria-label={
+                  mobileLibraryOpen
+                    ? "Close technology library"
+                    : "Open technology library"
+                }
+              >
+                {mobileLibraryOpen ? "×" : "☰"}
+                <span>Explore library</span>
+              </button>
+              <div className="topbar-brand">
+                <span className="topbar-brand-mark">
+                  <CloudSaathiLogo small />
+                </span>
+                <span>
+                  <strong className="cloudsaathi-wordmark">
+                    CloudSaathi<span>.</span>
+                  </strong>
+                  <small>Cloud &amp; DevOps mentor</small>
+                </span>
+              </div>
+              <div className="connection-status">
+                <span className="status-dot" />
+                <span>Ready to help</span>
+              </div>
+            </div>
+            <div className="topbar-actions">
+              <span className="session-chip">
+                GUEST SESSION <i />
+              </span>
+              <button
+                className="theme-toggle"
+                type="button"
+                onClick={() =>
+                  setTheme((current) => (current === "dark" ? "light" : "dark"))
+                }
+                aria-label={`Switch to ${theme === "dark" ? "light" : "dark"} theme`}
+                title={`Switch to ${theme === "dark" ? "light" : "dark"} theme`}
+              >
+                {theme === "dark" ? "☀ Light mode" : "☾ Dark mode"}
+              </button>
+              <div className="topbar-tags">
+                <span>AWS</span>
+                <span>Bedrock</span>
+                <span>Lambda</span>
+                <span>API Gateway</span>
+              </div>
+            </div>
+          </header>
+
+          <div className="chat-scroll" ref={chatScrollRef}>
+            {
+              <section className="welcome-panel">
+                <h1>{getTimeGreeting()}, how can I help you today?</h1>
+                <p>Hey, CloudSaathi is here :)</p>
+              </section>
+            }
+
+            <section className="messages" aria-live="polite">
+              {messages.map((message, index) => (
+                <div
+                  className={`message-row ${message.role}`}
+                  key={`${index}-${message.role}`}
+                >
+                  <div
+                    className={`message-avatar ${message.role === "assistant" ? "assistant-avatar" : "user-avatar"}`}
+                  >
+                    {message.role === "assistant" ? (
+                      <CloudSaathiLogo small />
+                    ) : (
+                      "Y"
+                    )}
+                  </div>
+                  <div className="message-content">
+                    <div className="message-meta">
+                      <strong>
+                        {message.role === "assistant" ? "CloudSaathi" : user}
+                      </strong>
+                      <span>
+                        {message.role === "assistant" ? "AI MENTOR" : "YOU"}
+                      </span>
+                      <time>{formatMessageTime(message.timestamp)}</time>
+                    </div>
+                    <div className="message-bubble">
+                      <MessageContent text={message.text} role={message.role} />
+                    </div>
+                  </div>
+                </div>
+              ))}
+              {loading && (
+                <div className="message-row assistant">
+                  <div className="message-avatar assistant-avatar">
+                    <CloudSaathiLogo small />
+                  </div>
+                  <div className="message-content">
+                    <div className="message-meta">
+                      <strong className="cloudsaathi-wordmark">
+                        CloudSaathi<span>.</span>
+                      </strong>
+                      <span>THINKING</span>
+                      <time>now</time>
+                    </div>
+                    <div className="message-bubble thinking">
+                      <i />
+                      <i />
+                      <i />
+                    </div>
+                  </div>
+                </div>
+              )}
+              <div ref={messagesEndRef} />
+            </section>
+          </div>
+
+          <form
+            className="composer"
+            onSubmit={(event) => {
+              event.preventDefault();
+              send();
+            }}
+          >
+            <textarea
+              value={input}
+              onChange={(event) => setInput(event.target.value)}
+              onKeyDown={(event) => {
+                if (
+                  event.key === "Enter" &&
+                  !event.shiftKey &&
+                  !event.nativeEvent.isComposing
+                ) {
+                  event.preventDefault();
+                  send();
+                }
+              }}
+              placeholder="Ask CloudSaathi"
+            />
+            <button
+              className="send-button"
+              type="submit"
+              disabled={!input.trim() || loading}
+              aria-label="Send message"
+            >
+              ↑
+            </button>
+            <div className="composer-hint">
+              <span>↵</span> Enter to send{" "}
+              <span className="hint-divider">·</span> Shift + Enter for a new
+              line{" "}
+              <span className="composer-secure">Your learning session</span>
+              {loading && (
+                <button
+                  className="stop-generating"
+                  type="button"
+                  onClick={stopGenerating}
+                >
+                  ■ Stop generating
+                </button>
+              )}
+            </div>
+          </form>
+        </main>
       </div>
-
-      <form className="composer" onSubmit={event=>{event.preventDefault();send();}}><textarea value={input} onChange={event=>setInput(event.target.value)} onKeyDown={event=>{if(event.key==="Enter"&&!event.shiftKey&&!event.nativeEvent.isComposing){event.preventDefault();send();}}} placeholder="Ask about EC2, VPC, CI/CD, Kubernetes, Terraform..." rows={1} aria-label="Ask CloudSaathi a question"/><button className="send-button" type="submit" disabled={!input.trim()||loading} aria-label="Send message">↑</button><div className="composer-hint"><span>↵</span> Enter to send <span className="hint-divider">·</span> Shift + Enter for a new line <span className="composer-secure">Your learning session</span>{loading && <button className="stop-generating" type="button" onClick={stopGenerating}>■ Stop generating</button>}</div></form>
-
-    </main>
-
-  </div></>;
-
+    </>
+  );
 }
 
 export default App;
