@@ -836,15 +836,95 @@ function renderMarkdownTable(lines, key) {
   );
 }
 
+function splitMarkdownBlocks(text) {
+  const lines = String(text || "").replace(/\r\n/g, "\n").split("\n");
+  const blocks = [];
+  let paragraphLines = [];
+  let codeLines = null;
+  let codeFence = "";
+  let codeLanguage = "";
+
+  const flushParagraph = () => {
+    paragraphLines
+      .join("\n")
+      .split(/\n{2,}/)
+      .map((block) => block.trim())
+      .filter(Boolean)
+      .forEach((content) => blocks.push({ type: "markdown", content }));
+    paragraphLines = [];
+  };
+
+  for (const line of lines) {
+    if (codeLines !== null) {
+      const trimmed = line.trim();
+      const isClosingFence =
+        trimmed.length >= codeFence.length &&
+        [...trimmed].every((character) => character === codeFence[0]);
+
+      if (isClosingFence) {
+        blocks.push({
+          type: "code",
+          language: codeLanguage,
+          content: codeLines.join("\n"),
+        });
+        codeLines = null;
+        codeFence = "";
+        codeLanguage = "";
+      } else {
+        codeLines.push(line);
+      }
+      continue;
+    }
+
+    const openingFence = line.match(/^\s{0,3}(`{3,}|~{3,})(.*)$/);
+    if (openingFence) {
+      flushParagraph();
+      codeFence = openingFence[1];
+      codeLanguage = openingFence[2].trim().split(/\s+/, 1)[0] || "";
+      codeLines = [];
+    } else {
+      paragraphLines.push(line);
+    }
+  }
+
+  if (codeLines !== null) {
+    blocks.push({
+      type: "code",
+      language: codeLanguage,
+      content: codeLines.join("\n"),
+    });
+  }
+  flushParagraph();
+
+  return blocks;
+}
+
 function MarkdownContent({ text }) {
-  const blocks = String(text || "")
-    .replace(/\r\n/g, "\n")
-    .split(/\n{2,}/);
+  const blocks = splitMarkdownBlocks(text);
 
   return (
     <div className="formatted-answer">
       {blocks.map((block, index) => {
-        const trimmed = block.trim();
+        if (block.type === "code") {
+          return (
+            <div className="code-card" key={index}>
+              <div className="code-card-header">
+                <span>{block.language || "CODE"}</span>
+                <button
+                  type="button"
+                  onClick={() => navigator.clipboard?.writeText(block.content)}
+                >
+                  Copy code
+                </button>
+              </div>
+              <pre>
+                <code>{block.content}</code>
+              </pre>
+            </div>
+          );
+        }
+
+        const trimmed = block.content;
 
         if (!trimmed) return null;
 
@@ -857,28 +937,6 @@ function MarkdownContent({ text }) {
           const table = renderMarkdownTable(lines, `table-${index}`);
 
           if (table) return table;
-        }
-
-        if (trimmed.startsWith("```")) {
-          const match = trimmed.match(/^```([^\n]\*)\n([\s\S]\*?)\n?```$/);
-
-          if (match)
-            return (
-              <div className="code-card" key={index}>
-                <div className="code-card-header">
-                  <span>{match[1] || "CODE"}</span>
-                  <button
-                    type="button"
-                    onClick={() => navigator.clipboard?.writeText(match[2])}
-                  >
-                    Copy code
-                  </button>
-                </div>
-                <pre>
-                  <code>{match[2]}</code>
-                </pre>
-              </div>
-            );
         }
 
         if (/^#{1,4}\s/.test(lines[0])) {
