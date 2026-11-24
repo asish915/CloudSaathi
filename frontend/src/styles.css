@@ -3233,6 +3233,16 @@ input:focus-visible {
   width: 18px;
   height: 18px;
 }
+.stack-icon.brand-stack-icon.aws-brand-icon {
+  background: #fff;
+}
+.brand-stack-icon.aws-brand-icon img {
+  width: 100%;
+  height: auto;
+}
+.light-theme .stack-icon.brand-stack-icon.aws-brand-icon {
+  background: #d9eefb;
+}
 
 .float-icon img {
   width: 22px;

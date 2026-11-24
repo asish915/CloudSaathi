@@ -137,7 +137,10 @@ function StackBrandIcon({ name, fallback }) {
   }
 
   return (
-    <span className="stack-icon brand-stack-icon" aria-hidden="true">
+    <span
+      className={`stack-icon brand-stack-icon${name === "AWS" ? " aws-brand-icon" : ""}`}
+      aria-hidden="true"
+    >
       <img
         src={logo}
         alt={`${name} logo`}
