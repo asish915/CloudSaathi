@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useId, useRef, useState } from "react";
 import awsLogo from "./assets/logos/aws.svg";
 import dockerLogo from "./assets/logos/docker.svg";
 import kubernetesLogo from "./assets/logos/kubernetes.svg";
@@ -899,6 +899,130 @@ function splitMarkdownBlocks(text) {
   return blocks;
 }
 
+const MAX_MERMAID_SOURCE_LENGTH = 10000;
+
+function stripMermaidStyleDirectives(source) {
+  return source
+    .split(/\r?\n/)
+    .filter((line) => {
+      if (/^\s*(?:classDef|style)\b/i.test(line)) return false;
+      return !/^\s*class\s+[\w.-]+(?:\s*,\s*[\w.-]+)*\s+[A-Za-z_][\w-]*(?:\s*,\s*[A-Za-z_][\w-]*)*\s*;?\s*$/i.test(
+        line,
+      );
+    })
+    .join("\n");
+}
+
+function MermaidDiagram({ source, theme }) {
+  const renderId = `cloudsaathi-${useId().replace(/[^a-zA-Z0-9_-]/g, "")}`;
+  const [renderResult, setRenderResult] = useState(null);
+  const sourceTooLong = source.length > MAX_MERMAID_SOURCE_LENGTH;
+
+  useEffect(() => {
+    if (sourceTooLong) return undefined;
+
+    let cancelled = false;
+
+    async function renderDiagram() {
+      try {
+        const [{ default: mermaid }, { default: DOMPurify }] = await Promise.all(
+          [import("mermaid"), import("dompurify")],
+        );
+
+        mermaid.initialize({
+          startOnLoad: false,
+          securityLevel: "strict",
+          secure: [
+            "securityLevel",
+            "startOnLoad",
+            "maxTextSize",
+            "suppressErrorRendering",
+            "maxEdges",
+            "htmlLabels",
+            "layout",
+          ],
+          maxTextSize: MAX_MERMAID_SOURCE_LENGTH,
+          suppressErrorRendering: true,
+          maxEdges: 60,
+          htmlLabels: false,
+          layout: "dagre",
+          theme: theme === "light" ? "default" : "dark",
+        });
+
+        const { svg } = await mermaid.render(
+          renderId,
+          stripMermaidStyleDirectives(source),
+        );
+        const sanitizedSvg = DOMPurify.sanitize(svg, {
+          USE_PROFILES: { svg: true, svgFilters: true },
+          FORBID_TAGS: ["foreignObject"],
+        });
+        if (!sanitizedSvg) {
+          throw new Error("Mermaid returned an empty diagram.");
+        }
+
+        if (!cancelled) {
+          setRenderResult({ source, theme, svg: sanitizedSvg, error: false });
+        }
+      } catch (error) {
+        console.error("Mermaid diagram rendering failed:", error);
+        if (!cancelled) {
+          setRenderResult({ source, theme, svg: "", error: true });
+        }
+      }
+    }
+
+    void renderDiagram();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [renderId, source, sourceTooLong, theme]);
+
+  const result =
+    renderResult?.source === source && renderResult.theme === theme
+      ? renderResult
+      : null;
+  const hasError = sourceTooLong || result?.error;
+
+  return (
+    <div className="code-card mermaid-card">
+      <div className="code-card-header">
+        <span>Diagram</span>
+        <button
+          type="button"
+          onClick={() => navigator.clipboard?.writeText(source)}
+        >
+          Copy source
+        </button>
+      </div>
+      {result?.svg ? (
+        <div
+          className="mermaid-diagram"
+          role="img"
+          aria-label="Generated diagram"
+          dangerouslySetInnerHTML={{ __html: result.svg }}
+        />
+      ) : hasError ? (
+        <>
+          <div className="mermaid-error" role="status">
+            {sourceTooLong
+              ? "This diagram is too large to render. Mermaid source is shown below."
+              : "This diagram could not be rendered. Mermaid source is shown below."}
+          </div>
+          <pre>
+            <code>{source}</code>
+          </pre>
+        </>
+      ) : (
+        <div className="mermaid-status" role="status">
+          Rendering diagram…
+        </div>
+      )}
+    </div>
+  );
+}
+
 function MarkdownContent({ text, theme }) {
   const blocks = splitMarkdownBlocks(text);
 
@@ -906,6 +1030,16 @@ function MarkdownContent({ text, theme }) {
     <div className="formatted-answer">
       {blocks.map((block, index) => {
         if (block.type === "code") {
+          if (block.language.toLowerCase() === "mermaid") {
+            return (
+              <MermaidDiagram
+                key={index}
+                source={block.content}
+                theme={theme}
+              />
+            );
+          }
+
           return (
             <div className="code-card" key={index}>
               <div className="code-card-header">
@@ -1623,6 +1757,8 @@ function App() {
         "FORMAT: Use standard Markdown. Headings must start on a new line with blank lines around them. Tables must be syntactically valid Markdown with pipe-delimited cells. Lists must use '- '. Code must use fenced blocks and specify language. Never return raw HTML. Do not put the entire answer in a code block.",
 
         "BROAD CATALOG: For requests like all AWS resources, explain that there are many services and organize representative services by category. Explain each service's role with a practical example; do not claim a short list is exhaustive.",
+
+        "DIAGRAMS: For an explicit request to diagram a cloud/DevOps workflow or architecture, include one valid fenced Mermaid flowchart tailored to the named task. Use concrete steps and decision points when helpful, keep it concise, and explain key assumptions in prose. Do not include raw HTML or Mermaid initialization directives.",
 
         "TROUBLESHOOTING: Diagnose from artifacts the learner provides, such as code, error messages, logs, configuration, and command output. Separate observed facts from hypotheses and prioritize likely causes. If key evidence is missing, ask for the specific relevant detail and remind the learner to redact secrets. You cannot inspect or operate the learner's repository, machine, AWS account, or other live environment; do not imply that you did. Commands and console actions are suggestions for the learner to run. Start with read-only checks, recommend the smallest safe fix, and explain how to verify it; flag changes that could affect resources.",
 

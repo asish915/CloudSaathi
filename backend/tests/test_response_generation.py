@@ -113,6 +113,38 @@ class ResponseGenerationTests(unittest.TestCase):
         self.assertIn("prefer read-only checks first", system_prompt)
         self.assertIn("Help only with cloud and DevOps work", system_prompt)
 
+    def test_standalone_workflow_diagram_ignores_unrelated_history(self):
+        bedrock = BedrockStub()
+        handler.bedrock = bedrock
+        question = "Give me a workflow diagram for deploying a Node.js app on EC2."
+        response = handler.lambda_handler(
+            {
+                "body": json.dumps(
+                    {
+                        "message": question,
+                        "history": [
+                            {"role": "user", "content": "Show a sequence"},
+                            {
+                                "role": "assistant",
+                                "content": "A user sends a request to an API.",
+                            },
+                        ],
+                    }
+                )
+            },
+            None,
+        )
+
+        self.assertEqual(response["statusCode"], 200)
+        self.assertEqual(len(bedrock.request["messages"]), 1)
+        prompt = bedrock.request["messages"][0]["content"][0]["text"]
+        self.assertIn(f"Latest learner question:\n{question}", prompt)
+        system_prompt = "\n".join(
+            item["text"] for item in bedrock.request["system"]
+        )
+        self.assertIn("Mermaid flowchart specific", system_prompt)
+        self.assertIn("one fenced ```mermaid block", system_prompt)
+
     def test_workflow_request_keeps_referenced_context(self):
         bedrock = BedrockStub()
         handler.bedrock = bedrock

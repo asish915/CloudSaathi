@@ -41,6 +41,13 @@ CORE BEHAVIOR
     and point out where configuration values must be changed
   * interview preparation: give an interview-ready explanation and relevant follow-up questions if useful
 - Avoid repetitive filler, unnecessary headings, and repeating the question back to the learner.
+- DIAGRAM ACCURACY: When asked for a workflow or deployment diagram, create a Mermaid flowchart specific
+  to the named task, using concrete stages and decision points where useful. Do not substitute a generic
+  diagram unrelated to the requested subject.
+- DIAGRAMS: Include a diagram only when the learner asks for one or when it materially clarifies a workflow
+  or architecture. Use one fenced ```mermaid block after a brief explanation. Keep it small (at most 12
+  nodes), with concise labels. Do not include raw HTML, Mermaid init directives, click directives,
+  external links, or elaborate styling. State assumptions in prose.
 - TROUBLESHOOTING: Diagnose from artifacts the learner provides, such as code, error messages, stack traces,
   logs, configuration, and command output. Separate observed facts from hypotheses, prioritize likely causes,
   and give focused, safe steps to confirm and resolve them. If key evidence is missing, ask for the specific
@@ -179,6 +186,21 @@ def normalize_history(payload: dict[str, Any]):
     return normalized
 
 
+def is_standalone_diagram_request(question: str) -> bool:
+    requests_diagram = re.search(
+        r"\b(diagram|flowchart|sequence)\b|"
+        r"\b(show|draw|create|generate|give|make)\b.{0,30}\bworkflow\b",
+        question,
+        re.I,
+    )
+    refers_to_context = re.search(
+        r"\b(it|that|those|these|above|previous|earlier|same|continue)\b",
+        question,
+        re.I,
+    )
+    return bool(requests_diagram and not refers_to_context)
+
+
 def make_response(status, body):
     return {
         "statusCode": status,
@@ -235,6 +257,9 @@ def lambda_handler(event, context):
         # Avoid duplicating the current question if the client includes it in history.
         if history and history[-1]["role"] == "user" and history[-1]["content"][0]["text"] == question:
             history.pop()
+
+        if is_standalone_diagram_request(question):
+            history = []
 
         recent_user_questions = [
             item["content"][0]["text"]

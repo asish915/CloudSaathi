@@ -706,6 +706,23 @@ button {
   tab-size: 2;
   white-space: pre;
 }
+.mermaid-diagram {
+  max-width: 100%;
+  overflow: auto;
+  padding: 14px;
+}
+.mermaid-diagram svg {
+  display: block;
+  max-width: 100%;
+  height: auto;
+  margin: 0 auto;
+}
+.mermaid-status,
+.mermaid-error {
+  padding: 14px;
+  color: #a8b7cc;
+  font-size: 13px;
+}
 .thinking {
   display: flex;
   gap: 5px;
