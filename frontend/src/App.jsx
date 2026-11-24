@@ -1908,6 +1908,8 @@ function App() {
     // an animation event when animations are disabled by the browser.
 
     if (window.matchMedia?.("(prefers-reduced-motion: reduce)").matches) {
+      window.scrollTo(0, 0);
+
       setShowLanding(false);
 
       setHomeEntering(false);
@@ -1919,6 +1921,8 @@ function App() {
   };
 
   const finishMentorTransition = () => {
+    window.scrollTo(0, 0);
+
     setShowLanding(false);
 
     setHomeEntering(true);

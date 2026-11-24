@@ -3243,6 +3243,13 @@ input:focus-visible {
 .light-theme .stack-icon.brand-stack-icon.aws-brand-icon {
   background: #d9eefb;
 }
+.landing-page .avatar-stack i,
+.landing-page .float-icon,
+.landing-page .art-orbit > span,
+.landing-page .art-orbit > i {
+  background: #fff;
+  border-color: #dce1eb;
+}
 
 .float-icon img {
   width: 22px;
@@ -6483,113 +6490,29 @@ body,
   transform: none !important;
 }
 
-/* ==========================================================
-   LANDING → MENTOR TRANSITION
-   Short cinematic exit, then a soft workspace entrance.
-   ========================================================== */
+/* Landing-to-mentor transition: fade without shifting the layout. */
 .landing-page.is-exiting {
   pointer-events: none;
-  transform-origin: 50% 45%;
-  animation: cloudsaathiLandingExit 560ms cubic-bezier(0.22, 0.72, 0.22, 1) both;
-  will-change: opacity, transform, filter;
+  animation: cloudsaathiLandingExit 320ms ease-in both;
+  will-change: opacity;
 }
 
 @keyframes cloudsaathiLandingExit {
-  0% {
+  from {
     opacity: 1;
-    transform: scale(1);
-    filter: blur(0);
   }
-  55% {
-    opacity: 0.72;
-    transform: scale(1.012);
-    filter: blur(1.5px);
-  }
-  100% {
+  to {
     opacity: 0;
-    transform: scale(0.975);
-    filter: blur(8px);
   }
 }
 
 .app-shell.home-entering {
-  animation: cloudsaathiWorkspaceEnter 680ms cubic-bezier(0.2, 0.72, 0.2, 1)
-    both;
+  animation: cloudsaathiWorkspaceEnter 420ms ease-out both;
 }
 
 @keyframes cloudsaathiWorkspaceEnter {
-  from {
-    opacity: 0;
-    transform: translateY(12px) scale(0.992);
-    filter: blur(5px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0) scale(1);
-    filter: blur(0);
-  }
-}
-
-.app-shell.home-entering .topbar {
-  animation: cloudsaathiTopbarEnter 520ms 100ms cubic-bezier(0.2, 0.72, 0.2, 1)
-    both;
-}
-
-.app-shell.home-entering .chat-scroll {
-  animation: cloudsaathiContentEnter 620ms 140ms cubic-bezier(0.2, 0.72, 0.2, 1)
-    both;
-}
-
-.app-shell.home-entering > .sidebar {
-  animation: cloudsaathiSidebarEnter 560ms 70ms cubic-bezier(0.2, 0.72, 0.2, 1)
-    both;
-}
-
-.app-shell.home-entering .composer {
-  animation: cloudsaathiComposerEnter 560ms 220ms
-    cubic-bezier(0.2, 0.72, 0.2, 1) both;
-}
-
-@keyframes cloudsaathiTopbarEnter {
-  from {
-    opacity: 0;
-    transform: translateY(-8px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-@keyframes cloudsaathiContentEnter {
-  from {
-    opacity: 0;
-    transform: translateY(10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-@keyframes cloudsaathiSidebarEnter {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
-}
-
-@keyframes cloudsaathiComposerEnter {
-  from {
-    opacity: 0;
-    transform: translateY(14px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -6684,6 +6607,13 @@ body,
 .brand-copy strong {
   font-size: 21px !important;
   line-height: 1 !important;
+}
+.brand-copy strong.cloudsaathi-wordmark > span {
+  display: inline !important;
+  margin: 0 !important;
+  font-size: inherit !important;
+  line-height: inherit !important;
+  color: #8b5cf6 !important;
 }
 .topbar-brand strong {
   font-size: 18px !important;
