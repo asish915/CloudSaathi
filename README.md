@@ -36,7 +36,7 @@ This configuration intentionally uses **one EC2 instance**. It does not create a
 
 ## First-time setup
 
-1. Install Git, Terraform, AWS CLI, Node.js 20+, Python 3.12 and PowerShell.
+1. Install Git, Terraform, AWS CLI, Node.js 22.12+, Python 3.12 and PowerShell.
 2. Copy `terraform/terraform.tfvars.example` to `terraform/terraform.tfvars`.
 3. Set a globally unique, lowercase S3 bucket name and your exact GitHub repository (`owner/repo`).
 4. Verify Amazon Nova Micro access in Amazon Bedrock in `ap-south-1`.

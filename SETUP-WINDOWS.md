@@ -13,7 +13,7 @@ npm --version
 python --version
 ```
 
-Use Node.js 20+, Python 3.12+, Terraform 1.5+, and AWS CLI v2.
+Use Node.js 22.12+, Python 3.12+, Terraform 1.5+, and AWS CLI v2.
 
 ## 2. Configure project values
 

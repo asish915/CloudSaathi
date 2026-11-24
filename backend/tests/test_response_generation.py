@@ -96,6 +96,48 @@ class ResponseGenerationTests(unittest.TestCase):
         self.assertNotIn("IDENTITY:", prompt)
         self.assertIn("aws-storage-comparison.md", prompt)
 
+    def test_generation_includes_evidence_based_troubleshooting_guidance(self):
+        bedrock = BedrockStub()
+        handler.bedrock = bedrock
+        response = handler.lambda_handler(
+            {"body": json.dumps({"message": "Help debug this Python traceback."})},
+            None,
+        )
+
+        self.assertEqual(response["statusCode"], 200)
+        system_prompt = "\n".join(
+            item["text"] for item in bedrock.request["system"]
+        )
+        self.assertIn("Diagnose from artifacts the learner provides", system_prompt)
+        self.assertIn("You cannot inspect or operate the learner's", system_prompt)
+        self.assertIn("prefer read-only checks first", system_prompt)
+        self.assertIn("Help only with cloud and DevOps work", system_prompt)
+
+    def test_workflow_request_keeps_referenced_context(self):
+        bedrock = BedrockStub()
+        handler.bedrock = bedrock
+        response = handler.lambda_handler(
+            {
+                "body": json.dumps(
+                    {
+                        "message": "Draw that as a workflow diagram.",
+                        "history": [
+                            {"role": "user", "content": "How does the app deploy to EC2?"},
+                            {"role": "assistant", "content": "The app is deployed by CI/CD."},
+                        ],
+                    }
+                )
+            },
+            None,
+        )
+
+        self.assertEqual(response["statusCode"], 200)
+        self.assertEqual(len(bedrock.request["messages"]), 3)
+        self.assertEqual(
+            bedrock.request["messages"][0]["content"][0]["text"],
+            "How does the app deploy to EC2?",
+        )
+
     def test_marks_response_truncated_at_model_token_limit(self):
         handler.bedrock = BedrockStub(
             stop_reason="max_tokens",

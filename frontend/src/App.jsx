@@ -899,7 +899,7 @@ function splitMarkdownBlocks(text) {
   return blocks;
 }
 
-function MarkdownContent({ text }) {
+function MarkdownContent({ text, theme }) {
   const blocks = splitMarkdownBlocks(text);
 
   return (
@@ -951,7 +951,9 @@ function MarkdownContent({ text }) {
           return (
             <section className="answer-section" key={index}>
               <Tag className="answer-heading">{renderInline(heading)}</Tag>
-              {rest.length > 0 && <MarkdownContent text={rest.join("\n")} />}
+              {rest.length > 0 && (
+                <MarkdownContent text={rest.join("\n")} theme={theme} />
+              )}
             </section>
           );
         }
@@ -991,8 +993,12 @@ function MarkdownContent({ text }) {
   );
 }
 
-function MessageContent({ text, role }) {
-  return role === "assistant" ? <MarkdownContent text={text} /> : <>{text}</>;
+function MessageContent({ text, role, theme }) {
+  return role === "assistant" ? (
+    <MarkdownContent text={text} theme={theme} />
+  ) : (
+    <>{text}</>
+  );
 }
 
 const bootSteps = [
@@ -1602,9 +1608,9 @@ function App() {
         /\b(aws|services|resources|tools)\b/i.test(question);
 
       const teachingInstructions = [
-        "IDENTITY: You are CloudSaathi, a patient, accurate cloud and DevOps mentor teaching a beginner. Your job is to teach understanding, not just summarize.",
+        "IDENTITY: You are CloudSaathi, a patient, accurate cloud and DevOps mentor teaching a beginner. Your job is to teach understanding, not just summarize. This product is only for cloud and DevOps topics; provide programming help only when it relates to those topics, and briefly redirect unrelated requests.",
 
-        "SCOPE: Answer the exact question and stay relevant. If a term is ambiguous, briefly state your assumption. Do not hallucinate service features, commands, prices, guarantees, or successful execution.",
+        "SCOPE: Answer the exact cloud/DevOps question and stay relevant. If a term is ambiguous, briefly state your assumption. Do not hallucinate service features, commands, prices, guarantees, or successful execution.",
 
         "DEPTH: Teach like a strong human tutor, not a search snippet. For a substantial explanation, aim for roughly 450-750 words when the topic warrants it; use less for genuinely simple questions and more when the learner asks for a full walkthrough. Never pad with repetition, but do not skip important reasoning. Start with intuition, then explain the accurate technical model and define unfamiliar terms.",
 
@@ -1618,7 +1624,7 @@ function App() {
 
         "BROAD CATALOG: For requests like all AWS resources, explain that there are many services and organize representative services by category. Explain each service's role with a practical example; do not claim a short list is exhaustive.",
 
-        "TROUBLESHOOTING: Explain likely cause, how to confirm it, then numbered safe steps to fix it. Distinguish verified facts from possibilities.",
+        "TROUBLESHOOTING: Diagnose from artifacts the learner provides, such as code, error messages, logs, configuration, and command output. Separate observed facts from hypotheses and prioritize likely causes. If key evidence is missing, ask for the specific relevant detail and remind the learner to redact secrets. You cannot inspect or operate the learner's repository, machine, AWS account, or other live environment; do not imply that you did. Commands and console actions are suggestions for the learner to run. Start with read-only checks, recommend the smallest safe fix, and explain how to verify it; flag changes that could affect resources.",
 
         "NO SHORTCUTS: Do not answer a substantial 'explain' request with only a definition and two bullets. Do not compress away the how, why, examples, and trade-offs. Avoid repetitive filler and generic closing offers.",
 
@@ -2073,7 +2079,11 @@ function App() {
                       <time>{formatMessageTime(message.timestamp)}</time>
                     </div>
                     <div className="message-bubble">
-                      <MessageContent text={message.text} role={message.role} />
+                      <MessageContent
+                        text={message.text}
+                        role={message.role}
+                        theme={theme}
+                      />
                     </div>
                   </div>
                 </div>
