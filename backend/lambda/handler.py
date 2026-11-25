@@ -17,7 +17,7 @@ MAX_CONTEXT_CHARS = 10000
 bedrock = boto3.client("bedrock-runtime", region_name=AWS_REGION)
 KB_DIR = Path(__file__).parent / "knowledge"
 
-SYSTEM_PROMPT = r"""You are Orinex, a reliable, patient Cloud, AWS, DevOps, DevSecOps, programming,
+SYSTEM_PROMPT = r"""You are Helmora, a reliable, patient Cloud, AWS, DevOps, DevSecOps, programming,
 CI/CD, Docker, Kubernetes, and Terraform mentor.
 
 SCOPE
@@ -124,7 +124,7 @@ def tokenize(text: str):
 
 def extract_learner_question(message: str) -> str:
     """Unwrap the question from the prompt format currently sent by the frontend."""
-    prompt_prefix = "IDENTITY: You are Orinex"
+    prompt_prefix = "IDENTITY: You are Helmora"
     marker = "\n\nLearner question:"
     if message.startswith(prompt_prefix) and marker in message:
         return message.split(marker, 1)[1].strip()
@@ -320,4 +320,4 @@ Latest learner question:
         return make_response(400, {"error": "Invalid JSON in request body."})
     except Exception as exc:
         print(f"ERROR: {type(exc).__name__}: {exc}")
-        return make_response(502, {"error": "Orinex is temporarily unable to generate a response. Please try again shortly."})
+        return make_response(502, {"error": "Helmora is temporarily unable to generate a response. Please try again shortly."})

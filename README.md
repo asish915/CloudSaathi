@@ -1,6 +1,6 @@
-# Orinex — AI Mentor for Cloud & DevOps
+# Helmora — AI Mentor for Cloud & DevOps
 
-Orinex is a React/Vite frontend with an AWS Lambda chatbot backend. The Lambda retrieves relevant context from curated Markdown files packaged with the function and calls Amazon Bedrock Converse.
+Helmora is a React/Vite frontend with an AWS Lambda chatbot backend. The Lambda retrieves relevant context from curated Markdown files packaged with the function and calls Amazon Bedrock Converse.
 
 ## Current deployment architecture
 
@@ -29,7 +29,7 @@ This configuration intentionally uses **one EC2 instance**. It does not create a
 
 - `frontend/` — React/Vite application and ESLint configuration.
 - `backend/lambda/` — Lambda handler and curated Markdown knowledge.
-- `terraform/` — VPC, S3, EC2, IAM, Lambda, API Gateway, Bedrock permissions and GitHub OIDC role.
+- `terraform/` — root configuration plus `vpc`, `s3`, `ec2`, `lambda`, `api_gateway`, and `iam_github_actions` service modules.
 - `.github/workflows/main.yml` — CI checks and application deployment.
 - `scripts/` — Windows PowerShell build and manual deployment helpers.
 - `architecture/` — architecture documentation.
@@ -79,11 +79,11 @@ Create these GitHub **Variables** (Settings → Secrets and variables → Action
 | Variable | Value |
 |---|---|
 | `AWS_REGION` | `ap-south-1` |
-| `PROJECT_NAME` | `cloudsaathi` |
+| `PROJECT_NAME` | `helmora` |
 | `S3_BUCKET` | Terraform output `artifact_bucket` |
-| `LAMBDA_FUNCTION_NAME` | `cloudsaathi-chat` |
+| `LAMBDA_FUNCTION_NAME` | `helmora-chat` |
 | `VITE_API_URL` | Terraform output `chatbot_api_url` (base URL only; do not append `/chat`) |
-| `EC2_INSTANCE_NAME` | `cloudsaathi-frontend` (optional; this is the EC2 Name tag) |
+| `EC2_INSTANCE_NAME` | `helmora-frontend` (optional; this is the EC2 Name tag) |
 
 The GitHub repository owner/name in `terraform/terraform.tfvars` must exactly match the repository receiving the workflow. The OIDC trust is restricted to pushes from the configured branch.
 

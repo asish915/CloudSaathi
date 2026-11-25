@@ -1,4 +1,4 @@
-# Orinex backend improvement notes
+# Helmora backend improvement notes
 
 This update replaces `backend/lambda/handler.py` while keeping the existing Lambda + Bedrock Converse API shape and the curated `knowledge/*.md` files.
 

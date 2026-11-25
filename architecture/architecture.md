@@ -1,4 +1,4 @@
-# Orinex — Single EC2 AWS Architecture
+# Helmora — Single EC2 AWS Architecture
 
 ```text
 User browser

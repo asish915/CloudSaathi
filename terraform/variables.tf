@@ -6,13 +6,13 @@ variable "aws_region" {
 
 variable "project_name" {
   type    = string
-  default = "cloudsaathi"
+  default = "helmora"
 }
 
 variable "artifact_bucket_name" {
   description = "Globally unique S3 bucket name"
   type        = string
-  default     = "cloudsaathi-sasish-2026" # CHANGE: MUST be globally unique and lowercase.
+  default     = "helmora-sasish-2026" # CHANGE: MUST be globally unique and lowercase.
 }
 
 variable "model_id" {
@@ -41,7 +41,7 @@ variable "ec2_ami_arch" {
 variable "github_repository" {
   description = "GitHub repository in owner/name format"
   type        = string
-  default     = "YOUR_GITHUB_USERNAME/YOUR_REPOSITORY" # CHANGE: Example: asish915/cloudsaathi
+  default     = "YOUR_GITHUB_USERNAME/YOUR_REPOSITORY" # CHANGE: Example: asish915/Helmora
 }
 
 variable "github_branch" {

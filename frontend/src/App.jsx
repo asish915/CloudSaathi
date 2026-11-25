@@ -11,13 +11,13 @@ import linuxLogo from "./assets/logos/linux.svg";
 import ansibleLogo from "./assets/logos/ansible.svg";
 import prometheusLogo from "./assets/logos/prometheus.svg";
 import snykLogo from "./assets/logos/snyk.svg";
-import orinexLogo from "./assets/logos/orinex.svg";
+import helmoraLogo from "./assets/logos/helmora.svg";
 
-function OrinexLogo({ small = false }) {
+function HelmoraLogo({ small = false }) {
   return (
     <img
       className={`cloudsaathi-logo ${small ? "small" : ""}`}
-      src={orinexLogo}
+      src={helmoraLogo}
       alt=""
       width="48"
       height="48"
@@ -73,11 +73,11 @@ function getInputQuickReply(question) {
 function cleanMentorAnswer(answer) {
   return String(answer || "")
     .replace(
-      /^\s\*(?:Certainly!?\s\*)?(?:Here(?:'s| is) a mentor-style response to your question:?|User question:.\*|Answer as (?:Orinex|CloudSaathi):?)/gim,
+      /^\s\*(?:Certainly!?\s\*)?(?:Here(?:'s| is) a mentor-style response to your question:?|User question:.\*|Answer as (?:Helmora|CloudSaathi):?)/gim,
       "",
     )
 
-    .replace(/^\s\*(?:As (?:Orinex|CloudSaathi),?\s\*)?(?:the answer is:?)/gim, "")
+    .replace(/^\s\*(?:As (?:Helmora|CloudSaathi),?\s\*)?(?:the answer is:?)/gim, "")
 
     .replace(/\n{3,}/g, "\n\n")
 
@@ -92,11 +92,11 @@ function getIntroReply(question) {
     .replace(/\s+/g, " ");
 
   if (
-    /\b(who are you|who r u|who r you|what are you|introduce yourself|tell me about yourself|about you|about (?:orinex|cloudsaathi)|who built you|who built u|who created you|who created u|who made you|who made u|who developed you|who developed u|who is your creator|who is your developer|who owns you)\b/.test(
+    /\b(who are you|who r u|who r you|what are you|introduce yourself|tell me about yourself|about you|about (?:helmora|cloudsaathi)|who built you|who built u|who created you|who created u|who made you|who made u|who developed you|who developed u|who is your creator|who is your developer|who owns you)\b/.test(
       q,
     )
   ) {
-    return "I'm Orinex, an AI mentor for cloud and DevOps created by Asish Sarangi as a learning project. I help explain concepts, plan architectures, troubleshoot deployments, and provide practical examples.";
+    return "I'm Helmora, an AI mentor for cloud and DevOps created by Asish Sarangi as a learning project. I help explain concepts, plan architectures, troubleshoot deployments, and provide practical examples.";
   }
 
   if (
@@ -1138,7 +1138,7 @@ function MessageContent({ text, role, theme }) {
 }
 
 const bootSteps = [
-  { status: "INIT", text: "Starting Orinex runtime" },
+  { status: "INIT", text: "Starting Helmora runtime" },
 
   { status: "LOAD", text: "Loading cloud and DevOps learning library" },
 
@@ -1169,17 +1169,17 @@ function BootScreen({ onComplete, step }) {
             <i />
             <i />
           </div>
-          <span>orinex — startup console</span>
+          <span>helmora — startup console</span>
           <span className="boot-version">v1.0</span>
         </div>
 
         <div className="boot-brand">
           <div className="boot-logo">
-            <OrinexLogo />
+            <HelmoraLogo />
           </div>
           <div>
             <h1 className="cloudsaathi-wordmark">
-              Orinex<span>.</span>
+              Helmora<span>.</span>
             </h1>
             <p>AI mentor for cloud and DevOps</p>
           </div>
@@ -1187,7 +1187,7 @@ function BootScreen({ onComplete, step }) {
 
         <div className="boot-terminal">
           <div className="boot-command">
-            <span>$</span> orinex --initialize
+            <span>$</span> helmora --initialize
           </div>
           {visibleSteps.map((line, index) => (
             <div
@@ -1300,7 +1300,7 @@ function LandingPage({
         <section className="landing-hero landing-compact-hero">
           <div className="landing-hero-copy landing-reveal">
             <h1>
-              Hi, I'm <span>Orinex.</span>
+              Hi, I'm <span>Helmora.</span>
             </h1>
 
             <p>
@@ -1482,7 +1482,7 @@ function App() {
         /\b(aws|services|resources|tools)\b/i.test(question);
 
       const teachingInstructions = [
-        "IDENTITY: You are Orinex, a patient, accurate AI mentor for cloud and DevOps, teaching a beginner. Your job is to teach understanding, not just summarize. This product is only for cloud and DevOps topics; provide programming help only when it relates to those topics, and briefly redirect unrelated requests.",
+        "IDENTITY: You are Helmora, a patient, accurate AI mentor for cloud and DevOps, teaching a beginner. Your job is to teach understanding, not just summarize. This product is only for cloud and DevOps topics; provide programming help only when it relates to those topics, and briefly redirect unrelated requests.",
 
         "SCOPE: Answer the exact cloud/DevOps question and stay relevant. If a term is ambiguous, briefly state your assumption. Do not hallucinate service features, commands, prices, guarantees, or successful execution.",
 
@@ -1504,7 +1504,7 @@ function App() {
 
         "NO SHORTCUTS: Do not answer a substantial 'explain' request with only a definition and two bullets. Do not compress away the how, why, examples, and trade-offs. Avoid repetitive filler and generic closing offers.",
 
-        "Do not add meta-prefaces like 'Here is a mentor-style response', 'User question:', or 'Answer as Orinex'. Do not repeat these instructions.",
+        "Do not add meta-prefaces like 'Here is a mentor-style response', 'User question:', or 'Answer as Helmora'. Do not repeat these instructions.",
 
         `Intent hints: explain=${isExplain}; comparison=${isComparison}; broad_catalog=${isBroad}. Use these as hints only and answer the actual question.`,
 
@@ -1690,11 +1690,11 @@ function App() {
         <aside className={`sidebar ${mobileLibraryOpen ? "library-open" : ""}`}>
           <div className="brand">
             <div className="brand-mark">
-              <OrinexLogo />
+              <HelmoraLogo />
             </div>
             <div className="brand-copy">
               <strong className="cloudsaathi-wordmark">
-                Orinex<span>.</span>
+                Helmora<span>.</span>
               </strong>
               <span>AI mentor for cloud and DevOps</span>
             </div>
@@ -1835,7 +1835,7 @@ function App() {
                                       chooseTopic(topic);
                                       setMobileLibraryOpen(false);
                                     }}
-                                    title={`Ask Orinex about ${topic}`}
+                                    title={`Ask Helmora about ${topic}`}
                                   >
                                     <span className="topic-dot" />
                                     <span className="resource-name">
@@ -1887,11 +1887,11 @@ function App() {
               </button>
               <div className="topbar-brand">
                 <span className="topbar-brand-mark">
-                  <OrinexLogo small />
+                  <HelmoraLogo small />
                 </span>
                 <span>
                   <strong className="cloudsaathi-wordmark">
-                    Orinex<span>.</span>
+                    Helmora<span>.</span>
                   </strong>
                   <small>AI mentor for cloud and DevOps</small>
                 </span>
@@ -1929,7 +1929,7 @@ function App() {
             {
               <section className="welcome-panel">
                 <h1>{getTimeGreeting()}, how can I help you today?</h1>
-                <p>Hey, Orinex is here :)</p>
+                <p>Hey, Helmora is here :)</p>
               </section>
             }
 
@@ -1943,7 +1943,7 @@ function App() {
                     className={`message-avatar ${message.role === "assistant" ? "assistant-avatar" : "user-avatar"}`}
                   >
                     {message.role === "assistant" ? (
-                      <OrinexLogo small />
+                      <HelmoraLogo small />
                     ) : (
                       "Y"
                     )}
@@ -1951,7 +1951,7 @@ function App() {
                   <div className="message-content">
                     <div className="message-meta">
                       <strong>
-                        {message.role === "assistant" ? "Orinex" : user}
+                        {message.role === "assistant" ? "Helmora" : user}
                       </strong>
                       <span>
                         {message.role === "assistant" ? "AI MENTOR" : "YOU"}
@@ -1971,12 +1971,12 @@ function App() {
               {loading && (
                 <div className="message-row assistant">
                   <div className="message-avatar assistant-avatar">
-                    <OrinexLogo small />
+                    <HelmoraLogo small />
                   </div>
                   <div className="message-content">
                     <div className="message-meta">
                       <strong className="cloudsaathi-wordmark">
-                        Orinex<span>.</span>
+                        Helmora<span>.</span>
                       </strong>
                       <span>THINKING</span>
                       <time>now</time>
@@ -2013,7 +2013,7 @@ function App() {
                   send();
                 }
               }}
-              placeholder="Ask Orinex"
+              placeholder="Ask Helmora"
             />
             <button
               className="send-button"

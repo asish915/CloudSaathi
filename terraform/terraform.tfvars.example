@@ -2,8 +2,8 @@
 # Never commit terraform.tfvars or Terraform state files.
 
 aws_region           = "ap-south-1"
-project_name         = "cloudsaathi"
-artifact_bucket_name = "cloudsaathi-asish-unique-lowercase-name"
+project_name         = "helmora"
+artifact_bucket_name = "helmora-asish-unique-lowercase-name"
 model_id             = "apac.amazon.nova-micro-v1:0"
 
 # Set this to the exact GitHub repository owner/name used by Actions.

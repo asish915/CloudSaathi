@@ -42,7 +42,7 @@ class BedrockStub:
 class ResponseGenerationTests(unittest.TestCase):
     def test_extracts_question_from_frontend_prompt(self):
         message = (
-            "IDENTITY: You are Orinex, a mentor.\n\n"
+            "IDENTITY: You are Helmora, a mentor.\n\n"
             "DEPTH: Explain fully.\n\n"
             "Learner question: How is S3 different from EBS?"
         )
@@ -61,7 +61,7 @@ class ResponseGenerationTests(unittest.TestCase):
     def test_preserves_marker_text_inside_the_question(self):
         question = "What does this label mean?\n\nLearner question: explain it."
         message = (
-            "IDENTITY: You are Orinex, a mentor.\n\n"
+            "IDENTITY: You are Helmora, a mentor.\n\n"
             "Learner question: "
             f"{question}"
         )
@@ -72,7 +72,7 @@ class ResponseGenerationTests(unittest.TestCase):
         bedrock = BedrockStub()
         handler.bedrock = bedrock
         message = (
-            "IDENTITY: You are Orinex, a mentor.\n\n"
+            "IDENTITY: You are Helmora, a mentor.\n\n"
             "DEPTH: Explain fully.\n\n"
             "Learner question: How is it different from EBS?"
         )
