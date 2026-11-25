@@ -40,5 +40,5 @@ if ($LASTEXITCODE -ne 0) {
     throw "Frontend deployment failed. Check the SSM command output."
 }
 
-Write-Host "CloudSaathi frontend deployed successfully."
+Write-Host "Orinex frontend deployed successfully."
 Write-Host "Website: $(terraform -chdir="$tf" output -raw frontend_url)"

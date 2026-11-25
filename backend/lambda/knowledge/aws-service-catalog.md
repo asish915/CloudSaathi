@@ -1,4 +1,4 @@
-# AWS Service Catalog for CloudSaathi
+# AWS Service Catalog for Orinex
 
 Use this guide to explain AWS services by category. These are representative services, not an exhaustive list of every AWS offering; AWS launches and retires services over time, so verify current availability and regional support in AWS documentation.
 

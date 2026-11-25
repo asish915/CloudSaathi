@@ -1,4 +1,4 @@
-name: CloudSaathi CI-CD DevSecOps
+name: Orinex CI-CD DevSecOps
 
 on:
   push:
@@ -270,7 +270,7 @@ jobs:
           COMMAND_ID=$(aws ssm send-command \
             --instance-ids "$INSTANCE_ID" \
             --document-name "AWS-RunShellScript" \
-            --comment "CloudSaathi deployment ${GITHUB_SHA}" \
+            --comment "Orinex deployment ${GITHUB_SHA}" \
             --parameters "$PARAMETERS" \
             --query 'Command.CommandId' \
             --output text \

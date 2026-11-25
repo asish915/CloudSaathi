@@ -1,6 +1,6 @@
-# CloudSaathi — AI Mentor for Cloud & DevOps
+# Orinex — AI Mentor for Cloud & DevOps
 
-CloudSaathi is a React/Vite frontend with an AWS Lambda chatbot backend. The Lambda retrieves relevant context from curated Markdown files packaged with the function and calls Amazon Bedrock Converse.
+Orinex is a React/Vite frontend with an AWS Lambda chatbot backend. The Lambda retrieves relevant context from curated Markdown files packaged with the function and calls Amazon Bedrock Converse.
 
 ## Current deployment architecture
 

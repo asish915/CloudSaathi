@@ -106,7 +106,7 @@ resource "aws_s3_bucket_server_side_encryption_configuration" "artifacts" {
 
 resource "aws_security_group" "frontend" {
   name        = "${var.project_name}-frontend-sg"
-  description = "Allow HTTP access directly to the CloudSaathi frontend EC2"
+  description = "Allow HTTP access directly to the Orinex frontend EC2"
   vpc_id      = aws_vpc.main.id
 
   ingress {
@@ -214,7 +214,7 @@ resource "aws_instance" "frontend" {
     if aws s3 cp "s3://${aws_s3_bucket.artifacts.bucket}/frontend/dist.zip" /tmp/cloudsaathi-dist.zip --region ${var.aws_region}; then
       unzip -o /tmp/cloudsaathi-dist.zip -d /usr/share/nginx/html/
     else
-      echo "CloudSaathi is deploying. Please upload the frontend build." > /usr/share/nginx/html/index.html
+      echo "Orinex is deploying. Please upload the frontend build." > /usr/share/nginx/html/index.html
     fi
 
     echo "healthy" > /usr/share/nginx/html/health.html

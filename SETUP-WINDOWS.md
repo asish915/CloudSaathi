@@ -1,4 +1,4 @@
-# CloudSaathi — Windows Setup and GitHub Actions Deployment
+# Orinex — Windows Setup and GitHub Actions Deployment
 
 ## 1. Prerequisites
 
@@ -94,13 +94,13 @@ The EC2 instance needs the Systems Manager agent and the `AmazonSSMManagedInstan
 
 ```powershell
 git add .
-git commit -m "Automate CloudSaathi CI/CD with GitHub Actions"
+git commit -m "Automate Orinex CI/CD with GitHub Actions"
 git push origin main
 ```
 
 The workflow will lint and build the frontend, validate Terraform, run security scans, package and update Lambda, upload the frontend ZIP to S3, then deploy it to the single EC2 instance through SSM.
 
-Pull requests run validation and scans only. A push to `main` deploys. You can also run the workflow manually using **Actions → CloudSaathi CI-CD DevSecOps → Run workflow**.
+Pull requests run validation and scans only. A push to `main` deploys. You can also run the workflow manually using **Actions → Orinex CI-CD DevSecOps → Run workflow**.
 
 ## 7. Verify
 

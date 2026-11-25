@@ -1,4 +1,4 @@
-# CloudSaathi — Single EC2 AWS Architecture
+# Orinex — Single EC2 AWS Architecture
 
 ```text
 User browser

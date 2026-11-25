@@ -6,19 +6,18 @@ import terraformLogo from "./assets/logos/terraform.svg";
 import jenkinsLogo from "./assets/logos/jenkins.svg";
 import githubLogo from "./assets/logos/github.svg";
 import gitLogo from "./assets/logos/git.svg";
-import gitlabLogo from "./assets/logos/gitlab.svg";
 import githubActionsLogo from "./assets/logos/githubactions.svg";
 import linuxLogo from "./assets/logos/linux.svg";
 import ansibleLogo from "./assets/logos/ansible.svg";
 import prometheusLogo from "./assets/logos/prometheus.svg";
 import snykLogo from "./assets/logos/snyk.svg";
-import cloudSaathiLogo from "./assets/logos/cloudsaathi.svg";
+import orinexLogo from "./assets/logos/orinex.svg";
 
-function CloudSaathiLogo({ small = false }) {
+function OrinexLogo({ small = false }) {
   return (
     <img
       className={`cloudsaathi-logo ${small ? "small" : ""}`}
-      src={cloudSaathiLogo}
+      src={orinexLogo}
       alt=""
       width="48"
       height="48"
@@ -74,11 +73,11 @@ function getInputQuickReply(question) {
 function cleanMentorAnswer(answer) {
   return String(answer || "")
     .replace(
-      /^\s\*(?:Certainly!?\s\*)?(?:Here(?:'s| is) a mentor-style response to your question:?|User question:.\*|Answer as CloudSaathi:?)/gim,
+      /^\s\*(?:Certainly!?\s\*)?(?:Here(?:'s| is) a mentor-style response to your question:?|User question:.\*|Answer as (?:Orinex|CloudSaathi):?)/gim,
       "",
     )
 
-    .replace(/^\s\*(?:As CloudSaathi,?\s\*)?(?:the answer is:?)/gim, "")
+    .replace(/^\s\*(?:As (?:Orinex|CloudSaathi),?\s\*)?(?:the answer is:?)/gim, "")
 
     .replace(/\n{3,}/g, "\n\n")
 
@@ -93,11 +92,11 @@ function getIntroReply(question) {
     .replace(/\s+/g, " ");
 
   if (
-    /\b(who are you|who r u|who r you|what are you|introduce yourself|tell me about yourself|about you|about cloudsaathi|who built you|who built u|who created you|who created u|who made you|who made u|who developed you|who developed u|who is your creator|who is your developer|who owns you)\b/.test(
+    /\b(who are you|who r u|who r you|what are you|introduce yourself|tell me about yourself|about you|about (?:orinex|cloudsaathi)|who built you|who built u|who created you|who created u|who made you|who made u|who developed you|who developed u|who is your creator|who is your developer|who owns you)\b/.test(
       q,
     )
   ) {
-    return "I'm CloudSaathi, a cloud and DevOps AI mentor created by Asish Sarangi as a learning project. I help explain concepts, plan architectures, troubleshoot deployments, and provide practical examples.";
+    return "I'm Orinex, an AI mentor for cloud and DevOps created by Asish Sarangi as a learning project. I help explain concepts, plan architectures, troubleshoot deployments, and provide practical examples.";
   }
 
   if (
@@ -1139,7 +1138,7 @@ function MessageContent({ text, role, theme }) {
 }
 
 const bootSteps = [
-  { status: "INIT", text: "Starting CloudSaathi runtime" },
+  { status: "INIT", text: "Starting Orinex runtime" },
 
   { status: "LOAD", text: "Loading cloud and DevOps learning library" },
 
@@ -1170,25 +1169,25 @@ function BootScreen({ onComplete, step }) {
             <i />
             <i />
           </div>
-          <span>cloudsaathi — startup console</span>
+          <span>orinex — startup console</span>
           <span className="boot-version">v1.0</span>
         </div>
 
         <div className="boot-brand">
           <div className="boot-logo">
-            <CloudSaathiLogo />
+            <OrinexLogo />
           </div>
           <div>
             <h1 className="cloudsaathi-wordmark">
-              CloudSaathi<span>.</span>
+              Orinex<span>.</span>
             </h1>
-            <p>Cloud &amp; DevOps Mentor</p>
+            <p>AI mentor for cloud and DevOps</p>
           </div>
         </div>
 
         <div className="boot-terminal">
           <div className="boot-command">
-            <span>$</span> cloudsaathi --initialize
+            <span>$</span> orinex --initialize
           </div>
           {visibleSteps.map((line, index) => (
             <div
@@ -1269,6 +1268,7 @@ function LandingPage({
 
   return (
     <div
+      id="landing-top"
       className={`landing-page ${theme === "light" ? "landing-light" : ""} ${isExiting ? "is-exiting" : ""}`}
       onAnimationEnd={(event) => {
         if (isExiting && event.target === event.currentTarget) onExitComplete();
@@ -1277,59 +1277,35 @@ function LandingPage({
       <div className="landing-ambient ambient-one" />
       <div className="landing-ambient ambient-two" />
       <div className="landing-grid" />
-
-      <header className="landing-nav glass-surface">
-        <a className="landing-brand" href="#home" aria-label="CloudSaathi home">
-          <span className="landing-brand-icon">
-            <CloudSaathiLogo small />
-          </span>
-          <span>
-            <strong className="cloudsaathi-wordmark">
-              CloudSaathi<span>.</span>
-            </strong>
-            <small>YOUR CLOUD LEARNING COMPANION</small>
-          </span>
-        </a>
-
-        <nav className="landing-nav-links" aria-label="Main navigation">
-          <a href="#experience">Experience</a>
-          <a href="#journey">Your journey</a>
-          <a href="#toolkit">What you can learn</a>
-        </nav>
-
-        <div className="landing-nav-actions">
-          <button
-            className="landing-theme"
-            type="button"
-            onClick={onThemeToggle}
-            aria-label="Toggle theme"
-          >
-            {theme === "dark" ? "☼" : "☾"}
-          </button>
-          <button className="landing-nav-cta" type="button" onClick={onEnter}>
-            Open mentor <span>↗</span>
-          </button>
-        </div>
-      </header>
+      <div className="landing-motion-field" aria-hidden="true">
+        <span className="landing-float-shape shape-one" />
+        <span className="landing-float-shape shape-two" />
+        <span className="landing-float-shape shape-three" />
+        <span className="landing-float-shape shape-four" />
+        <span className="landing-float-shape shape-five" />
+        <span className="landing-float-shape shape-six" />
+        <span className="landing-float-shape shape-seven" />
+      </div>
+      <button
+        className="landing-theme landing-theme-side"
+        type="button"
+        onClick={onThemeToggle}
+        aria-label="Toggle theme"
+        title="Toggle theme"
+      >
+        <span aria-hidden="true">{theme === "dark" ? "☼" : "☾"}</span>
+      </button>
 
       <main id="home">
-        <section className="landing-hero">
+        <section className="landing-hero landing-compact-hero">
           <div className="landing-hero-copy landing-reveal">
-            <div className="landing-eyebrow">
-              <span className="eyebrow-pulse" /> A smarter way to master cloud &
-              DevOps
-            </div>
-
             <h1>
-              Build your future
-              <br />
-              in the <span>cloud.</span>
+              Hi, I'm <span>Orinex.</span>
             </h1>
 
             <p>
-              From your first Linux command to production-ready cloud
-              architecture — learn, experiment, and grow with an AI mentor by
-              your side.
+              Your AI mentor for cloud and DevOps. What would you like to learn
+              today?
             </p>
 
             <div className="landing-hero-actions">
@@ -1338,258 +1314,19 @@ function LandingPage({
                 type="button"
                 onClick={onEnter}
               >
-                Start learning <span>↗</span>
+                Ask your first question <span>↗</span>
               </button>
-              <a className="landing-secondary" href="#experience">
-                Explore the experience <span>↓</span>
-              </a>
-            </div>
-
-            <div className="landing-trust-row">
-              <div className="avatar-stack">
-                <i>
-                  <img src={awsLogo} alt="AWS" />
-                </i>
-                <i>
-                  <img src={terraformLogo} alt="Terraform" />
-                </i>
-                <i>
-                  <img src={kubernetesLogo} alt="Kubernetes" />
-                </i>
-              </div>
-              <span>One learning space. A whole world of cloud skills.</span>
+              <button
+                className="landing-secondary landing-secondary-button"
+                type="button"
+                onClick={onEnter}
+              >
+                Try as guest
+              </button>
             </div>
           </div>
-
-          <div
-            className="landing-visual landing-reveal"
-            aria-label="CloudSaathi learning ecosystem illustration"
-          >
-            <div className="visual-orbit orbit-a" />
-            <div className="visual-orbit orbit-b" />
-            <div className="visual-core">
-              <CloudSaathiLogo />
-              <span>CLOUDSAATHI</span>
-              <small>AI LEARNING ENGINE</small>
-            </div>
-
-            <div className="float-card float-aws glass-surface">
-              <b className="float-icon">
-                <img src={awsLogo} alt="" />
-              </b>
-              <span>
-                <strong>AWS</strong>
-                <small>Cloud foundations</small>
-              </span>
-              <i>↗</i>
-            </div>
-
-            <div className="float-card float-k8s glass-surface">
-              <b className="float-icon">
-                <img src={kubernetesLogo} alt="" />
-              </b>
-              <span>
-                <strong>Kubernetes</strong>
-                <small>Container orchestration</small>
-              </span>
-            </div>
-
-            <div className="float-card float-ci glass-surface">
-              <b className="float-icon">
-                <img src={gitlabLogo} alt="" />
-              </b>
-              <span>
-                <strong>CI / CD</strong>
-                <small>Ship with confidence</small>
-              </span>
-            </div>
-
-            <div className="visual-caption glass-surface">
-              <span className="caption-dot" /> YOUR IDEAS, DEPLOYED
-            </div>
-          </div>
-
-          <a href="#experience" className="landing-scroll-cue">
-            <span /> SCROLL TO EXPLORE
-          </a>
-        </section>
-
-        <section className="landing-intro landing-reveal" id="experience">
-          <div className="section-kicker">THE CLOUDSAATHI EXPERIENCE</div>
-          <h2>
-            Less memorizing.
-            <br />
-            <em>More understanding.</em>
-          </h2>
-          <p>
-            Cloud technology makes more sense when every concept connects to a
-            bigger picture. Learn at your pace, ask without hesitation, and turn
-            theory into practical skills.
-          </p>
-        </section>
-
-        <section className="landing-feature-grid" id="toolkit">
-          <article className="landing-feature feature-large glass-surface landing-reveal">
-            <div className="feature-topline">
-              <span>01 / LEARN</span>
-              <b>↗</b>
-            </div>
-            <div className="feature-art art-terminal">
-              <div className="terminal-top">
-                <i />
-                <i />
-                <i />
-                <span>cloudsaathi / lesson</span>
-              </div>
-              <div className="terminal-lines">
-                <span>
-                  <i>$</i> docker build -t my-app .
-                </span>
-                <span className="terminal-muted">
-                  Building your understanding...
-                </span>
-                <span className="terminal-success">✓ Concept connected</span>
-              </div>
-            </div>
-            <h3>
-              Understand the why,
-              <br />
-              not just the what.
-            </h3>
-            <p>
-              Explore beginner-friendly explanations, real examples,
-              comparisons, and step-by-step breakdowns.
-            </p>
-          </article>
-
-          <article className="landing-feature glass-surface landing-reveal">
-            <div className="feature-topline">
-              <span>02 / EXPLORE</span>
-              <b>↗</b>
-            </div>
-            <div className="feature-art art-orbit">
-              <span>
-                <img src={awsLogo} alt="AWS" />
-              </span>
-              <i>
-                <img src={terraformLogo} alt="Terraform" />
-              </i>
-              <i>
-                <img src={dockerLogo} alt="Docker" />
-              </i>
-              <i>
-                <img src={githubLogo} alt="GitHub" />
-              </i>
-              <i>
-                <img src={kubernetesLogo} alt="Kubernetes" />
-              </i>
-            </div>
-            <h3>
-              Your whole tech stack,
-              <br />
-              in one place.
-            </h3>
-            <p>
-              Move across AWS, Docker, Kubernetes, Terraform, Linux, CI/CD and
-              more.
-            </p>
-          </article>
-
-          <article className="landing-feature glass-surface landing-reveal">
-            <div className="feature-topline">
-              <span>03 / BUILD</span>
-              <b>↗</b>
-            </div>
-            <div className="feature-art art-flow">
-              <span>CODE</span>
-              <b>→</b>
-              <span>BUILD</span>
-              <b>→</b>
-              <span>DEPLOY</span>
-            </div>
-            <h3>
-              Connect concepts
-              <br />
-              to real workflows.
-            </h3>
-            <p>
-              See how tools work together in infrastructure, automation, and
-              delivery pipelines.
-            </p>
-          </article>
-        </section>
-
-        <section className="landing-journey landing-reveal" id="journey">
-          <div className="journey-heading">
-            <div>
-              <div className="section-kicker">YOUR NEXT CHAPTER</div>
-              <h2>
-                Curiosity is a<br />
-                <em>great place to start.</em>
-              </h2>
-            </div>
-            <p>
-              No perfect starting point needed. Bring a question, choose a
-              technology, or follow your curiosity wherever it leads.
-            </p>
-          </div>
-          <div className="journey-steps">
-            <div className="journey-step">
-              <span>01</span>
-              <div>
-                <b>Pick a direction</b>
-                <small>Choose a topic from the technology library.</small>
-              </div>
-            </div>
-            <div className="journey-connector" />
-            <div className="journey-step">
-              <span>02</span>
-              <div>
-                <b>Ask anything</b>
-                <small>Get clear explanations and practical examples.</small>
-              </div>
-            </div>
-            <div className="journey-connector" />
-            <div className="journey-step">
-              <span>03</span>
-              <div>
-                <b>Keep building</b>
-                <small>Connect the dots and strengthen your skills.</small>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        <section className="landing-final-cta landing-reveal">
-          <div className="cta-glow" />
-          <div className="section-kicker">READY WHEN YOU ARE</div>
-          <h2>
-            Your cloud journey
-            <br />
-            starts with <em>one question.</em>
-          </h2>
-          <p>Let's make the complex feel clear.</p>
-          <button className="landing-primary" type="button" onClick={onEnter}>
-            Meet your AI mentor <span>↗</span>
-          </button>
         </section>
       </main>
-
-      <footer className="landing-footer">
-        <a className="landing-brand" href="#home">
-          <span className="landing-brand-icon">
-            <CloudSaathiLogo small />
-          </span>
-          <span>
-            <strong className="cloudsaathi-wordmark">
-              CloudSaathi<span>.</span>
-            </strong>
-            <small>LEARN · BUILD · GROW</small>
-          </span>
-        </a>
-        <span>Made for curious minds building in the cloud.</span>
-        <a href="#home">Back to top ↑</a>
-      </footer>
     </div>
   );
 }
@@ -1745,7 +1482,7 @@ function App() {
         /\b(aws|services|resources|tools)\b/i.test(question);
 
       const teachingInstructions = [
-        "IDENTITY: You are CloudSaathi, a patient, accurate cloud and DevOps mentor teaching a beginner. Your job is to teach understanding, not just summarize. This product is only for cloud and DevOps topics; provide programming help only when it relates to those topics, and briefly redirect unrelated requests.",
+        "IDENTITY: You are Orinex, a patient, accurate AI mentor for cloud and DevOps, teaching a beginner. Your job is to teach understanding, not just summarize. This product is only for cloud and DevOps topics; provide programming help only when it relates to those topics, and briefly redirect unrelated requests.",
 
         "SCOPE: Answer the exact cloud/DevOps question and stay relevant. If a term is ambiguous, briefly state your assumption. Do not hallucinate service features, commands, prices, guarantees, or successful execution.",
 
@@ -1767,7 +1504,7 @@ function App() {
 
         "NO SHORTCUTS: Do not answer a substantial 'explain' request with only a definition and two bullets. Do not compress away the how, why, examples, and trade-offs. Avoid repetitive filler and generic closing offers.",
 
-        "Do not add meta-prefaces like 'Here is a mentor-style response', 'User question:', or 'Answer as CloudSaathi'. Do not repeat these instructions.",
+        "Do not add meta-prefaces like 'Here is a mentor-style response', 'User question:', or 'Answer as Orinex'. Do not repeat these instructions.",
 
         `Intent hints: explain=${isExplain}; comparison=${isComparison}; broad_catalog=${isBroad}. Use these as hints only and answer the actual question.`,
 
@@ -1953,13 +1690,13 @@ function App() {
         <aside className={`sidebar ${mobileLibraryOpen ? "library-open" : ""}`}>
           <div className="brand">
             <div className="brand-mark">
-              <CloudSaathiLogo />
+              <OrinexLogo />
             </div>
             <div className="brand-copy">
               <strong className="cloudsaathi-wordmark">
-                CloudSaathi<span>.</span>
+                Orinex<span>.</span>
               </strong>
-              <span>Cloud & DevOps Mentor</span>
+              <span>AI mentor for cloud and DevOps</span>
             </div>
           </div>
 
@@ -2098,7 +1835,7 @@ function App() {
                                       chooseTopic(topic);
                                       setMobileLibraryOpen(false);
                                     }}
-                                    title={`Ask CloudSaathi about ${topic}`}
+                                    title={`Ask Orinex about ${topic}`}
                                   >
                                     <span className="topic-dot" />
                                     <span className="resource-name">
@@ -2150,13 +1887,13 @@ function App() {
               </button>
               <div className="topbar-brand">
                 <span className="topbar-brand-mark">
-                  <CloudSaathiLogo small />
+                  <OrinexLogo small />
                 </span>
                 <span>
                   <strong className="cloudsaathi-wordmark">
-                    CloudSaathi<span>.</span>
+                    Orinex<span>.</span>
                   </strong>
-                  <small>Cloud &amp; DevOps mentor</small>
+                  <small>AI mentor for cloud and DevOps</small>
                 </span>
               </div>
               <div className="connection-status">
@@ -2192,7 +1929,7 @@ function App() {
             {
               <section className="welcome-panel">
                 <h1>{getTimeGreeting()}, how can I help you today?</h1>
-                <p>Hey, CloudSaathi is here :)</p>
+                <p>Hey, Orinex is here :)</p>
               </section>
             }
 
@@ -2206,7 +1943,7 @@ function App() {
                     className={`message-avatar ${message.role === "assistant" ? "assistant-avatar" : "user-avatar"}`}
                   >
                     {message.role === "assistant" ? (
-                      <CloudSaathiLogo small />
+                      <OrinexLogo small />
                     ) : (
                       "Y"
                     )}
@@ -2214,7 +1951,7 @@ function App() {
                   <div className="message-content">
                     <div className="message-meta">
                       <strong>
-                        {message.role === "assistant" ? "CloudSaathi" : user}
+                        {message.role === "assistant" ? "Orinex" : user}
                       </strong>
                       <span>
                         {message.role === "assistant" ? "AI MENTOR" : "YOU"}
@@ -2234,12 +1971,12 @@ function App() {
               {loading && (
                 <div className="message-row assistant">
                   <div className="message-avatar assistant-avatar">
-                    <CloudSaathiLogo small />
+                    <OrinexLogo small />
                   </div>
                   <div className="message-content">
                     <div className="message-meta">
                       <strong className="cloudsaathi-wordmark">
-                        CloudSaathi<span>.</span>
+                        Orinex<span>.</span>
                       </strong>
                       <span>THINKING</span>
                       <time>now</time>
@@ -2276,7 +2013,7 @@ function App() {
                   send();
                 }
               }}
-              placeholder="Ask CloudSaathi"
+              placeholder="Ask Orinex"
             />
             <button
               className="send-button"
