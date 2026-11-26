@@ -967,7 +967,7 @@ function MermaidDiagram({ source, theme }) {
           setRenderResult({ source, theme, svg: sanitizedSvg, error: false });
         }
       } catch (error) {
-        console.error("Mermaid diagram rendering failed:", error);
+        console.error("Mermaid diagram rendering failed.:", error);
         if (!cancelled) {
           setRenderResult({ source, theme, svg: "", error: true });
         }
