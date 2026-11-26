@@ -18,7 +18,7 @@ variable "artifact_bucket_name" {
 variable "model_id" {
   description = "Amazon Bedrock model ID"
   type        = string
-  default     = "apac.amazon.nova-micro-v1:0" # CHANGE: Change if you deliberately choose another supported model.
+  default     = "apac.amazon.nova-lite-v1:0" # Image-capable model for chat attachments.
 }
 
 variable "cors_origin" {

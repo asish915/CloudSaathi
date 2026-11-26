@@ -120,7 +120,8 @@ The EC2 instance must be online and registered with Systems Manager. Its instanc
 - Do not commit `.env`, `terraform.tfvars`, `.terraform/`, `*.tfstate`, `node_modules/`, `dist/`, or ZIP build outputs.
 - Commit `terraform/.terraform.lock.hcl` so CI and local runs use consistent provider versions.
 - The Lambda knowledge base is packaged inside the Lambda ZIP. The S3 `knowledge/` upload was removed because the handler does not read knowledge from S3.
-- The Lambda uses the configured Bedrock inference profile ID (`apac.amazon.nova-micro-v1:0`). Ensure that profile is enabled for the AWS account and region.
+- The Lambda uses the configured Bedrock inference profile ID (`apac.amazon.nova-lite-v1:0`) to support image understanding. Ensure that profile is enabled for the AWS account and region; Nova Lite inference may have different costs from Nova Micro.
+- Chat accepts up to five PNG, JPEG, WebP, or text/config/log attachments (TXT, MD, CSV, JSON, YAML, LOG, Terraform/Terraform variables, Python, shell, XML, CONF, INI, Dockerfile, and properties files), within a 4 MB combined file-size limit. Combined text content is limited to 30,000 characters. Uploaded files are sent with the learner's request to the configured Bedrock model; do not attach secrets or private information.
 - The EC2 public IP can change if the instance is replaced because no Elastic IP is provisioned. Update `VITE_API_URL` only if the API endpoint changes; restrict CORS to a stable frontend origin if you later add a domain.
 
 ## Cleanup

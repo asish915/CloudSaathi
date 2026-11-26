@@ -28,6 +28,47 @@ function HelmoraLogo({ small = false }) {
 }
 
 const API_URL = (import.meta.env.VITE_API_URL || "").replace(/\/+$/, "");
+const MAX_ATTACHMENTS = 5;
+const MAX_ATTACHMENT_BYTES = 4 * 1024 * 1024;
+const MAX_ATTACHMENT_TEXT_CHARS = 30000;
+const IMAGE_TYPES_BY_EXTENSION = {
+  png: "image/png",
+  jpg: "image/jpeg",
+  jpeg: "image/jpeg",
+  webp: "image/webp",
+};
+const TEXT_FILE_EXTENSIONS = new Set([
+  "txt",
+  "md",
+  "csv",
+  "json",
+  "yaml",
+  "yml",
+  "log",
+  "tf",
+  "tfvars",
+  "py",
+  "sh",
+  "xml",
+  "conf",
+  "ini",
+  "properties",
+]);
+
+function readFileAsDataUrl(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result);
+    reader.onerror = () => reject(new Error("Could not read this image."));
+    reader.readAsDataURL(file);
+  });
+}
+
+function formatFileSize(size) {
+  if (size < 1024) return `${size} B`;
+  if (size < 1024 * 1024) return `${(size / 1024).toFixed(0)} KB`;
+  return `${(size / (1024 * 1024)).toFixed(1)} MB`;
+}
 
 function getTimeGreeting(date = new Date()) {
   const hour = date.getHours();
@@ -1237,7 +1278,6 @@ function LandingPage({
   onExitComplete,
   isExiting,
   theme,
-  onThemeToggle,
 }) {
   useEffect(() => {
     const nodes = document.querySelectorAll(".landing-reveal");
@@ -1286,15 +1326,6 @@ function LandingPage({
         <span className="landing-float-shape shape-six" />
         <span className="landing-float-shape shape-seven" />
       </div>
-      <button
-        className="landing-theme landing-theme-side"
-        type="button"
-        onClick={onThemeToggle}
-        aria-label="Toggle theme"
-        title="Toggle theme"
-      >
-        <span aria-hidden="true">{theme === "dark" ? "☼" : "☾"}</span>
-      </button>
 
       <main id="home">
         <section className="landing-hero landing-compact-hero">
@@ -1350,6 +1381,16 @@ function App() {
 
   const [input, setInput] = useState("");
 
+  const [attachments, setAttachments] = useState([]);
+
+  const [attachmentError, setAttachmentError] = useState("");
+
+  const [readingFiles, setReadingFiles] = useState(false);
+
+  const [isAttachmentMenuOpen, setIsAttachmentMenuOpen] = useState(false);
+
+  const [isDraggingFiles, setIsDraggingFiles] = useState(false);
+
   const [loading, setLoading] = useState(false);
 
   const [theme, setTheme] = useState(
@@ -1376,9 +1417,162 @@ function App() {
 
   const chatScrollRef = useRef(null);
 
+  const composerTextareaRef = useRef(null);
+
+  const attachmentMenuRef = useRef(null);
+
+  const attachmentMenuTriggerRef = useRef(null);
+
+  const imageFileInputRef = useRef(null);
+
+  const textFileInputRef = useRef(null);
+
+  const readingFilesRef = useRef(false);
+
+  const shouldScrollToBottomRef = useRef(false);
+
   const requestVersionRef = useRef(0);
 
   const abortControllerRef = useRef(null);
+
+  useEffect(() => {
+    if (!shouldScrollToBottomRef.current) return;
+
+    shouldScrollToBottomRef.current = false;
+
+    const pane = chatScrollRef.current;
+
+    if (pane) pane.scrollTop = pane.scrollHeight;
+  }, [messages]);
+
+  function appendAssistantMessage(text, shouldScrollToBottom = false) {
+    shouldScrollToBottomRef.current = shouldScrollToBottom;
+    setMessages((current) => [
+      ...current,
+      { role: "assistant", text, timestamp: Date.now() },
+    ]);
+  }
+
+  async function addAttachments(fileList, expectedKind) {
+    const files = Array.from(fileList || []);
+    if (!files.length || loading || readingFilesRef.current) return;
+
+    readingFilesRef.current = true;
+    setReadingFiles(true);
+    setAttachmentError("");
+
+    const nextAttachments = [...attachments];
+    const errors = [];
+    let totalBytes = nextAttachments.reduce((total, item) => total + item.size, 0);
+    let totalTextChars = nextAttachments.reduce(
+      (total, item) => total + (item.kind === "text" ? item.content.length : 0),
+      0,
+    );
+
+    for (const file of files) {
+      const duplicate = nextAttachments.some(
+        (item) =>
+          item.name === file.name &&
+          item.size === file.size &&
+          item.lastModified === file.lastModified,
+      );
+      if (duplicate) continue;
+
+      if (nextAttachments.length >= MAX_ATTACHMENTS) {
+        errors.push(`You can attach up to ${MAX_ATTACHMENTS} files per message.`);
+        break;
+      }
+
+      if (file.size <= 0) {
+        errors.push(`${file.name} is empty.`);
+        continue;
+      }
+
+      if (totalBytes + file.size > MAX_ATTACHMENT_BYTES) {
+        errors.push("Attachments must total 4 MB or less.");
+        continue;
+      }
+
+      const extension = file.name.split(".").pop().toLowerCase();
+      const imageMimeType = IMAGE_TYPES_BY_EXTENSION[extension];
+      const isDockerfile = file.name.toLowerCase() === "dockerfile";
+      const isTextFile = isDockerfile || TEXT_FILE_EXTENSIONS.has(extension);
+      const kind = imageMimeType ? "image" : isTextFile ? "text" : "";
+
+      if (!kind || (expectedKind && kind !== expectedKind)) {
+        errors.push(
+          `${file.name} isn't a supported ${expectedKind || "image or text"} file.`,
+        );
+        continue;
+      }
+
+      if (kind === "image" && file.type && file.type !== imageMimeType) {
+        errors.push(`${file.name} doesn't match its image file type.`);
+        continue;
+      }
+
+      try {
+        if (kind === "image") {
+          const preview = await readFileAsDataUrl(file);
+          if (typeof preview !== "string" || !preview.startsWith("data:image/")) {
+            throw new Error("Could not read this image.");
+          }
+          nextAttachments.push({
+            id: `${file.name}-${file.size}-${file.lastModified}`,
+            name: file.name,
+            kind,
+            mimeType: imageMimeType,
+            size: file.size,
+            lastModified: file.lastModified,
+            preview,
+          });
+        } else {
+          const content = await file.text();
+          if (!content.trim() || content.includes("\u0000")) {
+            throw new Error("File must contain readable, non-empty text.");
+          }
+          if (totalTextChars + content.length > MAX_ATTACHMENT_TEXT_CHARS) {
+            throw new Error(
+              `Combined text attachments cannot exceed ${MAX_ATTACHMENT_TEXT_CHARS.toLocaleString()} characters.`,
+            );
+          }
+          totalTextChars += content.length;
+          nextAttachments.push({
+            id: `${file.name}-${file.size}-${file.lastModified}`,
+            name: file.name,
+            kind,
+            mimeType: file.type || "text/plain",
+            size: file.size,
+            lastModified: file.lastModified,
+            content,
+          });
+        }
+        totalBytes += file.size;
+      } catch (error) {
+        errors.push(`${file.name}: ${error.message}`);
+      }
+    }
+
+    setAttachments(nextAttachments);
+    setAttachmentError(errors.join(" "));
+    readingFilesRef.current = false;
+    setReadingFiles(false);
+  }
+
+  useEffect(() => {
+    const textarea = composerTextareaRef.current;
+    if (!textarea) return;
+
+    textarea.style.setProperty("height", "auto", "important");
+    const maxHeight = 160;
+    textarea.style.setProperty(
+      "height",
+      `${Math.min(textarea.scrollHeight, maxHeight)}px`,
+      "important",
+    );
+    textarea.style.overflowY =
+      textarea.scrollHeight > maxHeight ? "auto" : "hidden";
+  }, [input]);
 
   useEffect(() => {
     if (!booting) return undefined;
@@ -1405,6 +1599,31 @@ function App() {
   }, [theme]);
 
   useEffect(() => {
+    if (!isAttachmentMenuOpen) return undefined;
+
+    function handlePointerDown(event) {
+      if (!attachmentMenuRef.current?.contains(event.target)) {
+        setIsAttachmentMenuOpen(false);
+      }
+    }
+
+    function handleKeyDown(event) {
+      if (event.key === "Escape") {
+        setIsAttachmentMenuOpen(false);
+        attachmentMenuTriggerRef.current?.focus();
+      }
+    }
+
+    document.addEventListener("pointerdown", handlePointerDown);
+    document.addEventListener("keydown", handleKeyDown);
+
+    return () => {
+      document.removeEventListener("pointerdown", handlePointerDown);
+      document.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [isAttachmentMenuOpen]);
+
+  useEffect(() => {
     localStorage.setItem(
       "cloudsaathi-recent",
       JSON.stringify(recentlyAsked.slice(0, 5)),
@@ -1412,13 +1631,37 @@ function App() {
   }, [recentlyAsked]);
 
   async function send(text = input) {
-    const question = text.trim();
+    const pendingAttachments = attachments;
+    const question =
+      text.trim() ||
+      (pendingAttachments.length
+        ? "Please review the attached image(s) and file(s)."
+        : "");
 
-    if (!question || loading) return;
+    if (!question || loading || readingFiles) return;
 
     const requestVersion = requestVersionRef.current;
 
     const now = Date.now();
+    const messageAttachments = pendingAttachments.map(
+      ({ id, name, kind, mimeType, size, preview }) => ({
+        id,
+        name,
+        kind,
+        mimeType,
+        size,
+        preview,
+      }),
+    );
+    const requestAttachments = pendingAttachments.map((attachment) => ({
+      name: attachment.name,
+      kind: attachment.kind,
+      mimeType: attachment.mimeType,
+      content:
+        attachment.kind === "image"
+          ? attachment.preview.slice(attachment.preview.indexOf(",") + 1)
+          : attachment.content,
+    }));
 
     setRecentlyAsked((current) =>
       [
@@ -1429,32 +1672,30 @@ function App() {
       ].slice(0, 5),
     );
 
+    shouldScrollToBottomRef.current = true;
+
     setMessages((current) => [
       ...current,
-      { role: "user", text: question, timestamp: now },
+      {
+        role: "user",
+        text: question,
+        timestamp: now,
+        attachments: messageAttachments,
+      },
     ]);
 
-    // Scroll to the new message once when the learner sends it.
-
-    // Assistant replies do not trigger automatic scrolling, so older messages
-
-    // remain readable while the response is being generated.
-
-    window.requestAnimationFrame(() => {
-      const pane = chatScrollRef.current;
-
-      if (pane) pane.scrollTop = pane.scrollHeight;
-    });
-
     setInput("");
+    setAttachments([]);
+    setAttachmentError("");
+    setIsAttachmentMenuOpen(false);
 
-    const quick = getIntroReply(question) || getInputQuickReply(question);
+    const quick =
+      requestAttachments.length === 0
+        ? getIntroReply(question) || getInputQuickReply(question)
+        : null;
 
     if (quick) {
-      setMessages((current) => [
-        ...current,
-        { role: "assistant", text: quick, timestamp: Date.now() },
-      ]);
+      appendAssistantMessage(quick, true);
       return;
     }
 
@@ -1516,6 +1757,7 @@ function App() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           message: teachingInstructions,
+          attachments: requestAttachments,
           history: messages.slice(-8).map(({ role, text }) => ({
             role,
             content: text,
@@ -1528,30 +1770,33 @@ function App() {
 
       if (!response.ok) throw new Error(data.error || "API request failed");
 
-      if (requestVersion === requestVersionRef.current)
-        setMessages((current) => [
-          ...current,
-          {
-            role: "assistant",
-            text:
-              cleanMentorAnswer(data.answer) ||
-              "I couldn't find an answer for that yet.",
-            timestamp: Date.now(),
-          },
-        ]);
+      if (requestVersion === requestVersionRef.current) {
+        const pane = chatScrollRef.current;
+        const isNearBottom =
+          pane &&
+          pane.scrollHeight - pane.scrollTop - pane.clientHeight < 96;
+
+        appendAssistantMessage(
+          cleanMentorAnswer(data.answer) ||
+            "I couldn't find an answer for that yet.",
+          isNearBottom,
+        );
+      }
     } catch (error) {
       if (
         requestVersion === requestVersionRef.current &&
         error.name !== "AbortError"
-      )
-        setMessages((current) => [
-          ...current,
-          {
-            role: "assistant",
-            text: `I couldn't reach the backend.\n\n${error.message}\n\nCheck API Gateway, Lambda, Bedrock and VITE_API_URL.`,
-            timestamp: Date.now(),
-          },
-        ]);
+      ) {
+        const pane = chatScrollRef.current;
+        const isNearBottom =
+          pane &&
+          pane.scrollHeight - pane.scrollTop - pane.clientHeight < 96;
+
+        appendAssistantMessage(
+          `I couldn't reach the backend.\n\n${error.message}\n\nCheck API Gateway, Lambda, Bedrock and VITE_API_URL.`,
+          isNearBottom,
+        );
+      }
     } finally {
       if (requestVersion === requestVersionRef.current) setLoading(false);
 
@@ -1579,9 +1824,17 @@ function App() {
 
     abortControllerRef.current = null;
 
+    shouldScrollToBottomRef.current = false;
+
     setMessages([]);
 
     setInput("");
+
+    setAttachments([]);
+
+    setAttachmentError("");
+
+    setIsAttachmentMenuOpen(false);
 
     setLoading(false);
 
@@ -1670,9 +1923,6 @@ function App() {
       <LandingPage
         theme={theme}
         isExiting={landingExiting}
-        onThemeToggle={() =>
-          setTheme((current) => (current === "dark" ? "light" : "dark"))
-        }
         onEnter={beginMentorTransition}
         onExitComplete={finishMentorTransition}
       />
@@ -1696,7 +1946,6 @@ function App() {
               <strong className="cloudsaathi-wordmark">
                 Helmora<span>.</span>
               </strong>
-              <span>AI mentor for cloud and DevOps</span>
             </div>
           </div>
 
@@ -1893,7 +2142,6 @@ function App() {
                   <strong className="cloudsaathi-wordmark">
                     Helmora<span>.</span>
                   </strong>
-                  <small>AI mentor for cloud and DevOps</small>
                 </span>
               </div>
               <div className="connection-status">
@@ -1926,14 +2174,18 @@ function App() {
           </header>
 
           <div className="chat-scroll" ref={chatScrollRef}>
-            {
+            {messages.length === 0 && (
               <section className="welcome-panel">
                 <h1>{getTimeGreeting()}, how can I help you today?</h1>
                 <p>Hey, Helmora is here :)</p>
               </section>
-            }
+            )}
 
-            <section className="messages" aria-live="polite">
+            <section
+              className="messages"
+              aria-live="polite"
+              aria-busy={loading}
+            >
               {messages.map((message, index) => (
                 <div
                   className={`message-row ${message.role}`}
@@ -1965,6 +2217,37 @@ function App() {
                         theme={theme}
                       />
                     </div>
+                    {message.attachments?.length > 0 && (
+                      <div className="sent-attachments" role="list" aria-label="Sent attachments">
+                        {message.attachments.map((attachment) => (
+                          <div
+                            className="sent-attachment"
+                            key={attachment.id}
+                            role="listitem"
+                          >
+                            {attachment.kind === "image" ? (
+                              <img
+                                src={attachment.preview}
+                                alt={`Attached image: ${attachment.name}`}
+                              />
+                            ) : (
+                              <svg
+                                aria-hidden="true"
+                                viewBox="0 0 24 24"
+                                focusable="false"
+                              >
+                                <path d="M7 3.75h7l4.25 4.25v12.25H7z" />
+                                <path d="M14 3.75V8h4.25M9.5 12h6M9.5 15h6" />
+                              </svg>
+                            )}
+                            <span title={attachment.name}>
+                              {attachment.name}
+                            </span>
+                            <small>{formatFileSize(attachment.size)}</small>
+                          </div>
+                        ))}
+                      </div>
+                    )}
                   </div>
                 </div>
               ))}
@@ -1981,7 +2264,11 @@ function App() {
                       <span>THINKING</span>
                       <time>now</time>
                     </div>
-                    <div className="message-bubble thinking">
+                    <div
+                      className="message-bubble thinking"
+                      role="status"
+                      aria-label="Helmora is generating a response"
+                    >
                       <i />
                       <i />
                       <i />
@@ -1994,50 +2281,273 @@ function App() {
           </div>
 
           <form
-            className="composer"
+            className={`composer ${isDraggingFiles ? "is-dragging" : ""}`}
             onSubmit={(event) => {
               event.preventDefault();
               send();
             }}
+            onDragOver={(event) => {
+              if (!Array.from(event.dataTransfer.types).includes("Files")) {
+                return;
+              }
+              event.preventDefault();
+              setIsDraggingFiles(true);
+            }}
+            onDragLeave={(event) => {
+              if (
+                !event.relatedTarget ||
+                !event.currentTarget.contains(event.relatedTarget)
+              ) {
+                setIsDraggingFiles(false);
+              }
+            }}
+            onDrop={(event) => {
+              event.preventDefault();
+              setIsDraggingFiles(false);
+              void addAttachments(event.dataTransfer.files);
+            }}
           >
-            <textarea
-              value={input}
-              onChange={(event) => setInput(event.target.value)}
-              onKeyDown={(event) => {
-                if (
-                  event.key === "Enter" &&
-                  !event.shiftKey &&
-                  !event.nativeEvent.isComposing
-                ) {
-                  event.preventDefault();
-                  send();
-                }
+            <input
+              ref={imageFileInputRef}
+              className="hidden-file-input"
+              type="file"
+              accept="image/png,image/jpeg,image/webp"
+              multiple
+              tabIndex={-1}
+              onChange={(event) => {
+                const files = Array.from(event.currentTarget.files || []);
+                event.currentTarget.value = "";
+                void addAttachments(files, "image");
               }}
-              placeholder="Ask Helmora"
             />
-            <button
-              className="send-button"
-              type="submit"
-              disabled={!input.trim() || loading}
-              aria-label="Send message"
-            >
-              ↑
-            </button>
-            <div className="composer-hint">
-              <span>↵</span> Enter to send{" "}
-              <span className="hint-divider">·</span> Shift + Enter for a new
-              line{" "}
-              <span className="composer-secure">Your learning session</span>
+            <input
+              ref={textFileInputRef}
+              className="hidden-file-input"
+              type="file"
+              accept=".txt,.md,.csv,.json,.yaml,.yml,.log,.tf,.tfvars,.py,.sh,.xml,.conf,.ini,.properties,Dockerfile"
+              multiple
+              tabIndex={-1}
+              onChange={(event) => {
+                const files = Array.from(event.currentTarget.files || []);
+                event.currentTarget.value = "";
+                void addAttachments(files, "text");
+              }}
+            />
+            {attachments.length > 0 && (
+              <div
+                className="pending-attachments"
+                role="list"
+                aria-label="Files to send"
+              >
+                {attachments.map((attachment) => (
+                  <div
+                    className="pending-attachment"
+                    key={attachment.id}
+                    role="listitem"
+                  >
+                    {attachment.kind === "image" ? (
+                      <img src={attachment.preview} alt="" />
+                    ) : (
+                      <svg
+                        aria-hidden="true"
+                        viewBox="0 0 24 24"
+                        focusable="false"
+                      >
+                        <path d="M7 3.75h7l4.25 4.25v12.25H7z" />
+                        <path d="M14 3.75V8h4.25M9.5 12h6M9.5 15h6" />
+                      </svg>
+                    )}
+                    <span title={attachment.name}>{attachment.name}</span>
+                    <small>{formatFileSize(attachment.size)}</small>
+                    <button
+                      className="remove-attachment"
+                      type="button"
+                      onClick={() => {
+                        setAttachments((current) =>
+                          current.filter((item) => item.id !== attachment.id),
+                        );
+                        setAttachmentError("");
+                      }}
+                      aria-label={`Remove ${attachment.name}`}
+                      title={`Remove ${attachment.name}`}
+                    >
+                      ×
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
+            <div className="composer-input-row">
+              <div
+                className="composer-add-menu"
+                ref={attachmentMenuRef}
+                onBlur={(event) => {
+                  if (!event.currentTarget.contains(event.relatedTarget)) {
+                    setIsAttachmentMenuOpen(false);
+                  }
+                }}
+              >
+                <button
+                  ref={attachmentMenuTriggerRef}
+                  className={`composer-add-button ${isAttachmentMenuOpen ? "is-open" : ""}`}
+                  type="button"
+                  onClick={() =>
+                    setIsAttachmentMenuOpen((isOpen) => !isOpen)
+                  }
+                  disabled={
+                    loading ||
+                    readingFiles ||
+                    attachments.length >= MAX_ATTACHMENTS
+                  }
+                  aria-label="Add an image or file"
+                  aria-expanded={isAttachmentMenuOpen}
+                  aria-controls="composer-upload-menu"
+                  title="Add an image or file"
+                >
+                  <svg
+                    className="composer-plus-icon"
+                    aria-hidden="true"
+                    viewBox="0 0 24 24"
+                    focusable="false"
+                  >
+                    <path d="M12 5v14M5 12h14" />
+                  </svg>
+                </button>
+                <div
+                  className="composer-upload-menu"
+                  id="composer-upload-menu"
+                  role="group"
+                  aria-label="Choose an attachment type"
+                  hidden={!isAttachmentMenuOpen}
+                >
+                  <button
+                    className="composer-upload-option image-upload-action"
+                    type="button"
+                    onClick={() => {
+                      setIsAttachmentMenuOpen(false);
+                      imageFileInputRef.current?.click();
+                    }}
+                  >
+                    <svg
+                      className="upload-icon"
+                      aria-hidden="true"
+                      viewBox="0 0 24 24"
+                      focusable="false"
+                    >
+                      <rect x="3.5" y="4" width="17" height="16" rx="3" />
+                      <circle cx="9" cy="9.5" r="1.5" />
+                      <path d="m5 17 4.5-4.5 3 3 2-2L19 18" />
+                    </svg>
+                    <span>
+                      <strong>Image</strong>
+                      <small>PNG, JPEG, or WebP</small>
+                    </span>
+                  </button>
+                  <button
+                    className="composer-upload-option file-upload-action"
+                    type="button"
+                    onClick={() => {
+                      setIsAttachmentMenuOpen(false);
+                      textFileInputRef.current?.click();
+                    }}
+                  >
+                    <svg
+                      className="upload-icon"
+                      aria-hidden="true"
+                      viewBox="0 0 24 24"
+                      focusable="false"
+                    >
+                      <path d="M7 3.75h7l4.25 4.25v12.25H7z" />
+                      <path d="M14 3.75V8h4.25M9.5 12h6M9.5 15h6" />
+                    </svg>
+                    <span>
+                      <strong>File</strong>
+                      <small>Text, config, or log</small>
+                    </span>
+                  </button>
+                </div>
+              </div>
+              <textarea
+                ref={composerTextareaRef}
+                value={input}
+                onChange={(event) => setInput(event.currentTarget.value)}
+                onPaste={(event) => {
+                  const files = Array.from(event.clipboardData.files || []);
+                  if (files.length > 0) {
+                    event.preventDefault();
+                    void addAttachments(files);
+                  }
+                }}
+                onKeyDown={(event) => {
+                  if (
+                    event.key === "Enter" &&
+                    !event.shiftKey &&
+                    !event.nativeEvent.isComposing
+                  ) {
+                    event.preventDefault();
+                    send();
+                  }
+                }}
+                placeholder="Ask Helmora..."
+                aria-label="Ask Helmora"
+                aria-describedby="composer-guidance"
+                maxLength={4000}
+                rows={1}
+              />
+              <button
+                className="send-button"
+                type="submit"
+                disabled={
+                  (!input.trim() && attachments.length === 0) ||
+                  loading ||
+                  readingFiles
+                }
+                aria-label="Send message"
+                title="Send message"
+              >
+                <svg
+                  className="send-icon"
+                  aria-hidden="true"
+                  viewBox="0 0 24 24"
+                  focusable="false"
+                >
+                  <path d="m21 3-7.2 18-3.7-7.1L3 10.2 21 3Z" />
+                  <path d="M10.1 13.9 15 9" />
+                </svg>
+              </button>
+            </div>
+            {attachmentError && (
+              <p className="attachment-error" role="alert">
+                {attachmentError}
+              </p>
+            )}
+            <div className="composer-footer">
+              <p className="composer-hint" id="composer-guidance">
+                Press <kbd>Enter</kbd> to send
+                <span className="hint-divider">·</span>
+                <kbd>Shift + Enter</kbd> for a new line
+              </p>
+              {readingFiles && (
+                <span className="upload-status" role="status">
+                  Preparing files…
+                </span>
+              )}
               {loading && (
                 <button
                   className="stop-generating"
                   type="button"
                   onClick={stopGenerating}
+                  aria-label="Stop generating response"
                 >
                   ■ Stop generating
                 </button>
               )}
             </div>
+            {isDraggingFiles && (
+              <div className="composer-drop-message" aria-hidden="true">
+                Drop images or text files to attach
+              </div>
+            )}
           </form>
         </main>
       </div>

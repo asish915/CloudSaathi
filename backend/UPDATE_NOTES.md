@@ -23,7 +23,7 @@ Only the last eight user/assistant turns are accepted; each is capped to 3,000 c
 
 ## Environment variables
 
-- `MODEL_ID` (existing; default remains `apac.amazon.nova-micro-v1:0`)
+- `MODEL_ID` (default `apac.amazon.nova-lite-v1:0`; requires Bedrock model access)
 - `AWS_REGION` (existing; default remains `ap-south-1`)
 - `CORS_ORIGIN` (existing)
 - `MAX_TOKENS` (optional; default `2400`)
@@ -36,6 +36,7 @@ Only the last eight user/assistant turns are accepted; each is capped to 3,000 c
 - Knowledge documents are split by headings before scoring, instead of treating entire files as one retrieval unit.
 - Improved retrieval scoring and bounded context size.
 - Optional conversation history support while retaining compatibility with message-only clients.
+- Validated image and text/config attachment support through Bedrock Converse, with five-file, 4 MB, and 30,000-character limits.
 - Handles empty output and Bedrock safety-filter stop reasons without assuming a text block exists.
 - Better client-facing transient error response; details are logged server-side.
 - Increased output token ceiling to 2,400 by default (override through environment variable).
