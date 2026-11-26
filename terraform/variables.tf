@@ -49,3 +49,9 @@ variable "github_branch" {
   default = "main"
 }
 
+variable "context7_api_key" {
+  description = "Context7 API key for documentation retrieval"
+  type        = string
+  sensitive   = true
+}
+

@@ -31,11 +31,12 @@ module "ec2" {
 module "lambda" {
   source = "./modules/lambda"
 
-  project_name    = var.project_name
-  aws_region      = var.aws_region
-  model_id        = var.model_id
-  cors_origin     = var.cors_origin
-  lambda_zip_path = local.lambda_zip
+  project_name     = var.project_name
+  aws_region       = var.aws_region
+  model_id         = var.model_id
+  cors_origin      = var.cors_origin
+  lambda_zip_path  = local.lambda_zip
+  context7_api_key = var.context7_api_key
 }
 
 module "api_gateway" {

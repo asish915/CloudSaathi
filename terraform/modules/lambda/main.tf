@@ -61,8 +61,9 @@ resource "aws_lambda_function" "chat" {
 
   environment {
     variables = {
-      MODEL_ID    = var.model_id
-      CORS_ORIGIN = var.cors_origin
+      MODEL_ID         = var.model_id
+      CORS_ORIGIN      = var.cors_origin
+      CONTEXT7_API_KEY = var.context7_api_key
     }
   }
 }

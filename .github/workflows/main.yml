@@ -12,7 +12,7 @@ permissions:
   id-token: write
 
 concurrency:
-  group: cloudsaathi-${{ github.ref }}
+  group: helmora-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
@@ -139,7 +139,7 @@ jobs:
       - name: Upload deployment artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: cloudsaathi-build-artifacts
+          name: helmora-build-artifacts
           path: |
             frontend/dist.zip
             build/lambda.zip
@@ -174,7 +174,7 @@ jobs:
       - name: Download deployment artifacts
         uses: actions/download-artifact@v4
         with:
-          name: cloudsaathi-build-artifacts
+          name: helmora-build-artifacts
           path: .
 
       - name: Validate deployment configuration
@@ -238,6 +238,50 @@ jobs:
             --function-name "$LAMBDA_FUNCTION_NAME" \
             --region "$AWS_REGION"
 
+      - name: Configure Context7 API key on Lambda
+        env:
+          CONTEXT7_API_KEY: ${{ secrets.CONTEXT7_API_KEY }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -n "$CONTEXT7_API_KEY" || { echo "Missing CONTEXT7_API_KEY secret."; exit 1; }
+
+          # Read existing Lambda environment variables so they are preserved.
+          CURRENT_ENV=$(aws lambda get-function-configuration \
+            --function-name "$LAMBDA_FUNCTION_NAME" \
+            --query 'Environment.Variables' \
+            --output json \
+            --region "$AWS_REGION")
+
+          # Merge the Context7 secret without deleting existing settings.
+          ENV_FILE=$(mktemp)
+          trap 'rm -f "$ENV_FILE"' EXIT
+
+          jq -n \
+            --arg key "$CONTEXT7_API_KEY" \
+            --argjson current "$CURRENT_ENV" \
+            '{Variables: (($current // {}) + {CONTEXT7_API_KEY: $key})}' \
+            > "$ENV_FILE"
+
+          aws lambda update-function-configuration \
+            --function-name "$LAMBDA_FUNCTION_NAME" \
+            --environment "file://$ENV_FILE" \
+            --region "$AWS_REGION"
+
+          aws lambda wait function-updated-v2 \
+            --function-name "$LAMBDA_FUNCTION_NAME" \
+            --region "$AWS_REGION"
+
+          echo "Lambda Context7 configuration updated successfully."
+
+      - name: Verify Lambda deployment state
+        run: |
+          aws lambda get-function-configuration \
+            --function-name "$LAMBDA_FUNCTION_NAME" \
+            --query '{FunctionName: FunctionName, State: State, LastUpdateStatus: LastUpdateStatus}' \
+            --output table \
+            --region "$AWS_REGION"
+
       # ------------------------------------------
       # Deploy frontend to EC2 using SSM
       # ------------------------------------------
@@ -256,9 +300,9 @@ jobs:
             (echo "EC2 instance not found: ${INSTANCE_NAME}" && exit 1)
 
           DEPLOY_COMMAND="set -euo pipefail
-          aws s3 cp s3://${S3_BUCKET}/frontend/dist.zip /tmp/cloudsaathi-dist.zip --region ${AWS_REGION}
+          aws s3 cp s3://${S3_BUCKET}/frontend/dist.zip /tmp/helmora-dist.zip --region ${AWS_REGION}
           sudo mkdir -p /usr/share/nginx/html
-          sudo unzip -o /tmp/cloudsaathi-dist.zip -d /usr/share/nginx/html/
+          sudo unzip -o /tmp/helmora-dist.zip -d /usr/share/nginx/html/
           echo healthy | sudo tee /usr/share/nginx/html/health.html >/dev/null
           sudo chown -R nginx:nginx /usr/share/nginx/html
           sudo systemctl enable nginx

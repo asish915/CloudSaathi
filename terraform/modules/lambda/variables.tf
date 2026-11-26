@@ -17,3 +17,8 @@ variable "cors_origin" {
 variable "lambda_zip_path" {
   type = string
 }
+variable "context7_api_key" {
+  description = "Context7 API key for documentation retrieval"
+  type        = string
+  sensitive   = true
+}
