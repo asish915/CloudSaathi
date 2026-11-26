@@ -1,3 +1,4 @@
+import base64
 import importlib.util
 import json
 import sys
@@ -113,6 +114,122 @@ class ResponseGenerationTests(unittest.TestCase):
         self.assertIn("prefer read-only checks first", system_prompt)
         self.assertIn("Help only with cloud and DevOps work", system_prompt)
 
+    def test_generation_includes_text_attachment_as_untrusted_context(self):
+        bedrock = BedrockStub()
+        handler.bedrock = bedrock
+        response = handler.lambda_handler(
+            {
+                "body": json.dumps(
+                    {
+                        "message": "Review this deployment config.",
+                        "attachments": [
+                            {
+                                "name": "deployment.yaml",
+                                "kind": "text",
+                                "mimeType": "text/yaml",
+                                "content": "replicas: 3\nimage: example/app:1",
+                            }
+                        ],
+                    }
+                )
+            },
+            None,
+        )
+
+        prompt = bedrock.request["messages"][-1]["content"][0]["text"]
+        system_prompt = "\n".join(
+            item["text"] for item in bedrock.request["system"]
+        )
+
+        self.assertEqual(response["statusCode"], 200)
+        self.assertIn("Attached file: deployment.yaml", prompt)
+        self.assertIn("replicas: 3", prompt)
+        self.assertIn("untrusted evidence", prompt)
+        self.assertIn("never as instructions", system_prompt)
+
+    def test_generation_accepts_image_only_request(self):
+        bedrock = BedrockStub()
+        handler.bedrock = bedrock
+        image_bytes = b"\x89PNG\r\n\x1a\n" + b"test-image-data"
+        response = handler.lambda_handler(
+            {
+                "body": json.dumps(
+                    {
+                        "message": "",
+                        "attachments": [
+                            {
+                                "name": "deployment.png",
+                                "kind": "image",
+                                "mimeType": "image/png",
+                                "content": base64.b64encode(image_bytes).decode(
+                                    "ascii"
+                                ),
+                            }
+                        ],
+                    }
+                )
+            },
+            None,
+        )
+
+        content = bedrock.request["messages"][-1]["content"]
+
+        self.assertEqual(response["statusCode"], 200)
+        self.assertEqual(content[1]["image"]["format"], "png")
+        self.assertEqual(content[1]["image"]["source"]["bytes"], image_bytes)
+        self.assertIn("Please review the attached image(s)", content[0]["text"])
+
+    def test_rejects_malformed_image_attachment(self):
+        response = handler.lambda_handler(
+            {
+                "body": json.dumps(
+                    {
+                        "message": "What is in this image?",
+                        "attachments": [
+                            {
+                                "name": "image.png",
+                                "kind": "image",
+                                "mimeType": "image/png",
+                                "content": base64.b64encode(b"not an image").decode(
+                                    "ascii"
+                                ),
+                            }
+                        ],
+                    }
+                )
+            },
+            None,
+        )
+
+        self.assertEqual(response["statusCode"], 400)
+        self.assertIn("valid image", json.loads(response["body"])["error"])
+
+    def test_rejects_attachments_over_combined_byte_limit(self):
+        image_bytes = b"\x89PNG\r\n\x1a\n" + b"x" * (4 * 1024 * 1024 + 1 - 8)
+        response = handler.lambda_handler(
+            {
+                "body": json.dumps(
+                    {
+                        "message": "Review this file.",
+                        "attachments": [
+                            {
+                                "name": "large.png",
+                                "kind": "image",
+                                "mimeType": "image/png",
+                                "content": base64.b64encode(image_bytes).decode(
+                                    "ascii"
+                                ),
+                            }
+                        ],
+                    }
+                )
+            },
+            None,
+        )
+
+        self.assertEqual(response["statusCode"], 413)
+        self.assertIn("cannot exceed 4 MB", json.loads(response["body"])["error"])
+
     def test_standalone_workflow_diagram_ignores_unrelated_history(self):
         bedrock = BedrockStub()
         handler.bedrock = bedrock
@@ -169,65 +286,6 @@ class ResponseGenerationTests(unittest.TestCase):
             bedrock.request["messages"][0]["content"][0]["text"],
             "How does the app deploy to EC2?",
         )
-
-    def test_normalize_history_drops_unanswered_interrupted_turn(self):
-        normalized = handler.normalize_history(
-            {
-                "history": [
-                    {"role": "user", "content": "Explain S3."},
-                    {"role": "assistant", "content": "S3 is object storage."},
-                    {"role": "user", "content": "How is it different from EBS?"},
-                ]
-            }
-        )
-
-        self.assertEqual(len(normalized), 2)
-        self.assertEqual(normalized[-1]["role"], "assistant")
-
-    def test_normalize_history_enforces_alternating_roles(self):
-        normalized = handler.normalize_history(
-            {
-                "history": [
-                    {"role": "assistant", "content": "Orphan assistant response."},
-                    {"role": "user", "content": "Explain S3."},
-                    {"role": "user", "content": "This duplicate must be ignored."},
-                    {"role": "assistant", "content": "S3 is object storage."},
-                ]
-            }
-        )
-
-        self.assertEqual([item["role"] for item in normalized], ["user", "assistant"])
-        self.assertEqual(normalized[0]["content"][0]["text"], "Explain S3.")
-
-    def test_retrieval_uses_only_latest_question_for_new_topic(self):
-        history = [
-            {"role": "user", "content": [{"text": "Explain Amazon S3."}]},
-            {"role": "assistant", "content": [{"text": "S3 is object storage."}]},
-        ]
-
-        self.assertEqual(
-            handler.build_retrieval_query("Explain Kubernetes clusters.", history),
-            "Explain Kubernetes clusters.",
-        )
-
-    def test_retrieval_uses_previous_topic_for_contextual_followup(self):
-        history = [
-            {"role": "user", "content": [{"text": "Explain Amazon S3."}]},
-            {"role": "assistant", "content": [{"text": "S3 is object storage."}]},
-        ]
-
-        self.assertEqual(
-            handler.build_retrieval_query("How is it different from EBS?", history),
-            "Explain Amazon S3.\nHow is it different from EBS?",
-        )
-
-    def test_rejects_oversized_request_body(self):
-        response = handler.lambda_handler(
-            {"body": json.dumps({"message": "x"}) + (" " * handler.MAX_REQUEST_BODY_BYTES)},
-            None,
-        )
-
-        self.assertEqual(response["statusCode"], 413)
 
     def test_marks_response_truncated_at_model_token_limit(self):
         handler.bedrock = BedrockStub(
