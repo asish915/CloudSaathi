@@ -12,19 +12,32 @@ import linuxLogo from "./assets/logos/linux.svg";
 import ansibleLogo from "./assets/logos/ansible.svg";
 import prometheusLogo from "./assets/logos/prometheus.svg";
 import snykLogo from "./assets/logos/snyk.svg";
-import helmoraLogo from "./assets/logos/helmora.svg";
-
 function HelmoraLogo({ small = false }) {
   return (
-    <img
-      className={`cloudsaathi-logo ${small ? "small" : ""}`}
-      src={helmoraLogo}
-      alt="Helmora"
-      width="48"
-      height="48"
-      loading="eager"
-      decoding="async"
-    />
+    <svg
+      className={`helmora-sparkle-logo cloudsaathi-logo ${small ? "small" : ""}`}
+      viewBox="0 0 64 64"
+      role="img"
+      aria-label="Helmora"
+      focusable="false"
+    >
+      <path
+        d="M32 5.5 C35.1 20.3 39.2 24.7 58.5 32 C39.2 39.3 35.1 43.7 32 58.5 C28.9 43.7 24.8 39.3 5.5 32 C24.8 24.7 28.9 20.3 32 5.5 Z"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      <path
+        d="M12.5 2.5 C13.8 8.7 15.3 10.2 21.5 11.5 C15.3 12.8 13.8 14.3 12.5 20.5 C11.2 14.3 9.7 12.8 3.5 11.5 C9.7 10.2 11.2 8.7 12.5 2.5 Z"
+        fill="currentColor"
+      />
+      <path
+        d="M52 43.5 C53.2 49.3 54.7 50.8 60.5 52 C54.7 53.2 53.2 54.7 52 60.5 C50.8 54.7 49.3 53.2 43.5 52 C49.3 50.8 50.8 49.3 52 43.5 Z"
+        fill="currentColor"
+      />
+    </svg>
   );
 }
 
@@ -1393,6 +1406,9 @@ function LandingPage({
       <main id="home">
         <section className="landing-hero landing-compact-hero">
           <div className="landing-hero-copy landing-reveal">
+            <div className="landing-brand-mark" aria-hidden="true">
+              <HelmoraLogo />
+            </div>
             <h1>
               Hi, I'm <span>Helmora.</span>
             </h1>
@@ -2161,8 +2177,8 @@ function App() {
               title="Library"
             >
               <svg viewBox="0 0 24 24" aria-hidden="true">
-                <path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H20v16H6.5A2.5 2.5 0 0 0 4 21z" />
-                <path d="M4 5.5v13A2.5 2.5 0 0 1 6.5 16H20M8 7h8M8 10h8" />
+                <path d="M4 4.5h4v15H4zM10 3h4v16h-4zM16 5h4v14h-4z" />
+                <path d="M3 21h18" />
               </svg>
               <span>Library</span>
             </button>

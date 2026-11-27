@@ -11991,3 +11991,270 @@ body {
     animation: none !important;
   }
 }
+
+
+/* =========================================================
+   HELMORA BRAND + SIDEBAR POLISH (theme-aware)
+   ========================================================= */
+.cloudsaathi-logo {
+  display: block;
+  width: 38px;
+  height: 38px;
+  flex: 0 0 auto;
+  color: #E3E3E3;
+  filter: none !important;
+}
+.cloudsaathi-logo.small {
+  width: 26px;
+  height: 26px;
+}
+.brand-mark {
+  background: transparent !important;
+  color: #E3E3E3 !important;
+}
+.boot-logo {
+  background: transparent !important;
+  color: #E3E3E3 !important;
+  box-shadow: none !important;
+}
+.light-theme .cloudsaathi-logo,
+.landing-light .cloudsaathi-logo {
+  color: #3A3835;
+}
+.light-theme .brand-mark,
+.light-theme .boot-logo {
+  color: #3A3835 !important;
+}
+.landing-brand-mark {
+  display: grid;
+  place-items: center;
+  width: 58px;
+  height: 58px;
+  margin: 0 0 16px;
+  color: #E3E3E3;
+}
+.landing-brand-mark .cloudsaathi-logo {
+  width: 54px;
+  height: 54px;
+}
+.landing-light .landing-brand-mark {
+  color: #3A3835;
+}
+
+/* Keep Library's vertical-books glyph identical in the icon rail and row. */
+.sidebar-quick-action[aria-label="Open Library"] svg,
+.sidebar-section-toggle.library-section-toggle .sidebar-section-icon svg {
+  width: 22px;
+  height: 22px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.85;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+/* The main pane owns the toggle; never let its dimensions follow sidebar width. */
+.topbar,
+.topbar-leading,
+.sidebar-toggle {
+  flex-shrink: 0;
+}
+.sidebar-toggle {
+  width: 36px !important;
+  min-width: 36px !important;
+  max-width: 36px !important;
+  flex: 0 0 36px !important;
+}
+
+/* Stable account footer proportions while the resize handle is dragged. */
+.sidebar-footer,
+.sidebar-account {
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
+  flex-shrink: 0;
+}
+.sidebar-account {
+  box-sizing: border-box;
+  overflow: hidden;
+}
+.account-avatar,
+.account-status-dot {
+  flex-shrink: 0 !important;
+}
+.account-details {
+  flex: 1 1 0;
+  min-width: 0;
+  overflow: hidden;
+}
+.account-details strong,
+.account-details small {
+  display: block;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.light-theme .account-avatar {
+  background: #E9EEF6 !important;
+  border: 1px solid rgba(0, 0, 0, 0.12) !important;
+  color: #1F1F1F !important;
+}
+.light-theme .account-avatar svg {
+  stroke: currentColor !important;
+}
+
+/* Width animates on click; pointer-driven resizing remains immediate. */
+.app-shell {
+  grid-template-columns: var(--sidebar-width, 270px) minmax(0, 1fr) !important;
+  transition: grid-template-columns 0.24s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.app-shell.sidebar-collapsed {
+  grid-template-columns: 64px minmax(0, 1fr) !important;
+}
+.sidebar {
+  transition:
+    padding 0.24s cubic-bezier(0.22, 1, 0.36, 1),
+    background-color 0.2s ease;
+}
+.app-shell.sidebar-collapsed .sidebar {
+  padding: 18px 8px 12px !important;
+}
+body.sidebar-is-resizing .app-shell,
+body.sidebar-is-resizing .sidebar {
+  transition: none !important;
+}
+body.sidebar-is-resizing {
+  cursor: col-resize;
+  user-select: none;
+}
+
+/* Labels compress and fade instead of abruptly disappearing. */
+.brand-copy,
+.new-chat-label,
+.sidebar-back-label,
+.sidebar-quick-action span,
+.sidebar-footer-label,
+.account-details {
+  min-width: 0;
+  max-width: 240px;
+  opacity: 1;
+  transform: translateX(0);
+  overflow: hidden;
+  transition:
+    max-width 0.24s cubic-bezier(0.22, 1, 0.36, 1),
+    opacity 0.16s ease,
+    transform 0.24s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.app-shell.sidebar-collapsed .brand-copy,
+.app-shell.sidebar-collapsed .new-chat-label,
+.app-shell.sidebar-collapsed .sidebar-back-label,
+.app-shell.sidebar-collapsed .sidebar-quick-action span,
+.app-shell.sidebar-collapsed .sidebar-footer-label,
+.app-shell.sidebar-collapsed .account-details {
+  display: block !important;
+  max-width: 0 !important;
+  flex: 0 0 0 !important;
+  opacity: 0 !important;
+  transform: translateX(-8px);
+  visibility: hidden;
+  pointer-events: none;
+}
+.app-shell.sidebar-collapsed .brand {
+  justify-content: center;
+  gap: 0 !important;
+  margin-inline: 0 !important;
+}
+.app-shell.sidebar-collapsed .brand-mark {
+  width: 42px !important;
+  height: 42px !important;
+  flex-basis: 42px !important;
+}
+.app-shell.sidebar-collapsed .new-chat-button,
+.app-shell.sidebar-collapsed .sidebar-back-button,
+.app-shell.sidebar-collapsed .sidebar-quick-action {
+  flex-shrink: 0;
+  margin-inline: auto !important;
+}
+.app-shell.sidebar-collapsed .sidebar-account {
+  width: 44px !important;
+  min-width: 44px !important;
+  max-width: 44px !important;
+  min-height: 44px;
+  padding: 5px !important;
+  margin-inline: auto;
+  justify-content: center;
+}
+.app-shell.sidebar-collapsed .account-avatar {
+  width: 32px;
+  height: 32px;
+  flex-basis: 32px;
+}
+.app-shell.sidebar-collapsed .sidebar-footer {
+  align-items: center;
+}
+@media (min-width: 761px) {
+  .app-shell.sidebar-collapsed .sidebar-section-toggle {
+    display: none !important;
+  }
+}
+@media (max-width: 760px) {
+  .app-shell.sidebar-collapsed {
+    grid-template-columns: minmax(0, 1fr) !important;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .app-shell,
+  .sidebar,
+  .brand-copy,
+  .new-chat-label,
+  .sidebar-back-label,
+  .sidebar-quick-action span,
+  .sidebar-footer-label,
+  .account-details {
+    transition-duration: 0.01ms !important;
+  }
+}
+
+
+/* Final Helmora sparkle mark: keep the inline SVG theme-adaptive.
+   This rule intentionally overrides legacy CloudSaathi logo filters/colors. */
+.helmora-sparkle-logo.cloudsaathi-logo {
+  display: block;
+  width: 38px;
+  height: 38px;
+  flex: 0 0 auto;
+  color: #E3E3E3 !important;
+  filter: none !important;
+  object-fit: contain;
+}
+.helmora-sparkle-logo.cloudsaathi-logo.small {
+  width: 26px;
+  height: 26px;
+}
+.light-theme .helmora-sparkle-logo.cloudsaathi-logo,
+.app-shell.light-theme .helmora-sparkle-logo.cloudsaathi-logo,
+.landing-light .helmora-sparkle-logo.cloudsaathi-logo {
+  color: #3A3835 !important;
+  filter: none !important;
+}
+.brand-mark .helmora-sparkle-logo.cloudsaathi-logo {
+  width: 39px;
+  height: 39px;
+}
+.landing-brand-icon .helmora-sparkle-logo.cloudsaathi-logo {
+  width: 34px;
+  height: 34px;
+}
+.topbar-brand-mark .helmora-sparkle-logo.cloudsaathi-logo {
+  width: 30px;
+  height: 30px;
+}
+.boot-logo .helmora-sparkle-logo.cloudsaathi-logo {
+  width: 50px;
+  height: 50px;
+}
+.landing-brand-mark .helmora-sparkle-logo.cloudsaathi-logo {
+  width: 54px;
+  height: 54px;
+}
