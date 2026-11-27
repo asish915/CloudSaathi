@@ -8529,3 +8529,46 @@ html:has(.landing-page) {
   }
 }
 
+
+
+/* FIX: make the typing row occupy the full composer width.
+   The previous pill styling widened the shell but the inner grid
+   could remain content-sized, leaving a short typing area. */
+.chat-main > .composer {
+  width: 100% !important;
+  max-width: 1220px !important;
+  box-sizing: border-box !important;
+}
+
+.chat-main > .composer > .composer-input-row,
+.chat-main > .composer .composer-input-row {
+  display: grid !important;
+  width: 100% !important;
+  max-width: none !important;
+  min-width: 0 !important;
+  box-sizing: border-box !important;
+  grid-template-columns: 42px minmax(0, 1fr) 44px !important;
+  align-items: center !important;
+  justify-self: stretch !important;
+}
+
+.chat-main > .composer .composer-input-row > textarea {
+  display: block !important;
+  width: 100% !important;
+  min-width: 0 !important;
+  max-width: none !important;
+  box-sizing: border-box !important;
+  justify-self: stretch !important;
+  flex: 1 1 auto !important;
+}
+
+@media (max-width: 640px) {
+  .chat-main > .composer {
+    width: calc(100% - 16px) !important;
+    max-width: none !important;
+  }
+  .chat-main > .composer .composer-input-row {
+    grid-template-columns: 38px minmax(0, 1fr) 40px !important;
+  }
+}
+
