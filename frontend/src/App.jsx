@@ -19,7 +19,7 @@ function HelmoraLogo({ small = false }) {
     <img
       className={`cloudsaathi-logo ${small ? "small" : ""}`}
       src={helmoraLogo}
-      alt=""
+      alt="Helmora"
       width="48"
       height="48"
       loading="eager"
@@ -1439,6 +1439,7 @@ function App() {
   const [mobileLibraryOpen, setMobileLibraryOpen] = useState(false);
 
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [libraryOpen, setLibraryOpen] = useState(false);
   const [showRecentHistory, setShowRecentHistory] = useState(true);
 
   const [bootStep, setBootStep] = useState(0);
@@ -2031,9 +2032,12 @@ function App() {
             <button
               className="sidebar-quick-action"
               type="button"
-              onClick={() => setSidebarCollapsed(false)}
-              aria-label="Open technology library"
-              title="Technology library"
+              onClick={() => {
+                setSidebarCollapsed(false);
+                setLibraryOpen(true);
+              }}
+              aria-label="Open Library"
+              title="Library"
             >
               <svg viewBox="0 0 24 24" aria-hidden="true">
                 <path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H20v16H6.5A2.5 2.5 0 0 0 4 21z" />
@@ -2048,21 +2052,21 @@ function App() {
                 setShowRecentHistory(true);
                 setSidebarCollapsed(false);
               }}
-              aria-label="Open recent history"
-              title="Recent history"
+              aria-label="Open Recents"
+              title="Recents"
             >
               <svg viewBox="0 0 24 24" aria-hidden="true">
                 <path d="M3.5 12a8.5 8.5 0 1 0 2.4-5.9L3.5 8.5" />
                 <path d="M3.5 4.5v4h4M12 7v5l3.2 2" />
               </svg>
-              <span>History</span>
+              <span>Recents</span>
             </button>
           </div>
 
           {recentlyAsked.length > 0 && showRecentHistory && (
             <section className="recently-asked" aria-label="Recently asked">
               <div className="recent-heading">
-                <span>RECENT HISTORY</span>
+                <span>RECENTS</span>
                 <div className="recent-heading-actions">
                   <button
                     type="button"
@@ -2123,19 +2127,31 @@ function App() {
             </section>
           )}
 
-          <div className="topic-heading">
-            <span>TECHNOLOGY LIBRARY</span>
-            <span className="topic-count">{topicCount}</span>
-          </div>
-          <input
-            className="topic-search"
-            value={filter}
-            onChange={(e) => setFilter(e.target.value)}
-            placeholder="Search technologies..."
-            aria-label="Search technologies"
-          />
+          <button
+            className={`topic-heading library-section-toggle ${libraryOpen ? "is-open" : ""}`}
+            type="button"
+            onClick={() => setLibraryOpen((open) => !open)}
+            aria-expanded={libraryOpen}
+            aria-controls="technology-library-content"
+            title={libraryOpen ? "Hide library" : "Open library"}
+          >
+            <span>LIBRARY</span>
+            <span className="topic-heading-right">
+              <span className="topic-count">{topicCount}</span>
+              <span className="library-toggle-chevron" aria-hidden="true">{libraryOpen ? "▾" : "▸"}</span>
+            </span>
+          </button>
+          {libraryOpen && (
+            <>
+              <input
+                className="topic-search"
+                value={filter}
+                onChange={(e) => setFilter(e.target.value)}
+                placeholder="Search technologies..."
+                aria-label="Search technologies"
+              />
 
-          <nav className="topics-scroll" aria-label="Technology topics">
+              <nav id="technology-library-content" className="topics-scroll" aria-label="Technology library">
             {filteredTopics.map((stack) => {
               const stackOpen = normalizedFilter
                 ? true
@@ -2216,7 +2232,9 @@ function App() {
             {filteredTopics.length === 0 && (
               <p className="no-topics">No topics match your search.</p>
             )}
-          </nav>
+              </nav>
+            </>
+          )}
 
           <div className="sidebar-footer">
             <button
@@ -2241,7 +2259,12 @@ function App() {
               title="Guest session"
               aria-label="Guest session account"
             >
-              <span className="account-avatar" aria-hidden="true">G</span>
+              <span className="account-avatar" aria-hidden="true">
+                <svg viewBox="0 0 24 24" focusable="false">
+                  <circle cx="12" cy="8" r="3.5" />
+                  <path d="M4.8 20c.5-3.7 3.4-5.8 7.2-5.8s6.7 2.1 7.2 5.8" />
+                </svg>
+              </span>
               <span className="account-details">
                 <strong>Guest session</strong>
                 <small>Currently browsing as guest</small>
