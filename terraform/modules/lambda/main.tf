@@ -1,5 +1,5 @@
 # =========================
-# LAMBDA IAM
+# LAMBDA IAM ROLE
 # =========================
 
 resource "aws_iam_role" "lambda" {
