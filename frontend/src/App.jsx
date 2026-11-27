@@ -1439,6 +1439,7 @@ function App() {
   const [mobileLibraryOpen, setMobileLibraryOpen] = useState(false);
 
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [showRecentHistory, setShowRecentHistory] = useState(true);
 
   const [bootStep, setBootStep] = useState(0);
 
@@ -2026,17 +2027,59 @@ function App() {
             <span className="new-chat-label">New chat</span>
           </button>
 
-          {recentlyAsked.length > 0 && (
+          <div className="sidebar-quick-actions" aria-label="Sidebar shortcuts">
+            <button
+              className="sidebar-quick-action"
+              type="button"
+              onClick={() => setSidebarCollapsed(false)}
+              aria-label="Open technology library"
+              title="Technology library"
+            >
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H20v16H6.5A2.5 2.5 0 0 0 4 21z" />
+                <path d="M4 5.5v13A2.5 2.5 0 0 1 6.5 16H20M8 7h8M8 10h8" />
+              </svg>
+              <span>Library</span>
+            </button>
+            <button
+              className="sidebar-quick-action"
+              type="button"
+              onClick={() => {
+                setShowRecentHistory(true);
+                setSidebarCollapsed(false);
+              }}
+              aria-label="Open recent history"
+              title="Recent history"
+            >
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M3.5 12a8.5 8.5 0 1 0 2.4-5.9L3.5 8.5" />
+                <path d="M3.5 4.5v4h4M12 7v5l3.2 2" />
+              </svg>
+              <span>History</span>
+            </button>
+          </div>
+
+          {recentlyAsked.length > 0 && showRecentHistory && (
             <section className="recently-asked" aria-label="Recently asked">
               <div className="recent-heading">
-                <span>RECENTLY ASKED</span>
-                <button
-                  type="button"
-                  onClick={() => setRecentlyAsked([])}
+                <span>RECENT HISTORY</span>
+                <div className="recent-heading-actions">
+                  <button
+                    type="button"
+                    onClick={() => setShowRecentHistory(false)}
+                    aria-label="Hide recent history"
+                    title="Hide recent history"
+                  >
+                    Hide
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setRecentlyAsked([])}
                   aria-label="Clear recently asked"
                 >
-                  Clear
-                </button>
+                    Clear
+                  </button>
+                </div>
               </div>
 
               <div className="recent-list">
@@ -2652,10 +2695,14 @@ function App() {
               </button>
             </div>
             <div className="composer-model-row">
-              <span className="composer-model-indicator" title="Active model: Amazon Nova Lite">
-                <span className="model-status-dot" aria-hidden="true" />
-                Amazon Nova Lite
-              </span>
+              <div className="composer-model-panel" aria-label="AI model in use">
+                <span className="composer-model-label">AI MODEL</span>
+                <span className="composer-model-indicator" title="Active model: Amazon Nova Lite">
+                  <span className="model-status-dot" aria-hidden="true" />
+                  Amazon Nova Lite
+                  <span className="model-active-label">ACTIVE</span>
+                </span>
+              </div>
             </div>
             {attachmentError && (
               <p className="attachment-error" role="alert">
