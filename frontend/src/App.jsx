@@ -2598,19 +2598,13 @@ function App() {
                 {attachmentError}
               </p>
             )}
-            <div className="composer-footer">
-              <p className="composer-hint" id="composer-guidance">
-                Press <kbd>Enter</kbd> to send
-                <span className="hint-divider">·</span>
-                <kbd>Shift + Enter</kbd> for a new line
-              </p>
-              {readingFiles && (
+            {readingFiles && (
+              <div className="composer-footer">
                 <span className="upload-status" role="status">
                   Preparing files…
                 </span>
-              )}
-
-            </div>
+              </div>
+            )}
             {isDraggingFiles && (
               <div className="composer-drop-message" aria-hidden="true">
                 Drop images or text files to attach

@@ -9015,3 +9015,80 @@ html:has(.landing-page) {
   }
 }
 
+
+
+/* ==========================================================
+   FINAL HOME COMPOSER POLISH
+   Larger welcome typography, more compact composer, no key hints.
+   ========================================================== */
+.chat-main.is-empty .welcome-panel {
+  width: min(900px, 100%) !important;
+  max-width: 900px !important;
+  margin-bottom: 26px !important;
+}
+
+.chat-main.is-empty .welcome-panel h1 {
+  max-width: 900px !important;
+  font-size: clamp(42px, 4.4vw, 62px) !important;
+  line-height: 1.12 !important;
+  letter-spacing: -1.8px !important;
+  font-weight: 500 !important;
+}
+
+.chat-main.is-empty .welcome-panel p {
+  margin-top: 15px !important;
+  font-size: 15px !important;
+}
+
+.chat-main.is-empty > .composer {
+  width: min(760px, calc(100% - 36px)) !important;
+  max-width: 760px !important;
+  min-height: 66px !important;
+  margin-bottom: clamp(105px, 15vh, 150px) !important;
+  padding: 10px 12px !important;
+}
+
+.chat-main.is-empty > .composer .composer-input-row {
+  grid-template-columns: 42px minmax(0, 1fr) 42px !important;
+  gap: 10px !important;
+}
+
+.chat-main.is-empty > .composer textarea {
+  min-height: 40px !important;
+  font-size: 16px !important;
+  line-height: 1.5 !important;
+}
+
+.chat-main.is-empty > .composer .composer-footer {
+  display: none !important;
+}
+
+/* Keep the active-chat composer compact too; hide only the keyboard hint. */
+.chat-main.has-messages > .composer {
+  width: min(900px, calc(100% - 36px)) !important;
+  padding-bottom: 10px !important;
+}
+
+.chat-main.has-messages > .composer .composer-hint {
+  display: none !important;
+}
+
+.chat-main.has-messages > .composer .composer-footer:empty {
+  display: none !important;
+}
+
+.chat-main > .composer.is-expanded {
+  border-radius: 22px !important;
+}
+
+@media (max-width: 640px) {
+  .chat-main.is-empty .welcome-panel h1 {
+    font-size: clamp(34px, 8.5vw, 44px) !important;
+    letter-spacing: -1px !important;
+  }
+  .chat-main.is-empty > .composer {
+    width: calc(100% - 28px) !important;
+    margin-bottom: 70px !important;
+  }
+}
+
