@@ -12258,3 +12258,97 @@ body.sidebar-is-resizing {
   width: 54px;
   height: 54px;
 }
+
+
+/* =========================================================
+   HELMORA LOGO AS A REUSABLE ASSET
+   Uses src/assets/logos/helmora.svg everywhere in the app.
+   The SVG asset is charcoal; invert it for dark surfaces.
+   ========================================================= */
+.helmora-sparkle-logo.cloudsaathi-logo {
+  display: block !important;
+  width: 38px !important;
+  height: 38px !important;
+  flex: 0 0 auto !important;
+  object-fit: contain !important;
+  color: inherit !important;
+  filter: brightness(0) invert(1) !important;
+  opacity: 1 !important;
+}
+.helmora-sparkle-logo.cloudsaathi-logo.small {
+  width: 26px !important;
+  height: 26px !important;
+}
+.brand-mark .helmora-sparkle-logo.cloudsaathi-logo {
+  width: 39px !important;
+  height: 39px !important;
+}
+.landing-brand-icon .helmora-sparkle-logo.cloudsaathi-logo {
+  width: 34px !important;
+  height: 34px !important;
+}
+.topbar-brand-mark .helmora-sparkle-logo.cloudsaathi-logo {
+  width: 30px !important;
+  height: 30px !important;
+}
+.boot-logo .helmora-sparkle-logo.cloudsaathi-logo {
+  width: 50px !important;
+  height: 50px !important;
+}
+.landing-brand-mark .helmora-sparkle-logo.cloudsaathi-logo {
+  width: 54px !important;
+  height: 54px !important;
+}
+
+/* In light theme the charcoal asset is shown without a filter. */
+.light-theme .helmora-sparkle-logo.cloudsaathi-logo,
+.app-shell.light-theme .helmora-sparkle-logo.cloudsaathi-logo,
+.landing-light .helmora-sparkle-logo.cloudsaathi-logo {
+  filter: none !important;
+}
+
+
+/* =========================================================
+   HELMORA BRAND ASSET — src/assets/logos/helmora.svg
+   The SVG artwork is charcoal. Invert it on dark surfaces;
+   show its native charcoal artwork on light surfaces.
+   ========================================================= */
+.helmora-logo {
+  display: block !important;
+  width: 38px !important;
+  height: 38px !important;
+  min-width: 0;
+  flex: 0 0 auto !important;
+  object-fit: contain !important;
+  filter: brightness(0) invert(1) !important;
+  opacity: 1 !important;
+}
+.helmora-logo.small {
+  width: 26px !important;
+  height: 26px !important;
+}
+.brand-mark .helmora-logo {
+  width: 39px !important;
+  height: 39px !important;
+}
+.landing-brand-icon .helmora-logo {
+  width: 34px !important;
+  height: 34px !important;
+}
+.topbar-brand-mark .helmora-logo {
+  width: 30px !important;
+  height: 30px !important;
+}
+.boot-logo .helmora-logo {
+  width: 50px !important;
+  height: 50px !important;
+}
+.landing-brand-mark .helmora-logo {
+  width: 54px !important;
+  height: 54px !important;
+}
+.light-theme .helmora-logo,
+.app-shell.light-theme .helmora-logo,
+.landing-light .helmora-logo {
+  filter: none !important;
+}
