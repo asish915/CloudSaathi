@@ -9683,3 +9683,83 @@ body {
   }
 }
 
+
+
+/* HOTFIX: restore the desktop two-column layout.
+   The previous stylesheet left the old fixed/off-canvas sidebar positioning active.
+   That removed the sidebar from grid flow and caused chat-main to occupy column one. */
+@media (min-width: 761px) {
+  .app-shell,
+  .app-shell.sidebar-collapsed {
+    display: grid !important;
+    grid-template-columns: 270px minmax(0, 1fr) !important;
+    grid-template-rows: minmax(0, 1fr) !important;
+    align-items: stretch !important;
+    width: 100% !important;
+    height: 100dvh !important;
+    min-height: 560px !important;
+    overflow: hidden !important;
+  }
+
+  .app-shell.sidebar-collapsed {
+    grid-template-columns: 76px minmax(0, 1fr) !important;
+  }
+
+  .app-shell > .sidebar {
+    position: relative !important;
+    inset: auto !important;
+    grid-column: 1 !important;
+    grid-row: 1 !important;
+    width: auto !important;
+    height: 100% !important;
+    min-height: 0 !important;
+    max-height: none !important;
+    transform: none !important;
+    visibility: visible !important;
+    z-index: 1 !important;
+  }
+
+  .app-shell > .chat-main {
+    position: relative !important;
+    grid-column: 2 !important;
+    grid-row: 1 !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    height: 100% !important;
+    min-height: 0 !important;
+    overflow: hidden !important;
+  }
+
+  .app-shell > .library-backdrop {
+    display: none !important;
+  }
+}
+
+@media (max-width: 760px) {
+  .app-shell,
+  .app-shell.sidebar-collapsed {
+    display: block !important;
+    height: 100dvh !important;
+    min-height: 560px !important;
+  }
+
+  .app-shell > .chat-main {
+    width: 100% !important;
+    height: 100dvh !important;
+    min-height: 0 !important;
+  }
+
+  .app-shell > .sidebar {
+    position: fixed !important;
+    inset: 0 auto 0 0 !important;
+    width: min(300px, 86vw) !important;
+    height: 100dvh !important;
+    transform: translateX(-105%) !important;
+    z-index: 60 !important;
+  }
+
+  .app-shell > .sidebar.library-open {
+    transform: translateX(0) !important;
+  }
+}
+
