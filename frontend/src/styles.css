@@ -12352,3 +12352,183 @@ body.sidebar-is-resizing {
 .landing-light .helmora-logo {
   filter: none !important;
 }
+
+/* =========================================================
+   HELMORA — LANDING HERO + SIDEBAR ICON ALIGNMENT
+   Final overrides for the attached UI refinement.
+   ========================================================= */
+
+/* Remove the landing logo slot from layout and lift the full hero group. */
+.landing-page .landing-compact-hero .landing-hero-copy {
+  transform: translateY(-44px);
+}
+.landing-page .landing-compact-hero .landing-hero-copy > h1 {
+  margin-top: 0 !important;
+}
+@media (max-width: 760px) {
+  .landing-page .landing-compact-hero .landing-hero-copy {
+    transform: translateY(-20px);
+  }
+}
+
+/* A single icon rail starts 12px from the sidebar's left edge.
+   Its 40px column keeps every navigation glyph on the same center axis. */
+.app-shell .sidebar {
+  padding-left: 12px !important;
+  padding-right: 12px !important;
+}
+.app-shell.sidebar-collapsed .sidebar {
+  padding-left: 12px !important;
+  padding-right: 12px !important;
+}
+.app-shell .brand {
+  width: 100%;
+  min-width: 0;
+  gap: 10px !important;
+}
+.app-shell .brand-mark {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: 40px !important;
+  min-width: 40px !important;
+  height: 40px !important;
+  flex: 0 0 40px !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  background: transparent !important;
+}
+.app-shell .brand-mark .helmora-logo {
+  width: 20px !important;
+  height: 20px !important;
+  min-width: 20px !important;
+  flex: 0 0 20px !important;
+}
+
+/* Shared fixed icon column for every expanded navigation row. */
+.app-shell .new-chat-button,
+.app-shell .sidebar-back-button,
+.app-shell .sidebar-section-toggle,
+.app-shell .sidebar-theme-toggle {
+  box-sizing: border-box;
+  width: 100%;
+  min-width: 0;
+  padding-left: 0 !important;
+  padding-right: 10px !important;
+  gap: 10px !important;
+}
+.app-shell .new-chat-button .sidebar-action-icon,
+.app-shell .sidebar-back-button .sidebar-back-icon,
+.app-shell .sidebar-section-toggle .sidebar-section-icon,
+.app-shell .sidebar-theme-toggle .sidebar-footer-icon {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: 40px !important;
+  min-width: 40px !important;
+  max-width: 40px !important;
+  height: 36px !important;
+  flex: 0 0 40px !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+.app-shell .new-chat-button .sidebar-action-icon svg,
+.app-shell .sidebar-back-button .sidebar-back-icon svg,
+.app-shell .sidebar-section-toggle .sidebar-section-icon svg {
+  width: 19px !important;
+  height: 19px !important;
+  flex: 0 0 19px !important;
+}
+.app-shell .sidebar-theme-toggle .sidebar-footer-icon {
+  font-size: 17px !important;
+  line-height: 1 !important;
+}
+
+/* Quick-action rows use the same 40px column; inner padding preserves
+   the 20–22px visual glyph size while centering it on the icon axis. */
+.app-shell .sidebar-quick-action {
+  box-sizing: border-box;
+  width: 100%;
+  min-width: 0;
+  padding-left: 0 !important;
+  padding-right: 10px !important;
+  gap: 10px !important;
+}
+.app-shell .sidebar-quick-action > svg {
+  box-sizing: border-box;
+  display: block;
+  width: 40px !important;
+  min-width: 40px !important;
+  height: 36px !important;
+  flex: 0 0 40px !important;
+  padding: 8px 10px;
+}
+
+/* Collapsed rail: center the same 40px column at x=32px (64px rail). */
+.app-shell.sidebar-collapsed .brand {
+  width: 40px !important;
+  min-width: 40px !important;
+  justify-content: center !important;
+  margin-left: auto !important;
+  margin-right: auto !important;
+}
+.app-shell.sidebar-collapsed .brand-mark {
+  width: 40px !important;
+  min-width: 40px !important;
+  flex-basis: 40px !important;
+}
+.app-shell.sidebar-collapsed .new-chat-button,
+.app-shell.sidebar-collapsed .sidebar-back-button,
+.app-shell.sidebar-collapsed .sidebar-section-toggle,
+.app-shell.sidebar-collapsed .sidebar-quick-action,
+.app-shell.sidebar-collapsed .sidebar-theme-toggle {
+  width: 40px !important;
+  min-width: 40px !important;
+  max-width: 40px !important;
+  height: 40px !important;
+  min-height: 40px !important;
+  padding: 0 !important;
+  margin-left: auto !important;
+  margin-right: auto !important;
+  justify-content: center !important;
+}
+.app-shell.sidebar-collapsed .new-chat-button .sidebar-action-icon,
+.app-shell.sidebar-collapsed .sidebar-back-button .sidebar-back-icon,
+.app-shell.sidebar-collapsed .sidebar-section-toggle .sidebar-section-icon,
+.app-shell.sidebar-collapsed .sidebar-theme-toggle .sidebar-footer-icon {
+  width: 40px !important;
+  min-width: 40px !important;
+  max-width: 40px !important;
+  flex: 0 0 40px !important;
+}
+.app-shell.sidebar-collapsed .sidebar-quick-action > svg {
+  width: 40px !important;
+  min-width: 40px !important;
+  height: 40px !important;
+  padding: 9px 10px;
+}
+
+/* Footer controls keep the same icon centerline and do not stretch. */
+.app-shell .sidebar-footer {
+  width: 100%;
+  min-width: 0;
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+}
+.app-shell .sidebar-theme-toggle {
+  display: flex;
+  align-items: center;
+  min-height: 40px;
+  margin: 0 0 8px !important;
+}
+.app-shell.sidebar-collapsed .sidebar-footer {
+  align-items: center !important;
+}
+.app-shell.sidebar-collapsed .sidebar-theme-toggle {
+  margin: 0 auto 8px !important;
+}
+.app-shell.sidebar-collapsed .sidebar-account {
+  margin-left: auto !important;
+  margin-right: auto !important;
+}
+

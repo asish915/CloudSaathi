@@ -1390,9 +1390,6 @@ function LandingPage({
       <main id="home">
         <section className="landing-hero landing-compact-hero">
           <div className="landing-hero-copy landing-reveal">
-            <div className="landing-brand-mark" aria-hidden="true">
-              <HelmoraLogo />
-            </div>
             <h1>
               Hi, I'm <span>Helmora.</span>
             </h1>
