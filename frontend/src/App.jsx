@@ -2547,25 +2547,32 @@ function App() {
                 rows={1}
               />
               <button
-                className="send-button"
-                type="submit"
-                disabled={
-                  (!input.trim() && attachments.length === 0) ||
-                  loading ||
-                  readingFiles
-                }
-                aria-label="Send message"
-                title="Send message"
+                className={`send-button ${loading ? "is-generating" : ""}`}
+                type={loading ? "button" : "submit"}
+                disabled={!loading && ((!input.trim() && attachments.length === 0) || readingFiles)}
+                onClick={loading ? stopGenerating : undefined}
+                aria-label={loading ? "Stop generating response" : "Send message"}
+                title={loading ? "Stop generating" : "Send message"}
               >
-                <svg
-                  className="send-icon"
-                  aria-hidden="true"
-                  viewBox="0 0 24 24"
-                  focusable="false"
-                >
-                  <path d="m21 3-7.2 18-3.7-7.1L3 10.2 21 3Z" />
-                  <path d="M10.1 13.9 15 9" />
-                </svg>
+                {loading ? (
+                  <span className="generation-wave" aria-hidden="true">
+                    <i />
+                    <i />
+                    <i />
+                    <i />
+                    <i />
+                  </span>
+                ) : (
+                  <svg
+                    className="send-icon"
+                    aria-hidden="true"
+                    viewBox="0 0 24 24"
+                    focusable="false"
+                  >
+                    <path d="m21 3-7.2 18-3.7-7.1L3 10.2 21 3Z" />
+                    <path d="M10.1 13.9 15 9" />
+                  </svg>
+                )}
               </button>
             </div>
             {attachmentError && (
@@ -2584,16 +2591,7 @@ function App() {
                   Preparing files…
                 </span>
               )}
-              {loading && (
-                <button
-                  className="stop-generating"
-                  type="button"
-                  onClick={stopGenerating}
-                  aria-label="Stop generating response"
-                >
-                  ■ Stop generating
-                </button>
-              )}
+
             </div>
             {isDraggingFiles && (
               <div className="composer-drop-message" aria-hidden="true">
