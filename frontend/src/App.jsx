@@ -2339,16 +2339,6 @@ function App() {
                 {mobileLibraryOpen ? "×" : "☰"}
                 <span>Explore library</span>
               </button>
-              <div className="topbar-brand">
-                <span className="topbar-brand-mark">
-                  <HelmoraLogo small />
-                </span>
-                <span>
-                  <strong className="cloudsaathi-wordmark">
-                    Helmora<span>.</span>
-                  </strong>
-                </span>
-              </div>
               <div className="connection-status">
                 <span className="status-dot" />
                 <span>Ready to help</span>
@@ -2403,24 +2393,7 @@ function App() {
                   className={`message-row ${message.role}`}
                   key={`${index}-${message.role}`}
                 >
-                  <div
-                    className={`message-avatar ${message.role === "assistant" ? "assistant-avatar" : "user-avatar"}`}
-                  >
-                    {message.role === "assistant" ? (
-                      <HelmoraLogo small />
-                    ) : (
-                      "Y"
-                    )}
-                  </div>
                   <div className="message-content">
-                    <div className="message-meta">
-                      <strong>
-                        {message.role === "assistant" ? "Helmora" : user}
-                      </strong>
-                      <span>
-                        {message.role === "assistant" ? "AI MENTOR" : "YOU"}
-                      </span>
-                    </div>
                     <div className="message-bubble">
                       <MessageContent
                         text={message.text}
@@ -2463,22 +2436,14 @@ function App() {
                 </div>
               ))}
               {loading && (
-                <div className="message-row assistant">
-                  <div className="message-avatar assistant-avatar">
-                    <HelmoraLogo small />
-                  </div>
+                <div className="message-row assistant thinking-row">
                   <div className="message-content">
-                    <div className="message-meta">
-                      <strong className="cloudsaathi-wordmark">
-                        Helmora<span>.</span>
-                      </strong>
-                    </div>
                     <div
                       className="thinking-status"
                       role="status"
-                      aria-label="Helmora is thinking"
+                      aria-label="Helmora Thinking"
                     >
-                      <span>Thinking</span>
+                      <span className="thinking-label">Helmora Thinking</span>
                       <span className="thinking-ellipsis" aria-hidden="true">
                         <i />
                         <i />
