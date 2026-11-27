@@ -11770,3 +11770,224 @@ body {
     transition: none !important;
   }
 }
+
+
+/* ==========================================================
+   HELMORA NAVIGATION + SCROLL-TO-BOTTOM REFINEMENT
+   Appended overrides: preserves the existing landing page,
+   chat rendering, attachments, Mermaid and composer styling.
+========================================================== */
+
+/* Keep the expanded sidebar navigation compact and consistent. */
+@media (min-width: 761px) {
+  .app-shell:not(.sidebar-collapsed) .sidebar {
+    padding: 18px 16px 14px !important;
+  }
+}
+.brand {
+  margin-bottom: 12px !important;
+}
+.new-chat-button {
+  min-height: 40px !important;
+  margin: 0 0 2px !important;
+  padding: 7px 10px !important;
+  gap: 10px !important;
+}
+.sidebar-back-button {
+  min-height: 40px !important;
+  margin: 0 0 2px !important;
+  padding: 7px 10px !important;
+  gap: 10px !important;
+}
+.sidebar-back-icon {
+  width: 23px !important;
+  min-width: 23px !important;
+  height: 23px;
+  font-size: 0 !important;
+}
+.sidebar-back-icon svg {
+  display: block;
+  width: 21px;
+  height: 21px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.sidebar-section-toggle {
+  min-height: 40px !important;
+  margin: 0 !important;
+  padding: 7px 10px !important;
+  gap: 10px !important;
+  border-radius: 10px !important;
+}
+.sidebar-section-icon {
+  width: 23px !important;
+  height: 23px !important;
+  flex: 0 0 23px !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+}
+.sidebar-section-icon svg {
+  width: 21px !important;
+  height: 21px !important;
+}
+.sidebar-section-label {
+  font-size: 13px !important;
+  font-weight: 650 !important;
+}
+.sidebar-section-chevron {
+  width: 16px !important;
+  height: 16px !important;
+  transform: rotate(0deg);
+}
+.sidebar-section-toggle.is-open .sidebar-section-chevron {
+  transform: rotate(90deg);
+}
+.sidebar-section-toggle .topic-count {
+  min-width: 34px !important;
+  height: 22px !important;
+  font-size: 11px !important;
+}
+.recently-asked {
+  margin: 0 0 3px !important;
+  animation: helmora-sidebar-panel-in 180ms ease both;
+}
+.library-section-toggle + input.topic-search,
+.library-section-toggle ~ .topics-scroll {
+  animation: helmora-sidebar-panel-in 180ms ease both;
+}
+@keyframes helmora-sidebar-panel-in {
+  from { opacity: 0; transform: translateY(-4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.sidebar-quick-actions {
+  gap: 2px !important;
+}
+.app-shell.sidebar-collapsed .sidebar-quick-actions {
+  margin: 2px 0 8px !important;
+  gap: 4px !important;
+}
+.app-shell.sidebar-collapsed .sidebar-back-button,
+.app-shell.sidebar-collapsed .new-chat-button,
+.app-shell.sidebar-collapsed .sidebar-quick-action {
+  width: 46px !important;
+  min-width: 46px !important;
+  height: 42px !important;
+  min-height: 42px !important;
+  margin: 0 auto 2px !important;
+  padding: 0 !important;
+  border-radius: 10px !important;
+}
+.app-shell.sidebar-collapsed .sidebar-back-icon svg {
+  width: 21px;
+  height: 21px;
+}
+.app-shell.sidebar-collapsed .sidebar-quick-action svg {
+  width: 21px !important;
+  height: 21px !important;
+}
+.app-shell.sidebar-collapsed .brand {
+  margin-bottom: 12px !important;
+}
+
+/* Sidebar icons and labels adapt to the light theme. */
+.light-theme .sidebar-back-button,
+.light-theme .sidebar-section-toggle,
+.light-theme .sidebar-section-label {
+  color: #283142 !important;
+}
+.light-theme .sidebar-section-toggle.is-open {
+  background: rgba(20, 30, 48, .055) !important;
+}
+.light-theme .sidebar-back-button:hover,
+.light-theme .sidebar-section-toggle:hover {
+  background: #E9EEF6 !important;
+}
+
+/* The main chat pane anchors the floating jump button above the composer. */
+.chat-main {
+  position: relative !important;
+  min-height: 0;
+}
+.scroll-to-bottom-button {
+  position: absolute;
+  z-index: 35;
+  left: 50%;
+  bottom: 104px;
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  min-width: 36px;
+  min-height: 36px;
+  padding: 0;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 50%;
+  background: #1E1F20;
+  color: #E3E3E3;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.45);
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transform: translate(-50%, 9px) scale(.92);
+  transition:
+    opacity 180ms ease,
+    transform 180ms cubic-bezier(.2, .8, .2, 1),
+    visibility 180ms ease,
+    background-color 160ms ease;
+}
+.scroll-to-bottom-button.is-visible {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+  transform: translate(-50%, 0) scale(1);
+}
+.scroll-to-bottom-button:hover {
+  background: #282A2C;
+}
+.scroll-to-bottom-button:active {
+  transform: translate(-50%, 0) scale(.95);
+}
+.scroll-to-bottom-button:focus-visible {
+  outline: 2px solid rgba(85, 200, 255, .8);
+  outline-offset: 3px;
+}
+.scroll-to-bottom-button svg {
+  display: block;
+  width: 18px;
+  height: 18px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.9;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.light-theme .scroll-to-bottom-button {
+  background: #FFFFFF;
+  border-color: rgba(0, 0, 0, 0.12);
+  color: #1F1F1F;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.12);
+}
+.light-theme .scroll-to-bottom-button:hover {
+  background: #F0F4F9;
+}
+@media (max-width: 760px) {
+  .scroll-to-bottom-button {
+    bottom: calc(92px + env(safe-area-inset-bottom));
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .sidebar-section-toggle,
+  .sidebar-back-button,
+  .new-chat-button,
+  .scroll-to-bottom-button {
+    transition: none !important;
+  }
+  .recently-asked,
+  .library-section-toggle + input.topic-search,
+  .library-section-toggle ~ .topics-scroll {
+    animation: none !important;
+  }
+}

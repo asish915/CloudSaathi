@@ -1480,6 +1480,8 @@ function App() {
   }, []);
   const [showRecentHistory, setShowRecentHistory] = useState(true);
 
+  const [showScrollToBottom, setShowScrollToBottom] = useState(false);
+
   const [bootStep, setBootStep] = useState(0);
 
   const [messages, setMessages] = useState([]);
@@ -1551,6 +1553,39 @@ function App() {
 
     if (pane) pane.scrollTop = pane.scrollHeight;
   }, [messages]);
+
+  useEffect(() => {
+    const pane = chatScrollRef.current;
+    if (!pane) return undefined;
+
+    const updateScrollButton = () => {
+      const distanceFromBottom =
+        pane.scrollHeight - pane.scrollTop - pane.clientHeight;
+      setShowScrollToBottom(distanceFromBottom > 120);
+    };
+
+    updateScrollButton();
+    pane.addEventListener("scroll", updateScrollButton, { passive: true });
+
+    const resizeObserver =
+      typeof ResizeObserver !== "undefined"
+        ? new ResizeObserver(updateScrollButton)
+        : null;
+    resizeObserver?.observe(pane);
+    if (pane.firstElementChild) resizeObserver?.observe(pane.firstElementChild);
+
+    return () => {
+      pane.removeEventListener("scroll", updateScrollButton);
+      resizeObserver?.disconnect();
+    };
+  }, [showLanding, messages.length]);
+
+  const scrollChatToBottom = () => {
+    const pane = chatScrollRef.current;
+    if (!pane) return;
+    pane.scrollTo({ top: pane.scrollHeight, behavior: "smooth" });
+    setShowScrollToBottom(false);
+  };
 
   function appendAssistantMessage(text, shouldScrollToBottom = false) {
     shouldScrollToBottomRef.current = shouldScrollToBottom;
@@ -2076,14 +2111,37 @@ function App() {
             className="sidebar-back-button"
             type="button"
             onClick={() => {
+              requestVersionRef.current += 1;
+              abortControllerRef.current?.abort();
+              abortControllerRef.current = null;
+              shouldScrollToBottomRef.current = false;
+              setLoading(false);
               setHomeEntering(false);
+              setLandingExiting(false);
               setShowLanding(true);
               setMobileLibraryOpen(false);
+              setLibraryOpen(false);
+              setShowRecentHistory(false);
+              setSidebarCollapsed(false);
+              setActiveTopic("");
+              setFilter("");
+              if (window.location.hash) {
+                window.history.replaceState(
+                  null,
+                  "",
+                  `${window.location.pathname}${window.location.search}`,
+                );
+              }
             }}
             aria-label="Back to Home"
             title="Back to Home"
           >
-            <span className="sidebar-back-icon" aria-hidden="true">←</span>
+            <span className="sidebar-back-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" focusable="false">
+                <path d="m3 10 9-7 9 7" />
+                <path d="M5.5 9v11h13V9M9.5 20v-6h5v6" />
+              </svg>
+            </span>
             <span className="sidebar-back-label">Back to Home</span>
           </button>
 
@@ -2095,6 +2153,9 @@ function App() {
                 setSidebarCollapsed(false);
                 setShowRecentHistory(false);
                 setLibraryOpen(true);
+                if (window.matchMedia("(max-width: 760px)").matches) {
+                  setMobileLibraryOpen(true);
+                }
               }}
               aria-label="Open Library"
               title="Library"
@@ -2112,6 +2173,9 @@ function App() {
                 setLibraryOpen(false);
                 setShowRecentHistory(true);
                 setSidebarCollapsed(false);
+                if (window.matchMedia("(max-width: 760px)").matches) {
+                  setMobileLibraryOpen(true);
+                }
               }}
               aria-label="Open Recents"
               title="Recents"
@@ -2123,73 +2187,6 @@ function App() {
               <span>Recents</span>
             </button>
           </div>
-
-          <button
-            className={`sidebar-section-toggle ${showRecentHistory ? "is-open" : ""}`}
-            type="button"
-            onClick={() => {
-              setLibraryOpen(false);
-              setShowRecentHistory((open) => !open);
-            }}
-            aria-expanded={showRecentHistory}
-            aria-controls="recent-conversations-content"
-            title={showRecentHistory ? "Collapse Recents" : "Expand Recents"}
-          >
-            <span className="sidebar-section-icon" aria-hidden="true">
-              <svg viewBox="0 0 24 24">
-                <path d="M3.5 12a8.5 8.5 0 1 0 2.4-5.9L3.5 8.5" />
-                <path d="M3.5 4.5v4h4M12 7v5l3.2 2" />
-              </svg>
-            </span>
-            <span className="sidebar-section-label">Recents</span>
-            <span className="sidebar-section-spacer" />
-            <svg className="sidebar-section-chevron" viewBox="0 0 24 24" aria-hidden="true">
-              <path d={showRecentHistory ? "m6 9 6 6 6-6" : "m9 6 6 6-6 6"} />
-            </svg>
-          </button>
-
-          {showRecentHistory && (
-            <section className="recently-asked" id="recent-conversations-content" aria-label="Recent conversations">
-              <div className="recent-list">
-                {recentlyAsked.map((item, index) => (
-                  <div className="recent-row" key={`${item}-${index}`}>
-                    <button
-                      className="recent-item"
-                      type="button"
-                      onClick={() => send(item)}
-                      title={item}
-                    >
-                      <span className="recent-dot" />
-
-                      <span className="recent-question-text">{item}</span>
-                    </button>
-
-                    <button
-                      className="recent-delete"
-                      type="button"
-                      onClick={() =>
-                        setRecentlyAsked((current) =>
-                          current.filter((_, i) => i !== index),
-                        )
-                      }
-                      aria-label={`Delete recent question: ${item}`}
-                      title="Delete this question"
-                    >
-                      <svg viewBox="0 0 24 24" aria-hidden="true">
-                        <path d="M3 6h18" />
-
-                        <path d="M8 6V4h8v2" />
-
-                        <path d="m19 6-1 14H6L5 6" />
-
-                        <path d="M10 11v5M14 11v5" />
-                      </svg>
-                    </button>
-                  </div>
-                ))}
-              </div>
-            </section>
-          )}
 
           <button
             className={`sidebar-section-toggle library-section-toggle ${libraryOpen ? "is-open" : ""}`}
@@ -2212,7 +2209,7 @@ function App() {
             <span className="sidebar-section-spacer" />
             <span className="topic-count">{topicCount}</span>
             <svg className="sidebar-section-chevron" viewBox="0 0 24 24" aria-hidden="true">
-              <path d={libraryOpen ? "m6 9 6 6 6-6" : "m9 6 6 6-6 6"} />
+              <path d="m9 6 6 6-6 6" />
             </svg>
           </button>
           {libraryOpen && (
@@ -2308,6 +2305,73 @@ function App() {
             )}
               </nav>
             </>
+          )}
+
+          <button
+            className={`sidebar-section-toggle ${showRecentHistory ? "is-open" : ""}`}
+            type="button"
+            onClick={() => {
+              setLibraryOpen(false);
+              setShowRecentHistory((open) => !open);
+            }}
+            aria-expanded={showRecentHistory}
+            aria-controls="recent-conversations-content"
+            title={showRecentHistory ? "Collapse Recents" : "Expand Recents"}
+          >
+            <span className="sidebar-section-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24">
+                <path d="M3.5 12a8.5 8.5 0 1 0 2.4-5.9L3.5 8.5" />
+                <path d="M3.5 4.5v4h4M12 7v5l3.2 2" />
+              </svg>
+            </span>
+            <span className="sidebar-section-label">Recents</span>
+            <span className="sidebar-section-spacer" />
+            <svg className="sidebar-section-chevron" viewBox="0 0 24 24" aria-hidden="true">
+              <path d="m9 6 6 6-6 6" />
+            </svg>
+          </button>
+
+          {showRecentHistory && (
+            <section className="recently-asked" id="recent-conversations-content" aria-label="Recent conversations">
+              <div className="recent-list">
+                {recentlyAsked.map((item, index) => (
+                  <div className="recent-row" key={`${item}-${index}`}>
+                    <button
+                      className="recent-item"
+                      type="button"
+                      onClick={() => send(item)}
+                      title={item}
+                    >
+                      <span className="recent-dot" />
+
+                      <span className="recent-question-text">{item}</span>
+                    </button>
+
+                    <button
+                      className="recent-delete"
+                      type="button"
+                      onClick={() =>
+                        setRecentlyAsked((current) =>
+                          current.filter((_, i) => i !== index),
+                        )
+                      }
+                      aria-label={`Delete recent question: ${item}`}
+                      title="Delete this question"
+                    >
+                      <svg viewBox="0 0 24 24" aria-hidden="true">
+                        <path d="M3 6h18" />
+
+                        <path d="M8 6V4h8v2" />
+
+                        <path d="m19 6-1 14H6L5 6" />
+
+                        <path d="M10 11v5M14 11v5" />
+                      </svg>
+                    </button>
+                  </div>
+                ))}
+              </div>
+            </section>
           )}
 
           <div className="sidebar-footer">
@@ -2528,6 +2592,21 @@ function App() {
               <div ref={messagesEndRef} />
             </section>
           </div>
+
+          <button
+            className={`scroll-to-bottom-button ${showScrollToBottom ? "is-visible" : ""}`}
+            type="button"
+            onClick={scrollChatToBottom}
+            aria-label="Scroll to latest message"
+            title="Scroll to bottom"
+            tabIndex={showScrollToBottom ? 0 : -1}
+            aria-hidden={!showScrollToBottom}
+          >
+            <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+              <path d="M12 4v15" />
+              <path d="m5 12 7 7 7-7" />
+            </svg>
+          </button>
 
           <form
             className={`composer ${isDraggingFiles ? "is-dragging" : ""} ${
