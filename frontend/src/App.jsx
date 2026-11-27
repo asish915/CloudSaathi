@@ -2107,6 +2107,8 @@ function App() {
                       type="button"
                       onClick={() => toggleStack(stack.name)}
                       aria-expanded={stackOpen}
+                      aria-label={`${stack.name} technology stack`}
+                      title={stack.name}
                     >
                       <StackBrandIcon name={stack.name} fallback={stack.icon} />
                       <span className="stack-name">{stack.name}</span>
@@ -2172,6 +2174,38 @@ function App() {
               <p className="no-topics">No topics match your search.</p>
             )}
           </nav>
+
+          <div className="sidebar-footer">
+            <button
+              className="sidebar-theme-toggle"
+              type="button"
+              onClick={() =>
+                setTheme((current) => (current === "dark" ? "light" : "dark"))
+              }
+              aria-label={`Switch to ${theme === "dark" ? "light" : "dark"} theme`}
+              title={theme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
+            >
+              <span className="sidebar-footer-icon" aria-hidden="true">
+                {theme === "dark" ? "☀" : "☾"}
+              </span>
+              <span className="sidebar-footer-label">
+                {theme === "dark" ? "Light mode" : "Dark mode"}
+              </span>
+            </button>
+
+            <div
+              className="sidebar-account"
+              title="Guest session"
+              aria-label="Guest session account"
+            >
+              <span className="account-avatar" aria-hidden="true">G</span>
+              <span className="account-details">
+                <strong>Guest session</strong>
+                <small>Currently browsing as guest</small>
+              </span>
+              <span className="account-status-dot" aria-hidden="true" />
+            </div>
+          </div>
         </aside>
 
         {mobileLibraryOpen && (
@@ -2234,27 +2268,7 @@ function App() {
                 <span>Ready to help</span>
               </div>
             </div>
-            <div className="topbar-actions">
-              <span className="session-chip">
-                GUEST SESSION <i />
-              </span>
-              <button
-                className="theme-toggle"
-                type="button"
-                onClick={() =>
-                  setTheme((current) => (current === "dark" ? "light" : "dark"))
-                }
-                aria-label={`Switch to ${theme === "dark" ? "light" : "dark"} theme`}
-                title={`Switch to ${theme === "dark" ? "light" : "dark"} theme`}
-              >
-                {theme === "dark" ? "☀ Light mode" : "☾ Dark mode"}
-              </button>
-              <div className="topbar-tags">
-                <span className="model-chip" title="Helmora uses Amazon Nova Lite">
-                  Amazon Nova Lite
-                </span>
-              </div>
-            </div>
+            <div className="topbar-actions" aria-hidden="true" />
           </header>
 
           <div className="chat-scroll" ref={chatScrollRef}>
@@ -2636,6 +2650,12 @@ function App() {
                   </svg>
                 )}
               </button>
+            </div>
+            <div className="composer-model-row">
+              <span className="composer-model-indicator" title="Active model: Amazon Nova Lite">
+                <span className="model-status-dot" aria-hidden="true" />
+                Amazon Nova Lite
+              </span>
             </div>
             {attachmentError && (
               <p className="attachment-error" role="alert">

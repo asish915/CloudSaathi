@@ -9763,3 +9763,251 @@ body {
   }
 }
 
+
+
+/* --------------------------------------------------------------------------
+   SIDEBAR TOOLING + ACCOUNT FOOTER + COMPOSER MODEL INDICATOR
+   Keep the existing library data and navigation; this is presentation only.
+   -------------------------------------------------------------------------- */
+
+/* Full technology library remains the single source of all stack navigation. */
+.stack-toggle[title] {
+  cursor: pointer;
+}
+
+/* Sidebar bottom area: theme control and guest account identity. */
+.sidebar-footer {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  flex: 0 0 auto;
+  margin-top: 10px;
+  padding-top: 12px;
+  border-top: 1px solid var(--workspace-border, rgba(255,255,255,.10));
+}
+
+.sidebar-theme-toggle {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  width: 100%;
+  min-height: 40px;
+  padding: 7px 10px;
+  border: 1px solid transparent;
+  border-radius: 10px;
+  background: transparent;
+  color: #c8c6d0;
+  text-align: left;
+  font: inherit;
+  font-size: 12px;
+  transition: background 160ms ease, border-color 160ms ease, color 160ms ease;
+}
+
+.sidebar-theme-toggle:hover {
+  background: rgba(255,255,255,.055);
+  border-color: var(--workspace-border, rgba(255,255,255,.10));
+  color: var(--workspace-accent, #83dce8);
+}
+
+.sidebar-footer-icon {
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  flex: 0 0 30px;
+  border: 1px solid var(--workspace-border, rgba(255,255,255,.10));
+  border-radius: 9px;
+  background: rgba(255,255,255,.045);
+  font-size: 15px;
+}
+
+.sidebar-footer-label {
+  min-width: 0;
+}
+
+.sidebar-account {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+  min-height: 48px;
+  padding: 7px 9px;
+  border: 1px solid var(--workspace-border, rgba(255,255,255,.10));
+  border-radius: 12px;
+  background: rgba(255,255,255,.035);
+}
+
+.account-avatar {
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  flex: 0 0 32px;
+  border: 1px solid rgba(131,220,232,.25);
+  border-radius: 50%;
+  background: linear-gradient(145deg, rgba(131,220,232,.18), rgba(182,161,255,.18));
+  color: #e8e4f5;
+  font-size: 12px;
+  font-weight: 750;
+}
+
+.account-details {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  min-width: 0;
+  gap: 3px;
+}
+
+.account-details strong {
+  overflow: hidden;
+  color: #e6e4ec;
+  font-size: 11px;
+  font-weight: 650;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.account-details small {
+  overflow: hidden;
+  color: var(--workspace-muted, #9695a2);
+  font-size: 9px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.account-status-dot,
+.model-status-dot {
+  width: 7px;
+  height: 7px;
+  flex: 0 0 7px;
+  border-radius: 50%;
+  background: #70d6a3;
+  box-shadow: 0 0 9px rgba(112,214,163,.35);
+}
+
+/* In collapsed mode keep the icon buttons and expose labels through native tooltips. */
+.app-shell.sidebar-collapsed .sidebar-footer {
+  align-items: center;
+  gap: 9px;
+  padding-top: 10px;
+}
+
+.app-shell.sidebar-collapsed .sidebar-theme-toggle {
+  justify-content: center;
+  width: 42px;
+  min-height: 42px;
+  padding: 5px;
+}
+
+.app-shell.sidebar-collapsed .sidebar-footer-label,
+.app-shell.sidebar-collapsed .account-details,
+.app-shell.sidebar-collapsed .account-status-dot {
+  display: none !important;
+}
+
+.app-shell.sidebar-collapsed .sidebar-account {
+  justify-content: center;
+  width: 44px;
+  min-height: 44px;
+  padding: 5px;
+  border-color: transparent;
+  background: transparent;
+}
+
+.app-shell.sidebar-collapsed .account-avatar {
+  width: 34px;
+  height: 34px;
+}
+
+/* Model badge lives inside the composer, not in the application header. */
+.topbar-actions {
+  min-width: 36px;
+}
+
+.composer-model-row {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  min-height: 18px;
+  margin: 2px 2px 0 48px;
+}
+
+.composer-model-indicator {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 4px 9px;
+  border: 1px solid rgba(255,255,255,.09);
+  border-radius: 999px;
+  background: rgba(255,255,255,.035);
+  color: #aaa8b4;
+  font-size: 9px;
+  font-weight: 550;
+  letter-spacing: .12px;
+  line-height: 1.2;
+  white-space: nowrap;
+}
+
+.composer-model-indicator .model-status-dot {
+  width: 6px;
+  height: 6px;
+  flex-basis: 6px;
+  background: #83dce8;
+  box-shadow: 0 0 8px rgba(131,220,232,.35);
+}
+
+.light-theme .sidebar-account {
+  background: rgba(255,255,255,.72);
+}
+
+.light-theme .account-details strong {
+  color: #292733;
+}
+
+.light-theme .sidebar-theme-toggle {
+  color: #45424f;
+}
+
+.light-theme .composer-model-indicator {
+  color: #666371;
+  border-color: rgba(25,24,35,.10);
+  background: rgba(25,24,35,.035);
+}
+
+@media (max-width: 760px) {
+  .sidebar-footer {
+    padding-bottom: max(10px, env(safe-area-inset-bottom));
+  }
+
+  .app-shell.sidebar-collapsed .sidebar-footer {
+    align-items: stretch;
+  }
+
+  .app-shell.sidebar-collapsed .sidebar-theme-toggle {
+    justify-content: flex-start;
+    width: 100%;
+    padding: 7px 10px;
+  }
+
+  .app-shell.sidebar-collapsed .sidebar-footer-label,
+  .app-shell.sidebar-collapsed .account-details,
+  .app-shell.sidebar-collapsed .account-status-dot {
+    display: flex !important;
+  }
+
+  .app-shell.sidebar-collapsed .sidebar-account {
+    justify-content: flex-start;
+    width: 100%;
+    padding: 7px 9px;
+    border-color: var(--workspace-border, rgba(255,255,255,.10));
+    background: rgba(255,255,255,.035);
+  }
+}
+
+@media (max-width: 480px) {
+  .composer-model-row {
+    margin-left: 44px;
+  }
+}
+
