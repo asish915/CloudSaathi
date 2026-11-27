@@ -8244,3 +8244,107 @@ html:has(.landing-page) {
   }
 }
 
+
+/* Helmora diagram viewer: viewport-level modal, readable SVG, and zoom controls */
+.diagram-lightbox {
+  z-index: 2147483000;
+  isolation: isolate;
+}
+
+.diagram-lightbox-panel {
+  width: min(1600px, calc(100vw - 40px));
+  height: min(94dvh, 1100px);
+  max-height: 94dvh;
+}
+
+.diagram-lightbox-content {
+  display: block;
+  min-width: 0;
+  min-height: 0;
+  overflow: auto;
+  overscroll-behavior: contain;
+  padding: clamp(14px, 2vw, 28px);
+}
+
+.diagram-lightbox-canvas {
+  min-width: 100%;
+  min-height: 100%;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+}
+
+.diagram-lightbox-svg {
+  flex: 0 0 auto;
+  min-width: 100%;
+  max-width: none;
+}
+
+.diagram-lightbox-svg svg {
+  display: block;
+  width: 100% !important;
+  max-width: none !important;
+  height: auto !important;
+  max-height: none !important;
+  margin: 0 auto;
+}
+
+.diagram-lightbox-actions {
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.diagram-zoom-controls {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px;
+  border: 1px solid rgba(105, 157, 205, 0.25);
+  border-radius: 9px;
+  background: rgba(5, 15, 31, 0.72);
+}
+
+.diagram-zoom-controls button {
+  min-width: 30px;
+  min-height: 29px;
+  padding: 3px 8px;
+}
+
+.diagram-zoom-controls button:disabled {
+  opacity: 0.38;
+  cursor: not-allowed;
+}
+
+.diagram-zoom-controls span {
+  min-width: 42px;
+  color: #d8eaff;
+  font-size: 11px;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}
+
+.diagram-zoom-controls .diagram-fit-button {
+  min-width: 38px;
+}
+
+@media (max-width: 700px) {
+  .diagram-lightbox-panel {
+    width: calc(100vw - 16px);
+    height: 96dvh;
+    max-height: 96dvh;
+  }
+
+  .diagram-lightbox-header {
+    align-items: flex-start;
+    flex-wrap: wrap;
+  }
+
+  .diagram-lightbox-actions {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .diagram-lightbox-content {
+    padding: 10px;
+  }
+}

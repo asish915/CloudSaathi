@@ -1,4 +1,5 @@
 import { useEffect, useId, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import awsLogo from "./assets/logos/aws.svg";
 import dockerLogo from "./assets/logos/docker.svg";
 import kubernetesLogo from "./assets/logos/kubernetes.svg";
@@ -984,9 +985,10 @@ async function copyTextToClipboard(value) {
 }
 
 function MermaidDiagram({ source, theme }) {
-  const renderId = `cloudsaathi-${useId().replace(/[^a-zA-Z0-9_-]/g, "")}`;
+  const renderId = `helmora-${useId().replace(/[^a-zA-Z0-9_-]/g, "")}`;
   const [renderResult, setRenderResult] = useState(null);
   const [isExpanded, setIsExpanded] = useState(false);
+  const [zoom, setZoom] = useState(1.5);
   const sourceTooLong = source.length > MAX_MERMAID_SOURCE_LENGTH;
 
   useEffect(() => {
@@ -1036,7 +1038,7 @@ function MermaidDiagram({ source, theme }) {
           setRenderResult({ source, theme, svg: sanitizedSvg, error: false });
         }
       } catch (error) {
-        console.error("Mermaid diagram rendering failed.:", error);
+        console.error("Mermaid diagram rendering failed:", error);
         if (!cancelled) {
           setRenderResult({ source, theme, svg: "", error: true });
         }
@@ -1073,12 +1075,100 @@ function MermaidDiagram({ source, theme }) {
       : null;
   const hasError = sourceTooLong || result?.error;
 
+  const openExpanded = () => {
+    setZoom(1.5);
+    setIsExpanded(true);
+  };
+
   const openOnKeyboard = (event) => {
     if (event.key === "Enter" || event.key === " ") {
       event.preventDefault();
-      setIsExpanded(true);
+      openExpanded();
     }
   };
+
+  const expandedViewer = isExpanded && result?.svg
+    ? createPortal(
+        <div
+          className="diagram-lightbox"
+          role="presentation"
+          onMouseDown={(event) => {
+            if (event.target === event.currentTarget) setIsExpanded(false);
+          }}
+        >
+          <section
+            className="diagram-lightbox-panel"
+            role="dialog"
+            aria-modal="true"
+            aria-label="Expanded generated diagram"
+            onMouseDown={(event) => event.stopPropagation()}
+          >
+            <header className="diagram-lightbox-header">
+              <div>
+                <strong>Diagram preview</strong>
+                <span>Scroll to explore · Esc to close</span>
+              </div>
+              <div className="diagram-lightbox-actions">
+                <div className="diagram-zoom-controls" aria-label="Diagram zoom controls">
+                  <button
+                    type="button"
+                    onClick={() => setZoom((value) => Math.max(0.75, Number((value - 0.25).toFixed(2))))}
+                    disabled={zoom <= 0.75}
+                    aria-label="Zoom out"
+                    title="Zoom out"
+                  >
+                    −
+                  </button>
+                  <span aria-live="polite">{Math.round(zoom * 100)}%</span>
+                  <button
+                    type="button"
+                    onClick={() => setZoom((value) => Math.min(3, Number((value + 0.25).toFixed(2))))}
+                    disabled={zoom >= 3}
+                    aria-label="Zoom in"
+                    title="Zoom in"
+                  >
+                    +
+                  </button>
+                  <button
+                    type="button"
+                    className="diagram-fit-button"
+                    onClick={() => setZoom(1)}
+                    title="Fit diagram to viewer width"
+                  >
+                    Fit
+                  </button>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => copyTextToClipboard(source)}
+                >
+                  Copy source
+                </button>
+                <button
+                  type="button"
+                  className="diagram-lightbox-close"
+                  onClick={() => setIsExpanded(false)}
+                  aria-label="Close expanded diagram"
+                  title="Close"
+                >
+                  ×
+                </button>
+              </div>
+            </header>
+            <div className="diagram-lightbox-content">
+              <div className="diagram-lightbox-canvas">
+                <div
+                  className="diagram-lightbox-svg"
+                  style={{ width: `${zoom * 100}%` }}
+                  dangerouslySetInnerHTML={{ __html: result.svg }}
+                />
+              </div>
+            </div>
+          </section>
+        </div>,
+        document.body,
+      )
+    : null;
 
   return (
     <>
@@ -1090,7 +1180,7 @@ function MermaidDiagram({ source, theme }) {
               <button
                 type="button"
                 className="mermaid-expand-button"
-                onClick={() => setIsExpanded(true)}
+                onClick={openExpanded}
                 aria-label="Maximize diagram"
                 title="Maximize diagram"
               >
@@ -1112,7 +1202,7 @@ function MermaidDiagram({ source, theme }) {
             role="button"
             tabIndex={0}
             aria-label="Open generated diagram in expanded view"
-            onClick={() => setIsExpanded(true)}
+            onClick={openExpanded}
             onKeyDown={openOnKeyboard}
             title="Click to expand diagram"
             dangerouslySetInnerHTML={{ __html: result.svg }}
@@ -1134,52 +1224,7 @@ function MermaidDiagram({ source, theme }) {
           </div>
         )}
       </div>
-
-      {isExpanded && result?.svg && (
-        <div
-          className="diagram-lightbox"
-          role="presentation"
-          onMouseDown={(event) => {
-            if (event.target === event.currentTarget) setIsExpanded(false);
-          }}
-        >
-          <section
-            className="diagram-lightbox-panel"
-            role="dialog"
-            aria-modal="true"
-            aria-label="Expanded generated diagram"
-            onMouseDown={(event) => event.stopPropagation()}
-          >
-            <header className="diagram-lightbox-header">
-              <div>
-                <strong>Diagram preview</strong>
-                <span>Click outside or press Esc to close</span>
-              </div>
-              <div className="diagram-lightbox-actions">
-                <button
-                  type="button"
-                  onClick={() => copyTextToClipboard(source)}
-                >
-                  Copy source
-                </button>
-                <button
-                  type="button"
-                  className="diagram-lightbox-close"
-                  onClick={() => setIsExpanded(false)}
-                  aria-label="Close expanded diagram"
-                  title="Close"
-                >
-                  ×
-                </button>
-              </div>
-            </header>
-            <div
-              className="diagram-lightbox-content"
-              dangerouslySetInnerHTML={{ __html: result.svg }}
-            />
-          </section>
-        </div>
-      )}
+      {expandedViewer}
     </>
   );
 }
@@ -1857,7 +1902,7 @@ function App() {
 
         "BROAD CATALOG: For requests like all AWS resources, explain that there are many services and organize representative services by category. Explain each service's role with a practical example; do not claim a short list is exhaustive.",
 
-        "DIAGRAMS: For an explicit request to diagram a cloud/DevOps workflow or architecture, include one valid fenced Mermaid flowchart tailored to the named task. Use concrete steps and decision points when helpful, keep it concise, and explain key assumptions in prose. Do not include raw HTML or Mermaid initialization directives.",
+        "DIAGRAMS: For an explicit cloud/DevOps workflow or architecture diagram, return one valid Mermaid flowchart tailored to the request. For sequential workflows and CI/CD pipelines, prefer flowchart TD (top-to-bottom) so labels remain readable; use flowchart LR only when a wide architecture genuinely benefits from it. Use concise labels, meaningful stages, and success/failure decisions where relevant. Include rollback only when it is part of the requested workflow. Avoid unnecessary subgraphs, decorative nodes, raw HTML, and Mermaid initialization directives. Explain assumptions in prose.",
 
         "TROUBLESHOOTING: Diagnose from artifacts the learner provides, such as code, error messages, logs, configuration, and command output. Separate observed facts from hypotheses and prioritize likely causes. If key evidence is missing, ask for the specific relevant detail and remind the learner to redact secrets. You cannot inspect or operate the learner's repository, machine, AWS account, or other live environment; do not imply that you did. Commands and console actions are suggestions for the learner to run. Start with read-only checks, recommend the smallest safe fix, and explain how to verify it; flag changes that could affect resources.",
 
