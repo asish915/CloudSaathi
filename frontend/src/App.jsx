@@ -2349,7 +2349,9 @@ function App() {
           </div>
 
           <form
-            className={`composer ${isDraggingFiles ? "is-dragging" : ""}`}
+            className={`composer ${isDraggingFiles ? "is-dragging" : ""} ${
+              input.includes("\n") || input.length > 70 ? "is-expanded" : ""
+            }`}
             onSubmit={(event) => {
               event.preventDefault();
               send();

@@ -8599,20 +8599,24 @@ html:has(.landing-page) {
   border-bottom: 0 !important;
 }
 
-/* Empty state: the composer sits just below the greeting, not at the viewport floor. */
-.chat-main.is-empty .chat-scroll {
-  position: relative !important;
-  flex: 1 1 auto !important;
-  overflow: hidden !important;
+/* Empty state: keep greeting and composer in normal document flow.
+   This prevents the composer from overlapping the greeting on different screens. */
+.chat-main.is-empty {
   display: flex !important;
   flex-direction: column !important;
-  align-items: center !important;
-  justify-content: flex-start !important;
+}
+.chat-main.is-empty .chat-scroll {
+  position: relative !important;
+  flex: 0 0 auto !important;
+  min-height: 0 !important;
+  height: auto !important;
+  overflow: visible !important;
+  display: block !important;
 }
 .chat-main.is-empty .welcome-panel {
   width: min(760px, calc(100% - 40px)) !important;
   max-width: 760px !important;
-  margin: clamp(105px, 24vh, 220px) auto 0 !important;
+  margin: clamp(135px, 20vh, 205px) auto 24px !important;
   padding: 0 !important;
   text-align: center !important;
 }
@@ -8630,21 +8634,24 @@ html:has(.landing-page) {
   color: #858592 !important;
 }
 
-/* The empty-state composer is intentionally shorter than the conversation composer. */
+/* Empty-state composer follows the welcome text in normal flow. */
 .chat-main.is-empty > .composer {
-  position: absolute !important;
-  z-index: 5 !important;
-  top: clamp(430px, calc(24vh + 280px), 560px) !important;
-  left: 50% !important;
-  transform: translateX(-50%) !important;
+  position: relative !important;
+  top: auto !important;
+  right: auto !important;
+  bottom: auto !important;
+  left: auto !important;
+  transform: none !important;
+  align-self: center !important;
+  flex: 0 0 auto !important;
   width: min(760px, calc(100% - 48px)) !important;
   max-width: 760px !important;
-  margin: 0 !important;
+  margin: 0 auto 30px !important;
   min-height: 72px !important;
   height: auto !important;
   max-height: none !important;
   padding: 9px 12px 7px !important;
-  border-radius: 26px !important;
+  border-radius: 24px !important;
 }
 
 /* Conversation state: keep composer at the bottom and give transcript room. */
@@ -8805,3 +8812,41 @@ html:has(.landing-page) {
   }
 }
 
+
+
+/* Multiline composer: rounded rectangle with comfortable text area. */
+.chat-main > .composer.is-expanded,
+.chat-main.is-empty > .composer.is-expanded {
+  border-radius: 24px !important;
+  min-height: 116px !important;
+  padding-top: 13px !important;
+  padding-bottom: 10px !important;
+}
+.chat-main > .composer.is-expanded .composer-input-row,
+.chat-main.is-empty > .composer.is-expanded .composer-input-row {
+  align-items: start !important;
+}
+.chat-main > .composer.is-expanded .composer-add-button,
+.chat-main.is-empty > .composer.is-expanded .composer-add-button,
+.chat-main > .composer.is-expanded .send-button,
+.chat-main.is-empty > .composer.is-expanded .send-button {
+  margin-top: 1px !important;
+}
+.chat-main > .composer.is-expanded textarea,
+.chat-main.is-empty > .composer.is-expanded textarea {
+  min-height: 76px !important;
+  max-height: 220px !important;
+  padding-top: 5px !important;
+  padding-bottom: 5px !important;
+  line-height: 1.55 !important;
+  align-self: stretch !important;
+}
+@media (max-width: 640px) {
+  .chat-main.is-empty .welcome-panel {
+    margin-top: clamp(110px, 17vh, 150px) !important;
+    margin-bottom: 22px !important;
+  }
+  .chat-main.is-empty > .composer {
+    width: calc(100% - 24px) !important;
+  }
+}
