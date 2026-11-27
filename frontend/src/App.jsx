@@ -1439,7 +1439,45 @@ function App() {
   const [mobileLibraryOpen, setMobileLibraryOpen] = useState(false);
 
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [sidebarWidth, setSidebarWidth] = useState(() => {
+    try {
+      const saved = Number(window.localStorage.getItem("helmora-sidebar-width"));
+      return Number.isFinite(saved) && saved >= 220 && saved <= 420 ? saved : 270;
+    } catch {
+      return 270;
+    }
+  });
+  const sidebarResizeRef = useRef({ active: false, startX: 0, startWidth: 270, currentWidth: 270 });
   const [libraryOpen, setLibraryOpen] = useState(false);
+
+  useEffect(() => {
+    const handlePointerMove = (event) => {
+      if (!sidebarResizeRef.current.active) return;
+      const delta = event.clientX - sidebarResizeRef.current.startX;
+      const nextWidth = Math.min(420, Math.max(220, sidebarResizeRef.current.startWidth + delta));
+      sidebarResizeRef.current.currentWidth = nextWidth;
+      setSidebarWidth(nextWidth);
+    };
+    const handlePointerUp = () => {
+      if (!sidebarResizeRef.current.active) return;
+      sidebarResizeRef.current.active = false;
+      document.body.classList.remove("sidebar-is-resizing");
+      try {
+        window.localStorage.setItem("helmora-sidebar-width", String(sidebarResizeRef.current.currentWidth));
+      } catch {
+        // Width remains available in React state when storage is unavailable.
+      }
+    };
+    window.addEventListener("pointermove", handlePointerMove);
+    window.addEventListener("pointerup", handlePointerUp);
+    window.addEventListener("pointercancel", handlePointerUp);
+    return () => {
+      window.removeEventListener("pointermove", handlePointerMove);
+      window.removeEventListener("pointerup", handlePointerUp);
+      window.removeEventListener("pointercancel", handlePointerUp);
+      document.body.classList.remove("sidebar-is-resizing");
+    };
+  }, []);
   const [showRecentHistory, setShowRecentHistory] = useState(true);
 
   const [bootStep, setBootStep] = useState(0);
@@ -2004,6 +2042,7 @@ function App() {
       )}
       <div
         className={`app-shell ${sidebarCollapsed ? "sidebar-collapsed" : ""} ${theme === "light" ? "light-theme" : ""} ${homeEntering ? "home-entering" : ""}`}
+        style={{ "--sidebar-width": `${sidebarWidth}px` }}
         data-theme={theme}
       >
         <aside className={`sidebar ${mobileLibraryOpen ? "library-open" : ""}`}>
@@ -2031,6 +2070,21 @@ function App() {
               </svg>
             </span>
             <span className="new-chat-label">New chat</span>
+          </button>
+
+          <button
+            className="sidebar-back-button"
+            type="button"
+            onClick={() => {
+              setHomeEntering(false);
+              setShowLanding(true);
+              setMobileLibraryOpen(false);
+            }}
+            aria-label="Back to Home"
+            title="Back to Home"
+          >
+            <span className="sidebar-back-icon" aria-hidden="true">←</span>
+            <span className="sidebar-back-label">Back to Home</span>
           </button>
 
           <div className="sidebar-quick-actions" aria-label="Sidebar shortcuts">
@@ -2292,6 +2346,24 @@ function App() {
               <span className="account-status-dot" aria-hidden="true" />
             </div>
           </div>
+          <div
+            className="sidebar-resize-handle"
+            role="separator"
+            aria-orientation="vertical"
+            aria-label="Resize sidebar"
+            title="Drag to resize sidebar"
+            onPointerDown={(event) => {
+              if (window.matchMedia("(max-width: 760px)").matches || sidebarCollapsed) return;
+              event.preventDefault();
+              sidebarResizeRef.current = {
+                active: true,
+                startX: event.clientX,
+                startWidth: sidebarWidth,
+                currentWidth: sidebarWidth,
+              };
+              document.body.classList.add("sidebar-is-resizing");
+            }}
+          />
         </aside>
 
         {mobileLibraryOpen && (

@@ -11505,3 +11505,268 @@ body {
     background: none;
   }
 }
+
+
+/* ==========================================================
+   HELMORA SIDEBAR + CONVERSATION UX PATCH
+   Scoped to the application workspace; preserves landing page.
+========================================================== */
+@media (min-width: 761px) {
+  .app-shell {
+    grid-template-columns: var(--sidebar-width, 270px) minmax(0, 1fr) !important;
+  }
+  .app-shell.sidebar-collapsed {
+    grid-template-columns: 76px minmax(0, 1fr) !important;
+  }
+  .app-shell:not(.sidebar-collapsed) .sidebar {
+    position: relative !important;
+  }
+  .sidebar-resize-handle {
+    position: absolute;
+    z-index: 100;
+    top: 0;
+    right: -4px;
+    width: 9px;
+    height: 100%;
+    cursor: col-resize;
+    touch-action: none;
+    background: transparent;
+  }
+  .sidebar-resize-handle::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 4px;
+    width: 1px;
+    background: transparent;
+    transition: background-color .18s ease, width .18s ease;
+  }
+  .sidebar-resize-handle:hover::after,
+  .sidebar-is-resizing .sidebar-resize-handle::after {
+    width: 2px;
+    background: rgba(130, 190, 255, .58);
+  }
+  .app-shell.sidebar-collapsed .sidebar-resize-handle {
+    display: none;
+  }
+}
+.sidebar-is-resizing,
+.sidebar-is-resizing * {
+  cursor: col-resize !important;
+  user-select: none !important;
+}
+.sidebar-back-button,
+.sidebar-quick-action,
+.new-chat-button,
+.sidebar-section-toggle,
+.sidebar-theme-toggle,
+.sidebar-account {
+  transition:
+    background-color .18s cubic-bezier(.22, 1, .36, 1),
+    border-color .18s cubic-bezier(.22, 1, .36, 1),
+    color .18s cubic-bezier(.22, 1, .36, 1),
+    transform .18s cubic-bezier(.22, 1, .36, 1),
+    box-shadow .18s cubic-bezier(.22, 1, .36, 1) !important;
+}
+.sidebar-back-button,
+.sidebar-quick-action,
+.new-chat-button,
+.sidebar-theme-toggle {
+  position: relative;
+}
+.sidebar-back-button {
+  display: flex;
+  align-items: center;
+  gap: 13px;
+  width: 100%;
+  min-height: 44px;
+  margin: 4px 0 8px;
+  padding: 9px 13px;
+  border: 1px solid transparent;
+  border-radius: 11px;
+  background: transparent;
+  color: var(--text-primary, #e8e8e8);
+  text-align: left;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.sidebar-back-icon {
+  display: inline-grid;
+  place-items: center;
+  width: 23px;
+  min-width: 23px;
+  font-size: 20px;
+  line-height: 1;
+  transition: transform .18s cubic-bezier(.22, 1, .36, 1);
+}
+.sidebar-back-label { white-space: nowrap; }
+.sidebar-back-button:hover,
+.sidebar-quick-action:hover,
+.new-chat-button:hover,
+.sidebar-section-toggle:hover,
+.sidebar-theme-toggle:hover,
+.sidebar-account:hover {
+  background: #282A2C !important;
+  border-color: rgba(255,255,255,.08) !important;
+  transform: translateX(2px);
+}
+.sidebar-back-button:hover .sidebar-back-icon {
+  transform: translateX(-3px);
+}
+.sidebar-quick-action:hover svg,
+.new-chat-button:hover .sidebar-action-icon,
+.sidebar-theme-toggle:hover .sidebar-footer-icon,
+.sidebar-account:hover .account-avatar {
+  transform: scale(1.06);
+}
+.sidebar-quick-action svg,
+.sidebar-action-icon,
+.sidebar-footer-icon,
+.account-avatar {
+  transition: transform .18s cubic-bezier(.22, 1, .36, 1);
+}
+.sidebar-quick-actions {
+  display: none !important;
+}
+.app-shell.sidebar-collapsed .sidebar-quick-actions {
+  display: flex !important;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  margin: 6px 0 10px;
+}
+.app-shell.sidebar-collapsed .sidebar-quick-action {
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
+  width: 46px;
+  min-width: 46px;
+  height: 46px;
+  min-height: 46px;
+  padding: 0;
+  margin: 0 auto;
+  border: 1px solid transparent;
+  border-radius: 12px;
+  background: transparent;
+  color: var(--text-primary, #e8e8e8);
+}
+.app-shell.sidebar-collapsed .sidebar-quick-action span {
+  display: none !important;
+}
+.app-shell.sidebar-collapsed .sidebar-quick-action svg {
+  width: 21px;
+  height: 21px;
+}
+.app-shell.sidebar-collapsed .sidebar-back-button {
+  justify-content: center;
+  width: 46px;
+  min-width: 46px;
+  height: 46px;
+  min-height: 46px;
+  padding: 0;
+  margin: 4px auto 8px;
+  border-radius: 12px;
+}
+.app-shell.sidebar-collapsed .sidebar-back-label {
+  display: none !important;
+}
+.app-shell.sidebar-collapsed .sidebar-back-icon {
+  width: auto;
+  min-width: 0;
+}
+.app-shell.sidebar-collapsed .sidebar-section-toggle {
+  display: none !important;
+}
+.app-shell.sidebar-collapsed .new-chat-button {
+  justify-content: center;
+  width: 46px;
+  min-width: 46px;
+  height: 46px;
+  min-height: 46px;
+  padding: 0;
+  margin-inline: auto;
+}
+.app-shell.sidebar-collapsed .sidebar-theme-toggle,
+.app-shell.sidebar-collapsed .sidebar-account {
+  justify-content: center;
+  transition: background-color .18s cubic-bezier(.22, 1, .36, 1),
+    transform .18s cubic-bezier(.22, 1, .36, 1) !important;
+}
+.app-shell.sidebar-collapsed .sidebar-theme-toggle:hover,
+.app-shell.sidebar-collapsed .sidebar-account:hover,
+.app-shell.sidebar-collapsed .sidebar-quick-action:hover,
+.app-shell.sidebar-collapsed .sidebar-back-button:hover,
+.app-shell.sidebar-collapsed .new-chat-button:hover {
+  transform: translateY(-1px) scale(1.035);
+  background: #282A2C !important;
+}
+.app-shell.light-theme .sidebar-back-button,
+.app-shell.light-theme .sidebar-quick-action,
+.app-shell.light-theme .sidebar-theme-toggle,
+.app-shell.light-theme .sidebar-account {
+  color: #283142;
+}
+.app-shell.light-theme .sidebar-back-button:hover,
+.app-shell.light-theme .sidebar-quick-action:hover,
+.app-shell.light-theme .new-chat-button:hover,
+.app-shell.light-theme .sidebar-section-toggle:hover,
+.app-shell.light-theme .sidebar-theme-toggle:hover,
+.app-shell.light-theme .sidebar-account:hover {
+  background: #E9EEF6 !important;
+  border-color: rgba(35,55,85,.10) !important;
+}
+.app-shell .messages .message-row {
+  display: flex !important;
+  width: 100% !important;
+  min-width: 0 !important;
+}
+.app-shell .messages .message-row.user {
+  justify-content: flex-end !important;
+  align-self: stretch !important;
+}
+.app-shell .messages .message-row.user .message-content {
+  width: auto !important;
+  max-width: min(72%, 680px) !important;
+  margin-left: auto !important;
+  margin-right: 0 !important;
+  align-self: flex-end !important;
+  text-align: left !important;
+}
+.app-shell .messages .message-row.user .message-bubble {
+  width: fit-content;
+  max-width: 100%;
+  margin-left: auto !important;
+  text-align: left !important;
+}
+.app-shell .messages .message-row.assistant {
+  justify-content: flex-start !important;
+}
+.app-shell .messages .message-row.assistant .message-content {
+  margin-left: 0 !important;
+  margin-right: auto !important;
+  align-self: flex-start !important;
+}
+@media (max-width: 760px) {
+  .sidebar-resize-handle { display: none !important; }
+  .sidebar-back-button { min-height: 44px; }
+  .app-shell.sidebar-collapsed .sidebar-quick-actions { display: none !important; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .sidebar-back-button,
+  .sidebar-quick-action,
+  .new-chat-button,
+  .sidebar-section-toggle,
+  .sidebar-theme-toggle,
+  .sidebar-account,
+  .sidebar-back-icon,
+  .sidebar-quick-action svg,
+  .sidebar-action-icon,
+  .sidebar-footer-icon,
+  .account-avatar {
+    transition: none !important;
+  }
+}
