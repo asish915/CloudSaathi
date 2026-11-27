@@ -956,6 +956,33 @@ function stripMermaidStyleDirectives(source) {
     .join("\n");
 }
 
+async function copyTextToClipboard(value) {
+  const text = String(value ?? "");
+  try {
+    if (navigator.clipboard?.writeText && window.isSecureContext) {
+      await navigator.clipboard.writeText(text);
+      return true;
+    }
+  } catch (error) {
+    console.warn("Clipboard API unavailable; trying fallback.", error);
+  }
+  try {
+    const textarea = document.createElement("textarea");
+    textarea.value = text;
+    textarea.setAttribute("readonly", "");
+    textarea.style.position = "fixed";
+    textarea.style.opacity = "0";
+    document.body.appendChild(textarea);
+    textarea.select();
+    const copied = document.execCommand("copy");
+    textarea.remove();
+    return copied;
+  } catch (error) {
+    console.error("Unable to copy text.", error);
+    return false;
+  }
+}
+
 function MermaidDiagram({ source, theme }) {
   const renderId = `cloudsaathi-${useId().replace(/[^a-zA-Z0-9_-]/g, "")}`;
   const [renderResult, setRenderResult] = useState(null);
@@ -1034,7 +1061,7 @@ function MermaidDiagram({ source, theme }) {
         <span>Diagram</span>
         <button
           type="button"
-          onClick={() => navigator.clipboard?.writeText(source)}
+          onClick={() => copyTextToClipboard(source)}
         >
           Copy source
         </button>
@@ -1089,7 +1116,7 @@ function MarkdownContent({ text, theme }) {
                 <span>{block.language || "CODE"}</span>
                 <button
                   type="button"
-                  onClick={() => navigator.clipboard?.writeText(block.content)}
+                  onClick={() => copyTextToClipboard(block.content)}
                 >
                   Copy code
                 </button>
