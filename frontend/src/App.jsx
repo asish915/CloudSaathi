@@ -1438,6 +1438,8 @@ function App() {
 
   const [mobileLibraryOpen, setMobileLibraryOpen] = useState(false);
 
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+
   const [bootStep, setBootStep] = useState(0);
 
   const [messages, setMessages] = useState([]);
@@ -1997,7 +1999,7 @@ function App() {
         <BootScreen step={bootStep} onComplete={() => setBooting(false)} />
       )}
       <div
-        className={`app-shell ${theme === "light" ? "light-theme" : ""} ${homeEntering ? "home-entering" : ""}`}
+        className={`app-shell ${sidebarCollapsed ? "sidebar-collapsed" : ""} ${theme === "light" ? "light-theme" : ""} ${homeEntering ? "home-entering" : ""}`}
         data-theme={theme}
       >
         <aside className={`sidebar ${mobileLibraryOpen ? "library-open" : ""}`}>
@@ -2185,6 +2187,26 @@ function App() {
           <header className="topbar">
             <div className="topbar-leading">
               <button
+                className="sidebar-toggle"
+                type="button"
+                onClick={() => {
+                  if (window.matchMedia("(max-width: 760px)").matches) {
+                    setMobileLibraryOpen((open) => !open);
+                  } else {
+                    setSidebarCollapsed((collapsed) => !collapsed);
+                  }
+                }}
+                aria-label={sidebarCollapsed ? "Expand sidebar" : "Collapse sidebar"}
+                aria-expanded={!sidebarCollapsed}
+                title={sidebarCollapsed ? "Expand sidebar" : "Collapse sidebar"}
+              >
+                <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                  <rect x="3.5" y="4" width="17" height="16" rx="2.5" />
+                  <path d="M9 4v16" />
+                  <path d={sidebarCollapsed ? "m13 9 3 3-3 3" : "m16 9-3 3 3 3"} />
+                </svg>
+              </button>
+              <button
                 className="library-menu-toggle"
                 type="button"
                 onClick={() => setMobileLibraryOpen((open) => !open)}
@@ -2228,10 +2250,9 @@ function App() {
                 {theme === "dark" ? "☀ Light mode" : "☾ Dark mode"}
               </button>
               <div className="topbar-tags">
-                <span>AWS</span>
-                <span>Bedrock</span>
-                <span>Lambda</span>
-                <span>API Gateway</span>
+                <span className="model-chip" title="Helmora uses Amazon Nova Lite">
+                  Amazon Nova Lite
+                </span>
               </div>
             </div>
           </header>
@@ -2239,8 +2260,31 @@ function App() {
           <div className="chat-scroll" ref={chatScrollRef}>
             {messages.length === 0 && (
               <section className="welcome-panel">
-                <h1>{getTimeGreeting()}, how can I help you today?</h1>
-                <p>Hey, Helmora is here :)</p>
+                <div className="welcome-copy">
+                  <h1>{getTimeGreeting()}, how can I help you today?</h1>
+                  <p>Hey, Helmora is here :)</p>
+                </div>
+                <div className="welcome-suggestions" aria-label="Suggested topics">
+                  {[
+                    "Teach me AWS EC2",
+                    "Explain Docker and containers",
+                    "How does Kubernetes work?",
+                    "Build a Terraform CI/CD pipeline",
+                  ].map((prompt) => (
+                    <button
+                      className="welcome-suggestion"
+                      key={prompt}
+                      type="button"
+                      onClick={() => {
+                        setInput(prompt);
+                        composerTextareaRef.current?.focus();
+                      }}
+                    >
+                      <span>{prompt}</span>
+                      <span aria-hidden="true">↗</span>
+                    </button>
+                  ))}
+                </div>
               </section>
             )}
 
