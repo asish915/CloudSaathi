@@ -8245,106 +8245,27 @@ html:has(.landing-page) {
 }
 
 
-/* Helmora diagram viewer: viewport-level modal, readable SVG, and zoom controls */
-.diagram-lightbox {
-  z-index: 2147483000;
-  isolation: isolate;
-}
 
-.diagram-lightbox-panel {
-  width: min(1600px, calc(100vw - 40px));
-  height: min(94dvh, 1100px);
-  max-height: 94dvh;
-}
-
-.diagram-lightbox-content {
-  display: block;
-  min-width: 0;
-  min-height: 0;
-  overflow: auto;
-  overscroll-behavior: contain;
-  padding: clamp(14px, 2vw, 28px);
-}
-
-.diagram-lightbox-canvas {
-  min-width: 100%;
-  min-height: 100%;
-  display: flex;
-  align-items: flex-start;
-  justify-content: center;
-}
-
-.diagram-lightbox-svg {
-  flex: 0 0 auto;
-  min-width: 100%;
-  max-width: none;
-}
-
-.diagram-lightbox-svg svg {
-  display: block;
-  width: 100% !important;
-  max-width: none !important;
-  height: auto !important;
-  max-height: none !important;
-  margin: 0 auto;
-}
-
-.diagram-lightbox-actions {
-  flex-wrap: wrap;
-  justify-content: flex-end;
-}
-
-.diagram-zoom-controls {
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  padding: 3px;
-  border: 1px solid rgba(105, 157, 205, 0.25);
-  border-radius: 9px;
-  background: rgba(5, 15, 31, 0.72);
-}
-
-.diagram-zoom-controls button {
-  min-width: 30px;
-  min-height: 29px;
-  padding: 3px 8px;
-}
-
-.diagram-zoom-controls button:disabled {
-  opacity: 0.38;
-  cursor: not-allowed;
-}
-
-.diagram-zoom-controls span {
-  min-width: 42px;
-  color: #d8eaff;
-  font-size: 11px;
-  text-align: center;
-  font-variant-numeric: tabular-nums;
-}
-
-.diagram-zoom-controls .diagram-fit-button {
-  min-width: 38px;
-}
-
-@media (max-width: 700px) {
-  .diagram-lightbox-panel {
-    width: calc(100vw - 16px);
-    height: 96dvh;
-    max-height: 96dvh;
-  }
-
-  .diagram-lightbox-header {
-    align-items: flex-start;
-    flex-wrap: wrap;
-  }
-
-  .diagram-lightbox-actions {
-    width: 100%;
-    justify-content: space-between;
-  }
-
-  .diagram-lightbox-content {
-    padding: 10px;
-  }
-}
+/* Helmora diagram viewer — deterministic sizing and isolated full-screen layer */
+.mermaid-card { min-width: 0; }
+.mermaid-diagram { display: block; max-width: 100%; overflow: hidden; padding: 18px; cursor: zoom-in; }
+.mermaid-diagram svg { display: block; width: 100% !important; max-width: 100% !important; height: auto !important; max-height: 560px; margin: 0 auto; }
+.diagram-lightbox { position: fixed !important; inset: 0 !important; z-index: 2147483000 !important; display: grid; place-items: center; padding: clamp(10px, 2vw, 28px); background: rgba(3, 8, 18, .78); -webkit-backdrop-filter: blur(22px) saturate(145%); backdrop-filter: blur(22px) saturate(145%); }
+.diagram-lightbox-panel { display: flex; flex-direction: column; width: min(1600px, 100%); height: min(94dvh, 1100px); min-height: 280px; overflow: hidden; border: 1px solid rgba(105, 190, 240, .28); border-radius: 18px; background: rgba(7, 17, 34, .97); box-shadow: 0 32px 110px rgba(0,0,0,.62), inset 0 1px 0 rgba(255,255,255,.07); }
+.diagram-lightbox-header { display: flex; align-items: center; justify-content: space-between; gap: 14px; flex: 0 0 auto; padding: 13px 18px; border-bottom: 1px solid rgba(148,190,230,.16); background: linear-gradient(110deg, rgba(13,35,62,.98), rgba(10,24,45,.96)); }
+.diagram-viewer-title { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.diagram-viewer-title strong { color: #edf6ff; font-size: 14px; }
+.diagram-viewer-title span { color: #91a9c5; font-size: 11px; }
+.diagram-lightbox-actions { display: flex; align-items: center; justify-content: flex-end; flex-wrap: wrap; gap: 8px; }
+.diagram-lightbox-actions button { min-height: 34px; padding: 6px 11px; border: 1px solid rgba(105,157,205,.36); border-radius: 8px; background: rgba(18,43,72,.86); color: #dceeff; font-size: 12px; cursor: pointer; }
+.diagram-lightbox-actions button:hover { border-color: #55c8ff; background: rgba(28,65,101,.96); }
+.diagram-zoom-controls { display: flex; align-items: center; gap: 5px; padding: 3px; border: 1px solid rgba(105,157,205,.24); border-radius: 10px; background: rgba(3,13,28,.56); }
+.diagram-zoom-controls button { min-width: 32px; min-height: 29px; padding: 3px 8px; }
+.diagram-zoom-level { min-width: 44px; color: #b9d5ef; font-size: 11px; text-align: center; font-variant-numeric: tabular-nums; }
+.diagram-lightbox-content { display: block; flex: 1 1 auto; min-width: 0; min-height: 0; overflow: auto; padding: clamp(18px, 3vw, 42px); background: radial-gradient(ellipse at 50% 0%, rgba(48,110,164,.15), transparent 65%), #050d1b; overscroll-behavior: contain; }
+.diagram-zoom-canvas { display: grid; width: max-content; min-width: 100%; min-height: 100%; place-items: center; transform-origin: top left; }
+.diagram-zoom-canvas svg { display: block; width: auto !important; max-width: none !important; height: auto !important; max-height: none !important; overflow: visible; }
+.diagram-viewer-footer { flex: 0 0 auto; padding: 8px 14px; border-top: 1px solid rgba(148,190,230,.12); color: #829ab6; background: rgba(7,17,34,.96); font-size: 10px; text-align: center; }
+.diagram-lightbox button:focus-visible, .mermaid-expand-button:focus-visible { outline: 2px solid #55c8ff; outline-offset: 3px; }
+@media (max-width: 700px) { .diagram-lightbox { padding: 6px; } .diagram-lightbox-panel { width: 100%; height: 96dvh; border-radius: 12px; } .diagram-lightbox-header { align-items: flex-start; padding: 10px; } .diagram-lightbox-actions { gap: 5px; } .diagram-lightbox-actions button { padding: 5px 7px; } .diagram-zoom-controls { gap: 2px; } .diagram-zoom-controls button { min-width: 28px; } .diagram-lightbox-content { padding: 14px; } }
+@media (prefers-reduced-motion: reduce) { .diagram-lightbox { animation: none !important; } }

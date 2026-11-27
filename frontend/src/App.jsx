@@ -988,187 +988,114 @@ function MermaidDiagram({ source, theme }) {
   const renderId = `helmora-${useId().replace(/[^a-zA-Z0-9_-]/g, "")}`;
   const [renderResult, setRenderResult] = useState(null);
   const [isExpanded, setIsExpanded] = useState(false);
-  const [zoom, setZoom] = useState(1.5);
+  const [zoom, setZoom] = useState(1);
+  const viewportRef = useRef(null);
+  const closeButtonRef = useRef(null);
   const sourceTooLong = source.length > MAX_MERMAID_SOURCE_LENGTH;
 
   useEffect(() => {
     if (sourceTooLong) return undefined;
-
     let cancelled = false;
 
     async function renderDiagram() {
       try {
-        const [{ default: mermaid }, { default: DOMPurify }] = await Promise.all(
-          [import("mermaid"), import("dompurify")],
-        );
+        const [{ default: mermaid }, { default: DOMPurify }] = await Promise.all([
+          import("mermaid"),
+          import("dompurify"),
+        ]);
 
         mermaid.initialize({
           startOnLoad: false,
           securityLevel: "strict",
-          secure: [
-            "securityLevel",
-            "startOnLoad",
-            "maxTextSize",
-            "suppressErrorRendering",
-            "maxEdges",
-            "htmlLabels",
-            "layout",
-          ],
+          secure: ["securityLevel", "startOnLoad", "maxTextSize", "suppressErrorRendering", "maxEdges", "htmlLabels", "layout"],
           maxTextSize: MAX_MERMAID_SOURCE_LENGTH,
           suppressErrorRendering: true,
-          maxEdges: 60,
+          maxEdges: 100,
           htmlLabels: false,
           layout: "dagre",
           theme: theme === "light" ? "default" : "dark",
+          themeVariables: theme === "light"
+            ? { fontFamily: "Inter, system-ui, sans-serif", fontSize: "15px", primaryColor: "#e8f4ff", primaryTextColor: "#14253b", primaryBorderColor: "#68a9d6", lineColor: "#5799c7", secondaryColor: "#eef7ff", tertiaryColor: "#f6faff" }
+            : { fontFamily: "Inter, system-ui, sans-serif", fontSize: "15px", primaryColor: "#102b49", primaryTextColor: "#e8f4ff", primaryBorderColor: "#55c8ff", lineColor: "#65b8e8", secondaryColor: "#14243b", tertiaryColor: "#0c1b30" },
+          flowchart: { curve: "basis", nodeSpacing: 38, rankSpacing: 48, padding: 14, htmlLabels: false, useMaxWidth: false },
         });
 
-        const { svg } = await mermaid.render(
-          renderId,
-          stripMermaidStyleDirectives(source),
-        );
+        const { svg } = await mermaid.render(renderId, stripMermaidStyleDirectives(source));
         const sanitizedSvg = DOMPurify.sanitize(svg, {
           USE_PROFILES: { svg: true, svgFilters: true },
           FORBID_TAGS: ["foreignObject"],
         });
-        if (!sanitizedSvg) {
-          throw new Error("Mermaid returned an empty diagram.");
-        }
-
-        if (!cancelled) {
-          setRenderResult({ source, theme, svg: sanitizedSvg, error: false });
-        }
+        if (!sanitizedSvg) throw new Error("Mermaid returned an empty diagram.");
+        if (!cancelled) setRenderResult({ source, theme, svg: sanitizedSvg, error: false });
       } catch (error) {
         console.error("Mermaid diagram rendering failed:", error);
-        if (!cancelled) {
-          setRenderResult({ source, theme, svg: "", error: true });
-        }
+        if (!cancelled) setRenderResult({ source, theme, svg: "", error: true });
       }
     }
 
     void renderDiagram();
-
-    return () => {
-      cancelled = true;
-    };
+    return () => { cancelled = true; };
   }, [renderId, source, sourceTooLong, theme]);
 
   useEffect(() => {
     if (!isExpanded) return undefined;
-
     const previousOverflow = document.body.style.overflow;
     document.body.style.overflow = "hidden";
-
+    setZoom(1);
     const handleKeyDown = (event) => {
       if (event.key === "Escape") setIsExpanded(false);
+      if ((event.ctrlKey || event.metaKey) && (event.key === "+" || event.key === "=")) {
+        event.preventDefault(); setZoom((value) => Math.min(3, Number((value + 0.2).toFixed(2))));
+      }
+      if ((event.ctrlKey || event.metaKey) && event.key === "-") {
+        event.preventDefault(); setZoom((value) => Math.max(0.4, Number((value - 0.2).toFixed(2))));
+      }
     };
-
     window.addEventListener("keydown", handleKeyDown);
+    requestAnimationFrame(() => closeButtonRef.current?.focus());
     return () => {
       document.body.style.overflow = previousOverflow;
       window.removeEventListener("keydown", handleKeyDown);
     };
   }, [isExpanded]);
 
-  const result =
-    renderResult?.source === source && renderResult.theme === theme
-      ? renderResult
-      : null;
+  const result = renderResult?.source === source && renderResult.theme === theme ? renderResult : null;
   const hasError = sourceTooLong || result?.error;
-
-  const openExpanded = () => {
-    setZoom(1.5);
-    setIsExpanded(true);
-  };
-
   const openOnKeyboard = (event) => {
     if (event.key === "Enter" || event.key === " ") {
-      event.preventDefault();
-      openExpanded();
+      event.preventDefault(); setIsExpanded(true);
     }
   };
-
-  const expandedViewer = isExpanded && result?.svg
-    ? createPortal(
-        <div
-          className="diagram-lightbox"
-          role="presentation"
-          onMouseDown={(event) => {
-            if (event.target === event.currentTarget) setIsExpanded(false);
-          }}
-        >
-          <section
-            className="diagram-lightbox-panel"
-            role="dialog"
-            aria-modal="true"
-            aria-label="Expanded generated diagram"
-            onMouseDown={(event) => event.stopPropagation()}
-          >
-            <header className="diagram-lightbox-header">
-              <div>
-                <strong>Diagram preview</strong>
-                <span>Scroll to explore · Esc to close</span>
-              </div>
-              <div className="diagram-lightbox-actions">
-                <div className="diagram-zoom-controls" aria-label="Diagram zoom controls">
-                  <button
-                    type="button"
-                    onClick={() => setZoom((value) => Math.max(0.75, Number((value - 0.25).toFixed(2))))}
-                    disabled={zoom <= 0.75}
-                    aria-label="Zoom out"
-                    title="Zoom out"
-                  >
-                    −
-                  </button>
-                  <span aria-live="polite">{Math.round(zoom * 100)}%</span>
-                  <button
-                    type="button"
-                    onClick={() => setZoom((value) => Math.min(3, Number((value + 0.25).toFixed(2))))}
-                    disabled={zoom >= 3}
-                    aria-label="Zoom in"
-                    title="Zoom in"
-                  >
-                    +
-                  </button>
-                  <button
-                    type="button"
-                    className="diagram-fit-button"
-                    onClick={() => setZoom(1)}
-                    title="Fit diagram to viewer width"
-                  >
-                    Fit
-                  </button>
-                </div>
-                <button
-                  type="button"
-                  onClick={() => copyTextToClipboard(source)}
-                >
-                  Copy source
-                </button>
-                <button
-                  type="button"
-                  className="diagram-lightbox-close"
-                  onClick={() => setIsExpanded(false)}
-                  aria-label="Close expanded diagram"
-                  title="Close"
-                >
-                  ×
-                </button>
-              </div>
-            </header>
-            <div className="diagram-lightbox-content">
-              <div className="diagram-lightbox-canvas">
-                <div
-                  className="diagram-lightbox-svg"
-                  style={{ width: `${zoom * 100}%` }}
-                  dangerouslySetInnerHTML={{ __html: result.svg }}
-                />
-              </div>
+  const changeZoom = (delta) => setZoom((value) => Math.min(3, Math.max(0.4, Number((value + delta).toFixed(2)))));
+  const expandedViewer = isExpanded && result?.svg ? createPortal(
+    <div className="diagram-lightbox" role="presentation" onMouseDown={(event) => {
+      if (event.target === event.currentTarget) setIsExpanded(false);
+    }}>
+      <section className="diagram-lightbox-panel" role="dialog" aria-modal="true" aria-label="Expanded diagram viewer">
+        <header className="diagram-lightbox-header">
+          <div className="diagram-viewer-title">
+            <strong>Diagram preview</strong>
+            <span>Scroll to explore · Esc to close</span>
+          </div>
+          <div className="diagram-lightbox-actions">
+            <div className="diagram-zoom-controls" aria-label="Diagram zoom controls">
+              <button type="button" aria-label="Zoom out" title="Zoom out" onClick={() => changeZoom(-0.2)}>−</button>
+              <span className="diagram-zoom-level">{Math.round(zoom * 100)}%</span>
+              <button type="button" aria-label="Zoom in" title="Zoom in" onClick={() => changeZoom(0.2)}>+</button>
+              <button type="button" onClick={() => { setZoom(1); if (viewportRef.current) { viewportRef.current.scrollTop = 0; viewportRef.current.scrollLeft = 0; } }}>Fit</button>
             </div>
-          </section>
-        </div>,
-        document.body,
-      )
-    : null;
+            <button type="button" onClick={() => copyTextToClipboard(source)}>Copy source</button>
+            <button ref={closeButtonRef} type="button" className="diagram-lightbox-close" onClick={() => setIsExpanded(false)} aria-label="Close expanded diagram" title="Close">×</button>
+          </div>
+        </header>
+        <div className="diagram-lightbox-content" ref={viewportRef}>
+          <div className="diagram-zoom-canvas" style={{ zoom }} dangerouslySetInnerHTML={{ __html: result.svg }} />
+        </div>
+        <footer className="diagram-viewer-footer">Use the zoom controls to inspect labels and complex branches</footer>
+      </section>
+    </div>,
+    document.body,
+  ) : null;
 
   return (
     <>
@@ -1176,53 +1103,15 @@ function MermaidDiagram({ source, theme }) {
         <div className="code-card-header">
           <span>Diagram</span>
           <div className="mermaid-card-actions">
-            {result?.svg && (
-              <button
-                type="button"
-                className="mermaid-expand-button"
-                onClick={openExpanded}
-                aria-label="Maximize diagram"
-                title="Maximize diagram"
-              >
-                <span aria-hidden="true">⛶</span>
-                <span>Expand</span>
-              </button>
-            )}
-            <button
-              type="button"
-              onClick={() => copyTextToClipboard(source)}
-            >
-              Copy source
-            </button>
+            {result?.svg && <button type="button" className="mermaid-expand-button" onClick={() => setIsExpanded(true)} aria-label="Maximize diagram" title="Maximize diagram"><span aria-hidden="true">⛶</span><span>Expand</span></button>}
+            <button type="button" onClick={() => copyTextToClipboard(source)}>Copy source</button>
           </div>
         </div>
         {result?.svg ? (
-          <div
-            className="mermaid-diagram"
-            role="button"
-            tabIndex={0}
-            aria-label="Open generated diagram in expanded view"
-            onClick={openExpanded}
-            onKeyDown={openOnKeyboard}
-            title="Click to expand diagram"
-            dangerouslySetInnerHTML={{ __html: result.svg }}
-          />
+          <div className="mermaid-diagram" role="button" tabIndex={0} aria-label="Open generated diagram in expanded view" onClick={() => setIsExpanded(true)} onKeyDown={openOnKeyboard} title="Click to expand diagram" dangerouslySetInnerHTML={{ __html: result.svg }} />
         ) : hasError ? (
-          <>
-            <div className="mermaid-error" role="status">
-              {sourceTooLong
-                ? "This diagram is too large to render. Mermaid source is shown below."
-                : "This diagram could not be rendered. Mermaid source is shown below."}
-            </div>
-            <pre>
-              <code>{source}</code>
-            </pre>
-          </>
-        ) : (
-          <div className="mermaid-status" role="status">
-            Rendering diagram…
-          </div>
-        )}
+          <><div className="mermaid-error" role="status">{sourceTooLong ? "This diagram is too large to render. Mermaid source is shown below." : "This diagram could not be rendered. Mermaid source is shown below."}</div><pre><code>{source}</code></pre></>
+        ) : <div className="mermaid-status" role="status">Rendering diagram…</div>}
       </div>
       {expandedViewer}
     </>
@@ -1902,7 +1791,7 @@ function App() {
 
         "BROAD CATALOG: For requests like all AWS resources, explain that there are many services and organize representative services by category. Explain each service's role with a practical example; do not claim a short list is exhaustive.",
 
-        "DIAGRAMS: For an explicit cloud/DevOps workflow or architecture diagram, return one valid Mermaid flowchart tailored to the request. For sequential workflows and CI/CD pipelines, prefer flowchart TD (top-to-bottom) so labels remain readable; use flowchart LR only when a wide architecture genuinely benefits from it. Use concise labels, meaningful stages, and success/failure decisions where relevant. Include rollback only when it is part of the requested workflow. Avoid unnecessary subgraphs, decorative nodes, raw HTML, and Mermaid initialization directives. Explain assumptions in prose.",
+        "DIAGRAMS: For an explicit request to diagram a cloud/DevOps workflow or architecture, include one valid fenced Mermaid flowchart tailored to the named task. Use concrete steps and decision points when helpful, keep it concise, and explain key assumptions in prose. Do not include raw HTML or Mermaid initialization directives.",
 
         "TROUBLESHOOTING: Diagnose from artifacts the learner provides, such as code, error messages, logs, configuration, and command output. Separate observed facts from hypotheses and prioritize likely causes. If key evidence is missing, ask for the specific relevant detail and remind the learner to redact secrets. You cannot inspect or operate the learner's repository, machine, AWS account, or other live environment; do not imply that you did. Commands and console actions are suggestions for the learner to run. Start with read-only checks, recommend the smallest safe fix, and explain how to verify it; flag changes that could affect resources.",
 
