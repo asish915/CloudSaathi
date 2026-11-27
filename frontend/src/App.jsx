@@ -1439,12 +1439,12 @@ function App() {
   const [sidebarWidth, setSidebarWidth] = useState(() => {
     try {
       const saved = Number(window.localStorage.getItem("helmora-sidebar-width"));
-      return Number.isFinite(saved) && saved >= 220 && saved <= 420 ? saved : 270;
+      return Number.isFinite(saved) && saved >= 220 && saved <= 420 ? saved : 260;
     } catch {
-      return 270;
+      return 260;
     }
   });
-  const sidebarResizeRef = useRef({ active: false, startX: 0, startWidth: 270, currentWidth: 270 });
+  const sidebarResizeRef = useRef({ active: false, startX: 0, startWidth: 260, currentWidth: 260 });
   const [libraryOpen, setLibraryOpen] = useState(false);
 
   useEffect(() => {
@@ -2079,14 +2079,32 @@ function App() {
       >
         <aside className={`sidebar ${mobileLibraryOpen ? "library-open" : ""}`}>
           <div className="brand">
-            <div className="brand-mark">
+            <div className="brand-mark" aria-label="Helmora">
               <HelmoraLogo />
             </div>
             <div className="brand-copy">
-              <strong className="cloudsaathi-wordmark">
-                Helmora<span>.</span>
-              </strong>
+              <strong className="cloudsaathi-wordmark">Helmora</strong>
             </div>
+            <button
+              className="sidebar-toggle"
+              type="button"
+              onClick={() => {
+                if (window.matchMedia("(max-width: 760px)").matches) {
+                  setMobileLibraryOpen((open) => !open);
+                } else {
+                  setSidebarCollapsed((collapsed) => !collapsed);
+                }
+              }}
+              aria-label={sidebarCollapsed ? "Expand sidebar" : "Collapse sidebar"}
+              aria-expanded={!sidebarCollapsed}
+              title={sidebarCollapsed ? "Expand sidebar" : "Collapse sidebar"}
+            >
+              <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                <rect x="3.5" y="4" width="17" height="16" rx="2.5" />
+                <path d="M9 4v16" />
+                <path d={sidebarCollapsed ? "m13 9 3 3-3 3" : "m16 9-3 3 3 3"} />
+              </svg>
+            </button>
           </div>
 
           <button
@@ -2157,10 +2175,12 @@ function App() {
               aria-label="Open Library"
               title="Library"
             >
-              <svg viewBox="0 0 24 24" aria-hidden="true">
+              <span className="sidebar-quick-icon-slot" aria-hidden="true">
+                <svg viewBox="0 0 24 24" aria-hidden="true">
                 <path d="M4 4.5h4v15H4zM10 3h4v16h-4zM16 5h4v14h-4z" />
                 <path d="M3 21h18" />
-              </svg>
+                </svg>
+              </span>
               <span>Library</span>
             </button>
             <button
@@ -2177,10 +2197,12 @@ function App() {
               aria-label="Open Recents"
               title="Recents"
             >
-              <svg viewBox="0 0 24 24" aria-hidden="true">
+              <span className="sidebar-quick-icon-slot" aria-hidden="true">
+                <svg viewBox="0 0 24 24" aria-hidden="true">
                 <path d="M3.5 12a8.5 8.5 0 1 0 2.4-5.9L3.5 8.5" />
                 <path d="M3.5 4.5v4h4M12 7v5l3.2 2" />
-              </svg>
+                </svg>
+              </span>
               <span>Recents</span>
             </button>
           </div>
@@ -2439,26 +2461,6 @@ function App() {
         <main className={`chat-main ${messages.length === 0 ? "is-empty" : "has-messages"}`}>
           <header className="topbar">
             <div className="topbar-leading">
-              <button
-                className="sidebar-toggle"
-                type="button"
-                onClick={() => {
-                  if (window.matchMedia("(max-width: 760px)").matches) {
-                    setMobileLibraryOpen((open) => !open);
-                  } else {
-                    setSidebarCollapsed((collapsed) => !collapsed);
-                  }
-                }}
-                aria-label={sidebarCollapsed ? "Expand sidebar" : "Collapse sidebar"}
-                aria-expanded={!sidebarCollapsed}
-                title={sidebarCollapsed ? "Expand sidebar" : "Collapse sidebar"}
-              >
-                <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-                  <rect x="3.5" y="4" width="17" height="16" rx="2.5" />
-                  <path d="M9 4v16" />
-                  <path d={sidebarCollapsed ? "m13 9 3 3-3 3" : "m16 9-3 3 3 3"} />
-                </svg>
-              </button>
               <button
                 className="library-menu-toggle"
                 type="button"
