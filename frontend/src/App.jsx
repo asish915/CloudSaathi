@@ -2022,7 +2022,7 @@ function App() {
             onClick={startNewChat}
             title="Start a fresh conversation"
           >
-            <span className="new-chat-plus" aria-hidden="true">
+            <span className="new-chat-plus sidebar-action-icon" aria-hidden="true">
               +
             </span>
             <span className="new-chat-label">New chat</span>
@@ -2282,7 +2282,7 @@ function App() {
               aria-label={`Switch to ${theme === "dark" ? "light" : "dark"} theme`}
               title={theme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
             >
-              <span className="sidebar-footer-icon" aria-hidden="true">
+              <span className="sidebar-footer-icon sidebar-action-icon" aria-hidden="true">
                 {theme === "dark" ? "☀" : "☾"}
               </span>
               <span className="sidebar-footer-label">
