@@ -1732,10 +1732,10 @@ body {
 }
 
 .welcome-panel h1 {
-  font-size: clamp(28px, 3.2vw, 42px);
+  font-size: clamp(26px, 2.8vw, 36px);
   line-height: 1.15;
-  letter-spacing: -1.4px;
-  margin: 8px 0 12px;
+  letter-spacing: -1px;
+  margin: 6px 0 10px;
 }
 
 .welcome-panel h1 em {
@@ -3854,13 +3854,14 @@ body {
   scrollbar-color: #34313f transparent !important;
 }
 .welcome-panel {
-  min-height: calc(100% - 12px);
+  min-height: auto !important;
+  height: auto !important;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   text-align: center;
-  padding: 45px 0 38px !important;
+  padding: 20px 0 16px !important;
   margin-top: 0 !important;
   margin-bottom: 0 !important;
   border: 0 !important;
