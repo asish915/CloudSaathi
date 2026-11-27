@@ -11116,3 +11116,260 @@ body {
     border-radius: 0 !important;
   }
 }
+
+
+/* =========================================================
+   HELMORA UI FIXES — compact navigation, composer focus,
+   consistent send gradient, and theme-aware attachment menu.
+   Scoped to .app-shell so the landing page remains untouched.
+========================================================= */
+
+/* Compact ChatGPT-style sidebar navigation */
+.app-shell .brand {
+  margin-bottom: 18px !important;
+  padding: 0 4px 14px !important;
+  border-bottom: 1px solid var(--border-subtle, rgba(255,255,255,.10));
+}
+.app-shell .new-chat-button,
+.app-shell .sidebar-section-toggle {
+  min-height: 42px !important;
+  height: auto !important;
+  margin: 0 0 2px !important;
+  padding: 7px 10px !important;
+  gap: 11px !important;
+  border: 1px solid transparent !important;
+  border-radius: 9px !important;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+.app-shell .new-chat-button:hover,
+.app-shell .sidebar-section-toggle:hover,
+.app-shell .sidebar-section-toggle.is-open {
+  background: var(--bg-hover) !important;
+  border-color: transparent !important;
+}
+.app-shell .new-chat-label,
+.app-shell .sidebar-section-label {
+  font-size: 14px !important;
+  font-weight: 600 !important;
+  letter-spacing: 0 !important;
+}
+.app-shell .new-chat-plus.sidebar-action-icon,
+.app-shell .sidebar-section-icon {
+  display: inline-flex !important;
+  width: 20px !important;
+  height: 20px !important;
+  min-width: 20px !important;
+  flex: 0 0 20px !important;
+  align-items: center !important;
+  justify-content: center !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  color: var(--text-primary) !important;
+  font-size: 18px !important;
+  line-height: 1 !important;
+}
+.app-shell .new-chat-plus.sidebar-action-icon svg,
+.app-shell .sidebar-section-icon svg {
+  display: block !important;
+  width: 19px !important;
+  height: 19px !important;
+  fill: none !important;
+  stroke: currentColor !important;
+  stroke-width: 1.8 !important;
+  stroke-linecap: round !important;
+  stroke-linejoin: round !important;
+}
+.app-shell .sidebar-section-chevron {
+  width: 16px !important;
+  height: 16px !important;
+}
+.app-shell .sidebar-section-toggle .topic-count {
+  min-width: 38px !important;
+  height: 22px !important;
+  padding: 0 7px !important;
+  font-size: 11px !important;
+}
+.app-shell .sidebar-quick-actions {
+  display: none !important;
+}
+.app-shell .recently-asked {
+  margin: 1px 0 7px !important;
+  padding: 0 4px !important;
+}
+.app-shell .recent-list {
+  gap: 2px !important;
+}
+.app-shell .recent-item {
+  min-height: 32px !important;
+  padding: 6px 8px !important;
+  border-radius: 7px !important;
+}
+.app-shell .sidebar-footer {
+  padding-top: 10px !important;
+  gap: 6px !important;
+}
+.app-shell .sidebar-theme-toggle {
+  min-height: 40px !important;
+  padding: 6px 10px !important;
+  gap: 11px !important;
+  border-radius: 9px !important;
+  background: transparent !important;
+}
+.app-shell .sidebar-theme-toggle .sidebar-footer-icon {
+  width: 20px !important;
+  height: 20px !important;
+  min-width: 20px !important;
+  flex: 0 0 20px !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  font-size: 17px !important;
+}
+.app-shell .sidebar-account {
+  min-height: 48px !important;
+  padding: 7px 9px !important;
+  border-radius: 10px !important;
+}
+.app-shell:not(.sidebar-collapsed) .sidebar {
+  padding-top: 16px !important;
+}
+.app-shell.sidebar-collapsed .new-chat-button,
+.app-shell.sidebar-collapsed .sidebar-section-toggle,
+.app-shell.sidebar-collapsed .sidebar-theme-toggle {
+  min-height: 42px !important;
+}
+
+/* Textarea stays transparent in every browser interaction state.
+   Focus feedback belongs to the full composer pill. */
+.app-shell .composer {
+  transition: border-color 180ms ease, background-color 180ms ease,
+    box-shadow 180ms ease !important;
+}
+.app-shell .composer:hover {
+  border-color: rgba(147, 197, 253, .38) !important;
+  box-shadow: 0 12px 34px rgba(0, 0, 0, .16),
+    0 0 0 3px rgba(147, 197, 253, .045) !important;
+}
+.app-shell .composer:focus-within {
+  border-color: rgba(147, 197, 253, .58) !important;
+  background: var(--bg-surface) !important;
+  box-shadow: 0 12px 36px rgba(0, 0, 0, .17),
+    0 0 0 3px rgba(147, 197, 253, .09) !important;
+}
+.app-shell .composer textarea,
+.app-shell .composer textarea:hover,
+.app-shell .composer textarea:focus,
+.app-shell .composer textarea:focus-visible,
+.app-shell .composer textarea:active {
+  background: transparent !important;
+  border: 0 !important;
+  outline: none !important;
+  box-shadow: none !important;
+  -webkit-appearance: none !important;
+  appearance: none !important;
+}
+.app-shell .composer-input-row,
+.app-shell .composer-input-row:focus-within {
+  background: transparent !important;
+}
+
+/* Same soft iridescent send action in both themes. */
+.app-shell .send-button:not(:disabled),
+.app-shell[data-theme="light"] .send-button:not(:disabled) {
+  background: linear-gradient(135deg, #c4b5fd 0%, #93c5fd 52%, #a5f3fc 100%) !important;
+  color: #172033 !important;
+  box-shadow: 0 2px 9px rgba(147, 197, 253, .20) !important;
+}
+.app-shell .send-button:not(:disabled):hover,
+.app-shell[data-theme="light"] .send-button:not(:disabled):hover {
+  background: linear-gradient(135deg, #c4b5fd 0%, #93c5fd 52%, #a5f3fc 100%) !important;
+  color: #172033 !important;
+  filter: brightness(1.045) saturate(1.04);
+  transform: translateY(-1px) scale(1.035) !important;
+}
+.app-shell .send-button:not(:disabled) .send-icon,
+.app-shell[data-theme="light"] .send-button:not(:disabled) .send-icon {
+  stroke: currentColor !important;
+}
+.app-shell .send-button:disabled {
+  background: var(--bg-hover) !important;
+  color: var(--text-muted) !important;
+  box-shadow: none !important;
+}
+
+/* Attachment + popover menu uses theme tokens in both modes. */
+.app-shell .chat-main > .composer .composer-upload-menu,
+.app-shell .composer-upload-menu {
+  border: 1px solid var(--border-subtle, rgba(255,255,255,.12)) !important;
+  border-radius: 14px !important;
+  background: var(--bg-surface) !important;
+  color: var(--text-primary) !important;
+  box-shadow: 0 16px 38px rgba(0,0,0,.20) !important;
+  -webkit-backdrop-filter: blur(18px);
+  backdrop-filter: blur(18px);
+}
+.app-shell .composer-upload-option,
+.app-shell .composer-upload-option strong,
+.app-shell .model-menu-copy strong {
+  color: var(--text-primary) !important;
+}
+.app-shell .composer-upload-option {
+  border-radius: 9px !important;
+  background: transparent !important;
+}
+.app-shell .composer-upload-option small,
+.app-shell .model-menu-copy small,
+.app-shell .model-menu-chevron {
+  color: var(--text-secondary) !important;
+}
+.app-shell .composer-upload-option:hover,
+.app-shell .composer-upload-option:focus-visible,
+.app-shell .composer-upload-option:active {
+  background: var(--bg-hover) !important;
+  color: var(--text-primary) !important;
+  outline: none !important;
+}
+.app-shell .composer-upload-option .upload-icon {
+  color: var(--text-secondary) !important;
+}
+.app-shell .model-details-option {
+  border-color: var(--border-subtle) !important;
+  background: var(--bg-hover) !important;
+  color: var(--text-primary) !important;
+}
+.app-shell .model-details-option strong {
+  color: var(--text-primary) !important;
+}
+.app-shell[data-theme="light"] .composer-upload-menu {
+  border-color: rgba(0, 0, 0, .12) !important;
+  background: #FFFFFF !important;
+  color: #1F1F1F !important;
+  box-shadow: 0 16px 38px rgba(31, 31, 31, .13) !important;
+}
+.app-shell[data-theme="light"] .composer-upload-option,
+.app-shell[data-theme="light"] .composer-upload-option strong,
+.app-shell[data-theme="light"] .model-menu-copy strong,
+.app-shell[data-theme="light"] .model-details-option,
+.app-shell[data-theme="light"] .model-details-option strong {
+  color: #1F1F1F !important;
+}
+.app-shell[data-theme="light"] .composer-upload-option small,
+.app-shell[data-theme="light"] .model-menu-copy small,
+.app-shell[data-theme="light"] .model-menu-chevron,
+.app-shell[data-theme="light"] .composer-upload-option .upload-icon {
+  color: #5F6368 !important;
+}
+.app-shell[data-theme="light"] .composer-upload-option:hover,
+.app-shell[data-theme="light"] .composer-upload-option:focus-visible {
+  background: #E9EEF6 !important;
+  color: #1F1F1F !important;
+}
+.app-shell[data-theme="light"] .model-details-option {
+  border-color: rgba(0, 0, 0, .10) !important;
+  background: #F0F4F9 !important;
+}
+

@@ -2025,7 +2025,10 @@ function App() {
             title="Start a fresh conversation"
           >
             <span className="new-chat-plus sidebar-action-icon" aria-hidden="true">
-              +
+              <svg viewBox="0 0 24 24" focusable="false">
+                <path d="M14 4H6.5A2.5 2.5 0 0 0 4 6.5v11A2.5 2.5 0 0 0 6.5 20h11a2.5 2.5 0 0 0 2.5-2.5V10" />
+                <path d="m11 13 8.5-8.5a2.1 2.1 0 0 1 3 3L14 16l-4 1z" />
+              </svg>
             </span>
             <span className="new-chat-label">New chat</span>
           </button>
@@ -2147,8 +2150,8 @@ function App() {
           >
             <span className="sidebar-section-icon" aria-hidden="true">
               <svg viewBox="0 0 24 24">
-                <path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H20v16H6.5A2.5 2.5 0 0 0 4 21z" />
-                <path d="M4 5.5v13A2.5 2.5 0 0 1 6.5 16H20M8 7h8M8 10h8" />
+                <path d="M4 4.5h4v15H4zM10 3h4v16h-4zM16 5h4v14h-4z" />
+                <path d="M3 21h18" />
               </svg>
             </span>
             <span className="sidebar-section-label">Library</span>
