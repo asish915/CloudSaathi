@@ -986,6 +986,7 @@ async function copyTextToClipboard(value) {
 function MermaidDiagram({ source, theme }) {
   const renderId = `cloudsaathi-${useId().replace(/[^a-zA-Z0-9_-]/g, "")}`;
   const [renderResult, setRenderResult] = useState(null);
+  const [isExpanded, setIsExpanded] = useState(false);
   const sourceTooLong = source.length > MAX_MERMAID_SOURCE_LENGTH;
 
   useEffect(() => {
@@ -1049,47 +1050,137 @@ function MermaidDiagram({ source, theme }) {
     };
   }, [renderId, source, sourceTooLong, theme]);
 
+  useEffect(() => {
+    if (!isExpanded) return undefined;
+
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+
+    const handleKeyDown = (event) => {
+      if (event.key === "Escape") setIsExpanded(false);
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [isExpanded]);
+
   const result =
     renderResult?.source === source && renderResult.theme === theme
       ? renderResult
       : null;
   const hasError = sourceTooLong || result?.error;
 
+  const openOnKeyboard = (event) => {
+    if (event.key === "Enter" || event.key === " ") {
+      event.preventDefault();
+      setIsExpanded(true);
+    }
+  };
+
   return (
-    <div className="code-card mermaid-card">
-      <div className="code-card-header">
-        <span>Diagram</span>
-        <button
-          type="button"
-          onClick={() => copyTextToClipboard(source)}
-        >
-          Copy source
-        </button>
-      </div>
-      {result?.svg ? (
-        <div
-          className="mermaid-diagram"
-          role="img"
-          aria-label="Generated diagram"
-          dangerouslySetInnerHTML={{ __html: result.svg }}
-        />
-      ) : hasError ? (
-        <>
-          <div className="mermaid-error" role="status">
-            {sourceTooLong
-              ? "This diagram is too large to render. Mermaid source is shown below."
-              : "This diagram could not be rendered. Mermaid source is shown below."}
+    <>
+      <div className="code-card mermaid-card">
+        <div className="code-card-header">
+          <span>Diagram</span>
+          <div className="mermaid-card-actions">
+            {result?.svg && (
+              <button
+                type="button"
+                className="mermaid-expand-button"
+                onClick={() => setIsExpanded(true)}
+                aria-label="Maximize diagram"
+                title="Maximize diagram"
+              >
+                <span aria-hidden="true">⛶</span>
+                <span>Expand</span>
+              </button>
+            )}
+            <button
+              type="button"
+              onClick={() => copyTextToClipboard(source)}
+            >
+              Copy source
+            </button>
           </div>
-          <pre>
-            <code>{source}</code>
-          </pre>
-        </>
-      ) : (
-        <div className="mermaid-status" role="status">
-          Rendering diagram…
+        </div>
+        {result?.svg ? (
+          <div
+            className="mermaid-diagram"
+            role="button"
+            tabIndex={0}
+            aria-label="Open generated diagram in expanded view"
+            onClick={() => setIsExpanded(true)}
+            onKeyDown={openOnKeyboard}
+            title="Click to expand diagram"
+            dangerouslySetInnerHTML={{ __html: result.svg }}
+          />
+        ) : hasError ? (
+          <>
+            <div className="mermaid-error" role="status">
+              {sourceTooLong
+                ? "This diagram is too large to render. Mermaid source is shown below."
+                : "This diagram could not be rendered. Mermaid source is shown below."}
+            </div>
+            <pre>
+              <code>{source}</code>
+            </pre>
+          </>
+        ) : (
+          <div className="mermaid-status" role="status">
+            Rendering diagram…
+          </div>
+        )}
+      </div>
+
+      {isExpanded && result?.svg && (
+        <div
+          className="diagram-lightbox"
+          role="presentation"
+          onMouseDown={(event) => {
+            if (event.target === event.currentTarget) setIsExpanded(false);
+          }}
+        >
+          <section
+            className="diagram-lightbox-panel"
+            role="dialog"
+            aria-modal="true"
+            aria-label="Expanded generated diagram"
+            onMouseDown={(event) => event.stopPropagation()}
+          >
+            <header className="diagram-lightbox-header">
+              <div>
+                <strong>Diagram preview</strong>
+                <span>Click outside or press Esc to close</span>
+              </div>
+              <div className="diagram-lightbox-actions">
+                <button
+                  type="button"
+                  onClick={() => copyTextToClipboard(source)}
+                >
+                  Copy source
+                </button>
+                <button
+                  type="button"
+                  className="diagram-lightbox-close"
+                  onClick={() => setIsExpanded(false)}
+                  aria-label="Close expanded diagram"
+                  title="Close"
+                >
+                  ×
+                </button>
+              </div>
+            </header>
+            <div
+              className="diagram-lightbox-content"
+              dangerouslySetInnerHTML={{ __html: result.svg }}
+            />
+          </section>
         </div>
       )}
-    </div>
+    </>
   );
 }
 

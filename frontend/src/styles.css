@@ -8060,3 +8060,187 @@ html:has(.landing-page) {
   }
 }
 
+
+/* Expandable Mermaid diagram lightbox */
+.mermaid-card-actions,
+.diagram-lightbox-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.mermaid-expand-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.mermaid-diagram {
+  cursor: zoom-in;
+  border-radius: 0 0 10px 10px;
+  transition: background 180ms ease;
+}
+
+.mermaid-diagram:hover {
+  background: rgba(85, 200, 255, 0.035);
+}
+
+.mermaid-diagram:focus-visible,
+.mermaid-expand-button:focus-visible,
+.diagram-lightbox button:focus-visible {
+  outline: 2px solid var(--blue, #55c8ff);
+  outline-offset: 3px;
+}
+
+.diagram-lightbox {
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+  display: grid;
+  place-items: center;
+  padding: clamp(12px, 3vw, 36px);
+  background: rgba(2, 8, 20, 0.68);
+  -webkit-backdrop-filter: blur(18px) saturate(135%);
+  backdrop-filter: blur(18px) saturate(135%);
+  animation: diagram-lightbox-fade-in 180ms ease-out both;
+}
+
+.diagram-lightbox-panel {
+  display: flex;
+  flex-direction: column;
+  width: min(1500px, 100%);
+  height: min(92dvh, 1000px);
+  min-height: 260px;
+  overflow: hidden;
+  border: 1px solid rgba(148, 190, 230, 0.24);
+  border-radius: 18px;
+  background: rgba(7, 17, 36, 0.88);
+  box-shadow:
+    0 30px 100px rgba(0, 0, 0, 0.52),
+    inset 0 1px 0 rgba(255, 255, 255, 0.07);
+  -webkit-backdrop-filter: blur(24px);
+  backdrop-filter: blur(24px);
+  animation: diagram-lightbox-rise-in 220ms ease-out both;
+}
+
+.diagram-lightbox-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex: 0 0 auto;
+  padding: 14px 18px;
+  border-bottom: 1px solid rgba(148, 190, 230, 0.16);
+  background: rgba(12, 28, 53, 0.72);
+}
+
+.diagram-lightbox-header > div:first-child {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.diagram-lightbox-header strong {
+  color: #e8f0fb;
+  font-size: 13px;
+}
+
+.diagram-lightbox-header span {
+  color: #8fa4c0;
+  font-size: 11px;
+}
+
+.diagram-lightbox-actions button {
+  min-height: 34px;
+  padding: 6px 11px;
+  border: 1px solid rgba(105, 157, 205, 0.34);
+  border-radius: 8px;
+  background: rgba(18, 43, 72, 0.78);
+  color: #d8eaff;
+  font-size: 12px;
+}
+
+.diagram-lightbox-actions button:hover {
+  border-color: rgba(85, 200, 255, 0.72);
+  background: rgba(28, 65, 101, 0.9);
+}
+
+.diagram-lightbox-actions .diagram-lightbox-close {
+  width: 34px;
+  padding: 0;
+  font-size: 23px;
+  line-height: 1;
+}
+
+.diagram-lightbox-content {
+  display: grid;
+  flex: 1 1 auto;
+  min-height: 0;
+  place-items: center;
+  overflow: auto;
+  padding: clamp(14px, 3vw, 36px);
+  background:
+    radial-gradient(ellipse at 50% 0%, rgba(48, 110, 164, 0.12), transparent 62%),
+    rgba(3, 10, 23, 0.62);
+}
+
+.diagram-lightbox-content svg {
+  display: block;
+  width: auto;
+  height: auto;
+  max-width: 100%;
+  max-height: 100%;
+  margin: auto;
+}
+
+@keyframes diagram-lightbox-fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes diagram-lightbox-rise-in {
+  from { opacity: 0; transform: translateY(10px) scale(0.985); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@media (max-width: 640px) {
+  .diagram-lightbox {
+    padding: 8px;
+  }
+
+  .diagram-lightbox-panel {
+    width: 100%;
+    height: 94dvh;
+    border-radius: 13px;
+  }
+
+  .diagram-lightbox-header {
+    padding: 11px;
+  }
+
+  .diagram-lightbox-header span {
+    max-width: 145px;
+    line-height: 1.35;
+  }
+
+  .diagram-lightbox-actions {
+    gap: 5px;
+  }
+
+  .diagram-lightbox-actions button {
+    padding: 6px 8px;
+  }
+
+  .diagram-lightbox-content {
+    padding: 10px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .diagram-lightbox,
+  .diagram-lightbox-panel {
+    animation: none;
+  }
+}
+
