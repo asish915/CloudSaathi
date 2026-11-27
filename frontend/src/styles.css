@@ -10713,3 +10713,282 @@ body {
     font-size: 13px;
   }
 }
+
+
+
+/* =====================================================
+   HELMORA — MAIN CHAT WORKSPACE DESIGN SYSTEM
+   Landing page intentionally excluded.
+===================================================== */
+
+.app-shell {
+  --font-ui: "Plus Jakarta Sans", "Inter",
+    -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-code: "JetBrains Mono", monospace;
+
+  --bg-canvas: #131314;
+  --bg-sidebar: #1E1F20;
+  --bg-surface: #1E1F20;
+  --bg-hover: #282A2C;
+  --bg-user: #282A2C;
+
+  --text-primary: #E3E3E3;
+  --text-secondary: #9AA0A6;
+  --text-muted: #9AA0A6;
+
+  --border-subtle: #2D2F31;
+  --active-bg: #004A77;
+  --active-text: #C2E7FF;
+
+  --code-bg: #0D0E10;
+  --code-header: #1E1F20;
+  --code-text: #E3E3E3;
+
+  --accent-gradient: linear-gradient(
+    90deg,
+    #4285F4,
+    #9B72CB,
+    #D96570
+  );
+
+  font-family: var(--font-ui) !important;
+  color: var(--text-primary) !important;
+  background: var(--bg-canvas) !important;
+  color-scheme: dark;
+}
+
+.app-shell[data-theme="light"] {
+  --bg-canvas: #FFFFFF;
+  --bg-sidebar: #F0F4F9;
+  --bg-surface: #F0F4F9;
+  --bg-hover: #E9EEF6;
+  --bg-user: #E9EEF6;
+
+  --text-primary: #1F1F1F;
+  --text-secondary: #5F6368;
+  --text-muted: #5F6368;
+
+  --border-subtle: #E0E3E7;
+  --active-bg: #D3E3FD;
+  --active-text: #041E49;
+
+  --code-bg: #1E1F20;
+  --code-header: #282A2C;
+  --code-text: #E3E3E3;
+
+  color-scheme: light;
+}
+
+/* Main workspace surfaces */
+.app-shell,
+.app-shell .chat-main,
+.app-shell .chat-scroll {
+  background: var(--bg-canvas) !important;
+  color: var(--text-primary) !important;
+  transition: background-color .2s ease, color .2s ease;
+}
+
+.app-shell .sidebar {
+  background: var(--bg-sidebar) !important;
+  border-right: 1px solid var(--border-subtle) !important;
+  transition: background-color .2s ease, color .2s ease;
+}
+
+.app-shell .topbar {
+  background: var(--bg-canvas) !important;
+  border-bottom: 1px solid var(--border-subtle) !important;
+  color: var(--text-primary) !important;
+}
+
+/* Typography */
+.app-shell,
+.app-shell button,
+.app-shell input,
+.app-shell textarea {
+  font-family: var(--font-ui) !important;
+}
+
+.app-shell .message-bubble,
+.app-shell .answer-paragraph,
+.app-shell .formatted-answer {
+  color: var(--text-primary) !important;
+  font-size: 16px;
+  line-height: 1.65;
+  letter-spacing: -.01em;
+}
+
+.app-shell .message-meta,
+.app-shell .sidebar,
+.app-shell .sidebar button {
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.app-shell .welcome-panel h1 {
+  color: var(--text-primary) !important;
+  font-family: var(--font-ui) !important;
+  letter-spacing: -.045em;
+}
+
+.app-shell .welcome-panel h1 em {
+  background: var(--accent-gradient);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent !important;
+}
+
+/* Sidebar navigation */
+.app-shell .new-chat-button,
+.app-shell .sidebar-section-toggle,
+.app-shell .sidebar-theme-toggle,
+.app-shell .sidebar-quick-action {
+  color: var(--text-primary) !important;
+  transition: background-color .2s ease, color .2s ease;
+}
+
+.app-shell .new-chat-button:hover,
+.app-shell .sidebar-section-toggle:hover,
+.app-shell .sidebar-theme-toggle:hover,
+.app-shell .sidebar-quick-action:hover {
+  background: var(--bg-hover) !important;
+}
+
+.app-shell .topic-button.active,
+.app-shell .topic-button:hover {
+  background: var(--active-bg) !important;
+  color: var(--active-text) !important;
+  border-color: transparent !important;
+}
+
+.app-shell .stack-group,
+.app-shell .stack-heading,
+.app-shell .stack-children {
+  background: var(--bg-surface) !important;
+  border-color: var(--border-subtle) !important;
+}
+
+.app-shell .stack-toggle,
+.app-shell .category-toggle,
+.app-shell .resource-list,
+.app-shell .recent-item {
+  color: var(--text-primary) !important;
+}
+
+/* Starter cards and recent items */
+.app-shell .starter-card,
+.app-shell .recently-asked {
+  background: var(--bg-surface) !important;
+  border-color: var(--border-subtle) !important;
+  color: var(--text-primary) !important;
+  box-shadow: none !important;
+  transition: background-color .2s ease, color .2s ease;
+}
+
+.app-shell .starter-card:hover {
+  background: var(--bg-hover) !important;
+}
+
+/* User message bubble */
+.app-shell .message-row.user .message-bubble {
+  background: var(--bg-user) !important;
+  color: var(--text-primary) !important;
+  border: 1px solid var(--border-subtle) !important;
+}
+
+/* Composer */
+.app-shell .composer {
+  background: var(--bg-surface) !important;
+  border: 1px solid var(--border-subtle) !important;
+  box-shadow: none !important;
+  transition: background-color .2s ease, color .2s ease,
+    border-color .2s ease;
+}
+
+.app-shell .composer:focus-within {
+  background: var(--bg-hover) !important;
+  border-color: var(--border-subtle) !important;
+}
+
+.app-shell .composer textarea {
+  color: var(--text-primary) !important;
+  font-family: var(--font-ui) !important;
+  font-size: 16px !important;
+}
+
+.app-shell .composer textarea::placeholder {
+  color: var(--text-muted) !important;
+}
+
+/* Code blocks remain dark in both themes */
+.app-shell .code-card {
+  background: var(--code-bg) !important;
+  border: 1px solid var(--border-subtle) !important;
+}
+
+.app-shell .code-card-header {
+  background: var(--code-header) !important;
+  color: var(--code-text) !important;
+  border-bottom: 1px solid var(--border-subtle) !important;
+}
+
+.app-shell .code-card-header button {
+  color: var(--code-text) !important;
+}
+
+.app-shell .code-card pre {
+  background: var(--code-bg) !important;
+  color: var(--code-text) !important;
+  font-family: var(--font-code) !important;
+  font-size: 14px !important;
+  line-height: 1.5 !important;
+}
+
+.app-shell .inline-code {
+  background: var(--code-header) !important;
+  color: var(--code-text) !important;
+  border-color: var(--border-subtle) !important;
+  font-family: var(--font-code) !important;
+}
+
+/* Tables */
+.app-shell .answer-table {
+  background: var(--bg-surface) !important;
+  color: var(--text-primary) !important;
+}
+
+.app-shell .answer-table th,
+.app-shell .answer-table td {
+  background: var(--bg-surface) !important;
+  color: var(--text-primary) !important;
+  border-color: var(--border-subtle) !important;
+}
+
+.app-shell .answer-table th {
+  background: var(--bg-hover) !important;
+}
+
+/* AI avatar */
+.app-shell .assistant-avatar {
+  background: var(--accent-gradient) !important;
+  color: #FFFFFF !important;
+  border: 0 !important;
+}
+
+/* Muted labels */
+.app-shell .welcome-panel p,
+.app-shell .message-meta,
+.app-shell .connection-status small,
+.app-shell .composer-hint {
+  color: var(--text-secondary) !important;
+}
+
+/* Consistent transitions */
+.app-shell .sidebar,
+.app-shell .starter-card,
+.app-shell .message-bubble,
+.app-shell .composer,
+.app-shell .topbar,
+.app-shell .stack-group {
+  transition: background-color .2s ease, color .2s ease,
+    border-color .2s ease;
+}
