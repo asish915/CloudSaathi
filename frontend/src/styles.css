@@ -8572,3 +8572,236 @@ html:has(.landing-page) {
   }
 }
 
+
+
+/* ==========================================================
+   HELMORA CHAT LAYOUT REFINEMENT
+   Empty state: centered welcome + compact composer beneath it.
+   Active conversation: bottom composer + clean chat transcript.
+   ========================================================== */
+
+/* Remove the visible horizontal divider and unify the app canvas. */
+.chat-main,
+.chat-scroll,
+.topbar {
+  background-color: #08080b !important;
+}
+.topbar {
+  border-bottom: 0 !important;
+  box-shadow: none !important;
+}
+.app-shell {
+  border-bottom: 0 !important;
+  box-shadow: none !important;
+}
+.chat-main {
+  position: relative !important;
+  border-bottom: 0 !important;
+}
+
+/* Empty state: the composer sits just below the greeting, not at the viewport floor. */
+.chat-main.is-empty .chat-scroll {
+  position: relative !important;
+  flex: 1 1 auto !important;
+  overflow: hidden !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: flex-start !important;
+}
+.chat-main.is-empty .welcome-panel {
+  width: min(760px, calc(100% - 40px)) !important;
+  max-width: 760px !important;
+  margin: clamp(105px, 24vh, 220px) auto 0 !important;
+  padding: 0 !important;
+  text-align: center !important;
+}
+.chat-main.is-empty .welcome-panel h1 {
+  max-width: 760px !important;
+  margin: 0 auto 12px !important;
+  font-size: clamp(32px, 4vw, 54px) !important;
+  line-height: 1.12 !important;
+  letter-spacing: -1.8px !important;
+  text-wrap: balance !important;
+}
+.chat-main.is-empty .welcome-panel p {
+  margin: 0 auto !important;
+  font-size: 14px !important;
+  color: #858592 !important;
+}
+
+/* The empty-state composer is intentionally shorter than the conversation composer. */
+.chat-main.is-empty > .composer {
+  position: absolute !important;
+  z-index: 5 !important;
+  top: clamp(430px, calc(24vh + 280px), 560px) !important;
+  left: 50% !important;
+  transform: translateX(-50%) !important;
+  width: min(760px, calc(100% - 48px)) !important;
+  max-width: 760px !important;
+  margin: 0 !important;
+  min-height: 72px !important;
+  height: auto !important;
+  max-height: none !important;
+  padding: 9px 12px 7px !important;
+  border-radius: 26px !important;
+}
+
+/* Conversation state: keep composer at the bottom and give transcript room. */
+.chat-main.has-messages .chat-scroll {
+  flex: 1 1 auto !important;
+  min-height: 0 !important;
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+}
+.chat-main.has-messages > .composer {
+  position: relative !important;
+  top: auto !important;
+  left: auto !important;
+  transform: none !important;
+  flex: 0 0 auto !important;
+  width: min(980px, calc(100% - 48px)) !important;
+  max-width: 980px !important;
+  margin: 8px auto 14px !important;
+}
+
+/* Chat transcript: clearer separation and balanced message widths. */
+.messages {
+  width: min(920px, calc(100% - 44px)) !important;
+  max-width: 920px !important;
+  gap: 26px !important;
+  padding-top: 18px !important;
+}
+.conversation-date-divider {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  margin: 2px 0 10px;
+  color: #777783;
+  font-size: 11px;
+  letter-spacing: .15px;
+}
+.conversation-date-divider::before,
+.conversation-date-divider::after {
+  content: "";
+  height: 1px;
+  flex: 1;
+  max-width: 150px;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,.11));
+}
+.conversation-date-divider::after {
+  transform: rotate(180deg);
+}
+.conversation-date-divider span {
+  padding: 0 13px;
+}
+.message-row {
+  gap: 13px !important;
+}
+.message-content {
+  max-width: min(820px, calc(100% - 52px)) !important;
+}
+.message-meta {
+  margin: 1px 0 8px !important;
+  gap: 8px !important;
+}
+.message-meta time {
+  display: none !important;
+}
+.message-bubble {
+  line-height: 1.72 !important;
+  font-size: 15px !important;
+}
+.message-row.assistant .message-bubble {
+  padding: 0 !important;
+  border: 0 !important;
+  background: transparent !important;
+  color: #d4d4dc !important;
+}
+.message-row.user .message-content {
+  max-width: min(72%, 680px) !important;
+}
+.message-row.user .message-bubble {
+  padding: 11px 16px !important;
+  border: 1px solid rgba(129, 151, 190, .16) !important;
+  border-radius: 19px 19px 5px 19px !important;
+  background: rgba(42, 43, 52, .72) !important;
+  color: #eeeeF4 !important;
+}
+.message-avatar {
+  flex: 0 0 36px !important;
+  width: 36px !important;
+  height: 36px !important;
+  border-radius: 12px !important;
+}
+
+/* Thinking appears beneath the Helmora label, like a live assistant status. */
+.thinking-status {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 2px;
+  color: #9ba2b1;
+  font-size: 13px;
+  line-height: 1.5;
+}
+.thinking-ellipsis {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  height: 12px;
+}
+.thinking-ellipsis i {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: #55c8ff;
+  opacity: .35;
+  animation: helmora-thinking-dot 1.15s ease-in-out infinite;
+}
+.thinking-ellipsis i:nth-child(2) { animation-delay: 160ms; }
+.thinking-ellipsis i:nth-child(3) { animation-delay: 320ms; }
+@keyframes helmora-thinking-dot {
+  0%, 60%, 100% { transform: translateY(0); opacity: .35; }
+  30% { transform: translateY(-3px); opacity: 1; }
+}
+
+@media (max-height: 700px) {
+  .chat-main.is-empty .welcome-panel {
+    margin-top: 70px !important;
+  }
+  .chat-main.is-empty > .composer {
+    top: 410px !important;
+  }
+}
+@media (max-width: 640px) {
+  .chat-main.is-empty .welcome-panel {
+    margin-top: 105px !important;
+  }
+  .chat-main.is-empty .welcome-panel h1 {
+    font-size: clamp(28px, 8vw, 38px) !important;
+  }
+  .chat-main.is-empty > .composer {
+    top: 355px !important;
+    width: calc(100% - 24px) !important;
+    border-radius: 24px !important;
+  }
+  .chat-main.has-messages > .composer {
+    width: calc(100% - 16px) !important;
+  }
+  .messages {
+    width: calc(100% - 24px) !important;
+    gap: 22px !important;
+  }
+  .message-row.user .message-content {
+    max-width: 86% !important;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .thinking-ellipsis i {
+    animation: none !important;
+    opacity: .8;
+  }
+}
+

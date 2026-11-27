@@ -807,6 +807,17 @@ function formatMessageTime(value) {
   }).format(new Date(value || Date.now()));
 }
 
+function formatConversationDate(value) {
+  return new Intl.DateTimeFormat(undefined, {
+    weekday: "long",
+    month: "long",
+    day: "numeric",
+    year: "numeric",
+    hour: "numeric",
+    minute: "2-digit",
+  }).format(new Date(value || Date.now()));
+}
+
 function renderInline(text) {
   const tokens = String(text).split(/(`[^`]+`|\*\*[^*]+\*\*|\*[^*]+\*)/g);
 
@@ -2170,7 +2181,7 @@ function App() {
           />
         )}
 
-        <main className="chat-main">
+        <main className={`chat-main ${messages.length === 0 ? "is-empty" : "has-messages"}`}>
           <header className="topbar">
             <div className="topbar-leading">
               <button
@@ -2238,6 +2249,11 @@ function App() {
               aria-live="polite"
               aria-busy={loading}
             >
+              {messages.length > 0 && (
+                <div className="conversation-date-divider">
+                  <span>{formatConversationDate(messages[0].timestamp)}</span>
+                </div>
+              )}
               {messages.map((message, index) => (
                 <div
                   className={`message-row ${message.role}`}
@@ -2260,7 +2276,6 @@ function App() {
                       <span>
                         {message.role === "assistant" ? "AI MENTOR" : "YOU"}
                       </span>
-                      <time>{formatMessageTime(message.timestamp)}</time>
                     </div>
                     <div className="message-bubble">
                       <MessageContent
@@ -2313,17 +2328,18 @@ function App() {
                       <strong className="cloudsaathi-wordmark">
                         Helmora<span>.</span>
                       </strong>
-                      <span>THINKING</span>
-                      <time>now</time>
                     </div>
                     <div
-                      className="message-bubble thinking"
+                      className="thinking-status"
                       role="status"
-                      aria-label="Helmora is generating a response"
+                      aria-label="Helmora is thinking"
                     >
-                      <i />
-                      <i />
-                      <i />
+                      <span>Thinking</span>
+                      <span className="thinking-ellipsis" aria-hidden="true">
+                        <i />
+                        <i />
+                        <i />
+                      </span>
                     </div>
                   </div>
                 </div>
