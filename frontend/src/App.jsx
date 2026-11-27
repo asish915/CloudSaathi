@@ -2034,6 +2034,7 @@ function App() {
               type="button"
               onClick={() => {
                 setSidebarCollapsed(false);
+                setShowRecentHistory(false);
                 setLibraryOpen(true);
               }}
               aria-label="Open Library"
@@ -2049,6 +2050,7 @@ function App() {
               className="sidebar-quick-action"
               type="button"
               onClick={() => {
+                setLibraryOpen(false);
                 setShowRecentHistory(true);
                 setSidebarCollapsed(false);
               }}
@@ -2063,8 +2065,32 @@ function App() {
             </button>
           </div>
 
-          {recentlyAsked.length > 0 && showRecentHistory && (
-            <section className="recently-asked" aria-label="Recently asked">
+          <button
+            className={`sidebar-section-toggle ${showRecentHistory ? "is-open" : ""}`}
+            type="button"
+            onClick={() => {
+              setLibraryOpen(false);
+              setShowRecentHistory((open) => !open);
+            }}
+            aria-expanded={showRecentHistory}
+            aria-controls="recent-conversations-content"
+            title={showRecentHistory ? "Collapse Recents" : "Expand Recents"}
+          >
+            <span className="sidebar-section-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24">
+                <path d="M3.5 12a8.5 8.5 0 1 0 2.4-5.9L3.5 8.5" />
+                <path d="M3.5 4.5v4h4M12 7v5l3.2 2" />
+              </svg>
+            </span>
+            <span className="sidebar-section-label">Recents</span>
+            <span className="sidebar-section-spacer" />
+            <svg className="sidebar-section-chevron" viewBox="0 0 24 24" aria-hidden="true">
+              <path d={showRecentHistory ? "m6 9 6 6 6-6" : "m9 6 6 6-6 6"} />
+            </svg>
+          </button>
+
+          {showRecentHistory && (
+            <section className="recently-asked" id="recent-conversations-content" aria-label="Recent conversations">
               <div className="recent-heading">
                 <span>RECENTS</span>
                 <div className="recent-heading-actions">
@@ -2128,18 +2154,28 @@ function App() {
           )}
 
           <button
-            className={`topic-heading library-section-toggle ${libraryOpen ? "is-open" : ""}`}
+            className={`sidebar-section-toggle library-section-toggle ${libraryOpen ? "is-open" : ""}`}
             type="button"
-            onClick={() => setLibraryOpen((open) => !open)}
+            onClick={() => {
+              setShowRecentHistory(false);
+              setLibraryOpen((open) => !open);
+            }}
             aria-expanded={libraryOpen}
             aria-controls="technology-library-content"
-            title={libraryOpen ? "Hide library" : "Open library"}
+            title={libraryOpen ? "Collapse Library" : "Expand Library"}
           >
-            <span>LIBRARY</span>
-            <span className="topic-heading-right">
-              <span className="topic-count">{topicCount}</span>
-              <span className="library-toggle-chevron" aria-hidden="true">{libraryOpen ? "▾" : "▸"}</span>
+            <span className="sidebar-section-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24">
+                <path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H20v16H6.5A2.5 2.5 0 0 0 4 21z" />
+                <path d="M4 5.5v13A2.5 2.5 0 0 1 6.5 16H20M8 7h8M8 10h8" />
+              </svg>
             </span>
+            <span className="sidebar-section-label">Library</span>
+            <span className="sidebar-section-spacer" />
+            <span className="topic-count">{topicCount}</span>
+            <svg className="sidebar-section-chevron" viewBox="0 0 24 24" aria-hidden="true">
+              <path d={libraryOpen ? "m6 9 6 6 6-6" : "m9 6 6 6-6 6"} />
+            </svg>
           </button>
           {libraryOpen && (
             <>
