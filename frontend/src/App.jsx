@@ -1456,6 +1456,8 @@ function App() {
 
   const [isAttachmentMenuOpen, setIsAttachmentMenuOpen] = useState(false);
 
+  const [showModelDetails, setShowModelDetails] = useState(false);
+
   const [isDraggingFiles, setIsDraggingFiles] = useState(false);
 
   const [loading, setLoading] = useState(false);
@@ -2091,27 +2093,6 @@ function App() {
 
           {showRecentHistory && (
             <section className="recently-asked" id="recent-conversations-content" aria-label="Recent conversations">
-              <div className="recent-heading">
-                <span>RECENTS</span>
-                <div className="recent-heading-actions">
-                  <button
-                    type="button"
-                    onClick={() => setShowRecentHistory(false)}
-                    aria-label="Hide recent history"
-                    title="Hide recent history"
-                  >
-                    Hide
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setRecentlyAsked([])}
-                  aria-label="Clear recently asked"
-                >
-                    Clear
-                  </button>
-                </div>
-              </div>
-
               <div className="recent-list">
                 {recentlyAsked.map((item, index) => (
                   <div className="recent-row" key={`${item}-${index}`}>
@@ -2651,6 +2632,33 @@ function App() {
                   hidden={!isAttachmentMenuOpen}
                 >
                   <button
+                    className="composer-upload-option model-menu-action"
+                    type="button"
+                    onClick={() => setShowModelDetails((open) => !open)}
+                    aria-expanded={showModelDetails}
+                    aria-controls="composer-model-details"
+                  >
+                    <span className="model-menu-copy">
+                      <strong>Model</strong>
+                      <small>View the active AI model</small>
+                    </span>
+                    <span className="model-menu-chevron" aria-hidden="true">
+                      {showModelDetails ? "⌄" : "›"}
+                    </span>
+                  </button>
+                  {showModelDetails && (
+                    <div
+                      className="model-details-option"
+                      id="composer-model-details"
+                      role="status"
+                      aria-label="Active model: Amazon Nova Lite"
+                    >
+                      <span className="model-status-dot" aria-hidden="true" />
+                      <strong>Amazon Nova Lite</strong>
+                      <span className="model-active-label">ACTIVE</span>
+                    </div>
+                  )}
+                  <button
                     className="composer-upload-option image-upload-action"
                     type="button"
                     onClick={() => {
@@ -2752,16 +2760,6 @@ function App() {
                   </svg>
                 )}
               </button>
-            </div>
-            <div className="composer-model-row">
-              <div className="composer-model-panel" aria-label="AI model in use">
-                <span className="composer-model-label">AI MODEL</span>
-                <span className="composer-model-indicator" title="Active model: Amazon Nova Lite">
-                  <span className="model-status-dot" aria-hidden="true" />
-                  Amazon Nova Lite
-                  <span className="model-active-label">ACTIVE</span>
-                </span>
-              </div>
             </div>
             {attachmentError && (
               <p className="attachment-error" role="alert">

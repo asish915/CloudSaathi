@@ -10992,3 +10992,127 @@ body {
   transition: background-color .2s ease, color .2s ease,
     border-color .2s ease;
 }
+
+
+/* =========================================================
+   HELMORA MAIN APP — FINAL UI REQUIREMENTS
+   Scoped to .app-shell so the landing page is unchanged.
+========================================================= */
+
+.app-shell,
+.app-shell > .sidebar,
+.app-shell > .chat-main {
+  border-radius: 0 !important;
+  margin: 0 !important;
+}
+
+.app-shell {
+  --bg-canvas: #131314;
+  --bg-sidebar: #1E1F20;
+  --bg-surface: #1E1F20;
+  --bg-hover: #282A2C;
+  --bg-user: #282A2C;
+  --code-bg: #0D0E10;
+  --code-header: #1E1F20;
+  overflow: hidden;
+}
+
+.app-shell[data-theme="light"] {
+  --bg-canvas: #FFFFFF;
+  --bg-sidebar: #F0F4F9;
+  --bg-surface: #F0F4F9;
+  --bg-hover: #E9EEF6;
+  --bg-user: #E9EEF6;
+  --code-bg: #1E1F20;
+  --code-header: #282A2C;
+}
+
+.app-shell,
+.app-shell .chat-main,
+.app-shell .chat-scroll {
+  background: var(--bg-canvas) !important;
+}
+
+.app-shell > .sidebar {
+  background: var(--bg-sidebar) !important;
+}
+
+.app-shell .composer,
+.app-shell .composer-input-row {
+  background: var(--bg-surface) !important;
+}
+
+.app-shell .message-row.user .message-bubble {
+  background: var(--bg-user) !important;
+}
+
+.app-shell .code-card,
+.app-shell .code-card pre {
+  background: var(--code-bg) !important;
+}
+
+.app-shell .code-card-header {
+  background: var(--code-header) !important;
+}
+
+/* Model selection lives inside the plus-button popover. */
+.app-shell .model-menu-action {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.app-shell .model-menu-copy {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  text-align: left;
+}
+
+.app-shell .model-menu-copy small {
+  color: var(--text-secondary);
+  font-size: 11px;
+}
+
+.app-shell .model-menu-chevron {
+  color: var(--text-secondary);
+  font-size: 19px;
+}
+
+.app-shell .model-details-option {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  margin: 4px 8px 8px;
+  padding: 11px 12px;
+  border: 1px solid var(--border-subtle);
+  border-radius: 9px;
+  background: var(--bg-hover);
+  color: var(--text-primary);
+  font-size: 12px;
+}
+
+.app-shell .model-details-option .model-active-label {
+  margin-left: auto;
+}
+
+/* Recents now begins directly with chat rows; retain per-row delete controls. */
+.app-shell .recently-asked {
+  padding-top: 7px;
+}
+
+.app-shell .recent-list {
+  margin-top: 0 !important;
+}
+
+.app-shell .recent-delete {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+@media (max-width: 760px) {
+  .app-shell {
+    border-radius: 0 !important;
+  }
+}
