@@ -923,6 +923,9 @@ function App() {
   const [bootStep, setBootStep] = useState(0);
 
   const [messages, setMessages] = useState([]);
+  const [editingMessageIndex, setEditingMessageIndex] = useState(null);
+  const [messageActionStatus, setMessageActionStatus] = useState({});
+  const speechUtteranceRef = useRef(null);
 
   const [input, setInput] = useState("");
 
@@ -1021,6 +1024,106 @@ function App() {
     pane.scrollTo({ top: pane.scrollHeight, behavior: "smooth" });
     setShowScrollToBottom(false);
   };
+
+  async function handleMessageCopy(message, index) {
+    const copied = await copyTextToClipboard(message.text);
+    setMessageActionStatus((current) => ({
+      ...current,
+      [index]: copied ? "Copied" : "Copy failed",
+    }));
+    window.setTimeout(() => {
+      setMessageActionStatus((current) => {
+        if (!current[index]) return current;
+        const next = { ...current };
+        delete next[index];
+        return next;
+      });
+    }, 1800);
+  }
+
+  async function handleMessageShare(message, index) {
+    const shareData = {
+      title: message.role === "assistant" ? "Helmora response" : "Helmora message",
+      text: message.text,
+    };
+    try {
+      if (navigator.share) {
+        await navigator.share(shareData);
+        setMessageActionStatus((current) => ({ ...current, [index]: "Shared" }));
+      } else {
+        const copied = await copyTextToClipboard(message.text);
+        setMessageActionStatus((current) => ({
+          ...current,
+          [index]: copied ? "Link/text copied" : "Share unavailable",
+        }));
+      }
+    } catch (error) {
+      if (error?.name !== "AbortError") {
+        const copied = await copyTextToClipboard(message.text);
+        setMessageActionStatus((current) => ({
+          ...current,
+          [index]: copied ? "Copied to clipboard" : "Share unavailable",
+        }));
+      }
+    }
+    window.setTimeout(() => {
+      setMessageActionStatus((current) => {
+        if (!current[index]) return current;
+        const next = { ...current };
+        delete next[index];
+        return next;
+      });
+    }, 1800);
+  }
+
+  function handleMessageEdit(message, index) {
+    if (loading || message.attachments?.length) return;
+    if (speechUtteranceRef.current && window.speechSynthesis) {
+      window.speechSynthesis.cancel();
+      speechUtteranceRef.current = null;
+    }
+    setEditingMessageIndex(index);
+    setInput(message.text);
+    requestAnimationFrame(() => {
+      composerTextareaRef.current?.focus();
+      composerTextareaRef.current?.setSelectionRange(message.text.length, message.text.length);
+    });
+  }
+
+  function handleReadAloud(message, index) {
+    if (!("speechSynthesis" in window) || typeof SpeechSynthesisUtterance === "undefined") {
+      setMessageActionStatus((current) => ({ ...current, [index]: "Speech unavailable" }));
+      return;
+    }
+    if (speechUtteranceRef.current) {
+      window.speechSynthesis.cancel();
+      speechUtteranceRef.current = null;
+      setMessageActionStatus((current) => ({ ...current, [index]: "Stopped" }));
+      return;
+    }
+    const utterance = new SpeechSynthesisUtterance(message.text);
+    utterance.rate = 1;
+    utterance.pitch = 1;
+    utterance.onend = () => {
+      speechUtteranceRef.current = null;
+      setMessageActionStatus((current) => {
+        const next = { ...current };
+        delete next[index];
+        return next;
+      });
+    };
+    utterance.onerror = () => {
+      speechUtteranceRef.current = null;
+      setMessageActionStatus((current) => ({ ...current, [index]: "Speech unavailable" }));
+    };
+    speechUtteranceRef.current = utterance;
+    setMessageActionStatus((current) => ({ ...current, [index]: "Speaking" }));
+    window.speechSynthesis.speak(utterance);
+  }
+
+  useEffect(() => () => {
+    if ("speechSynthesis" in window) window.speechSynthesis.cancel();
+  }, []);
 
   function appendAssistantMessage(text, shouldScrollToBottom = false) {
     shouldScrollToBottomRef.current = shouldScrollToBottom;
@@ -1252,7 +1355,9 @@ function App() {
     shouldScrollToBottomRef.current = true;
 
     setMessages((current) => [
-      ...current,
+      ...(editingMessageIndex !== null
+        ? current.slice(0, editingMessageIndex)
+        : current),
       {
         role: "user",
         text: question,
@@ -1260,6 +1365,7 @@ function App() {
         attachments: messageAttachments,
       },
     ]);
+    setEditingMessageIndex(null);
 
     setInput("");
     setAttachments([]);
@@ -1887,6 +1993,56 @@ function App() {
                         theme={theme}
                       />
                     </div>
+                    <div className={`message-actions ${message.role}-message-actions`} aria-label={`${message.role === "assistant" ? "Helmora response" : "Your message"} actions`}>
+                      <button
+                        type="button"
+                        className="message-action-button"
+                        onClick={() => void handleMessageCopy(message, index)}
+                        aria-label="Copy message"
+                        title="Copy"
+                      >
+                        <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="8" y="8" width="12" height="12" rx="2" /><path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2" /></svg>
+                      </button>
+                      <button
+                        type="button"
+                        className="message-action-button"
+                        onClick={() => void handleMessageShare(message, index)}
+                        aria-label="Share message"
+                        title="Share"
+                      >
+                        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 16V3m0 0L7 8m5-5 5 5" /><path d="M5 13v6a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-6" /></svg>
+                      </button>
+                      {message.role === "user" && !message.attachments?.length && (
+                        <button
+                          type="button"
+                          className="message-action-button"
+                          onClick={() => handleMessageEdit(message, index)}
+                          aria-label="Edit message"
+                          title="Edit"
+                          disabled={loading}
+                        >
+                          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m14 5 5 5M4 20l4.5-1 11-11a2.1 2.1 0 0 0-3-3l-11 11L4 20Z" /></svg>
+                        </button>
+                      )}
+                      {message.role === "assistant" && (
+                        <button
+                          type="button"
+                          className={`message-action-button ${messageActionStatus[index] === "Speaking" ? "is-speaking" : ""}`}
+                          onClick={() => handleReadAloud(message, index)}
+                          aria-label={messageActionStatus[index] === "Speaking" ? "Stop reading aloud" : "Read aloud"}
+                          title={messageActionStatus[index] === "Speaking" ? "Stop reading aloud" : "Read aloud"}
+                        >
+                          {messageActionStatus[index] === "Speaking" ? (
+                            <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="7" y="7" width="10" height="10" rx="1.5" /></svg>
+                          ) : (
+                            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 10v4h4l5 4V6l-5 4H4Z" /><path d="M17 9a5 5 0 0 1 0 6M19.5 6.5a9 9 0 0 1 0 11" /></svg>
+                          )}
+                        </button>
+                      )}
+                      {messageActionStatus[index] && (
+                        <span className="message-action-feedback" role="status">{messageActionStatus[index]}</span>
+                      )}
+                    </div>
                     {message.attachments?.length > 0 && (
                       <div className="sent-attachments" role="list" aria-label="Sent attachments">
                         {message.attachments.map((attachment) => (
@@ -1958,6 +2114,12 @@ function App() {
             </svg>
           </button>
 
+          {editingMessageIndex !== null && (
+            <div className="message-editing-indicator">
+              <span>Editing your message</span>
+              <button type="button" onClick={() => { setEditingMessageIndex(null); setInput(""); }}>Cancel</button>
+            </div>
+          )}
           <form
             className={`composer ${isDraggingFiles ? "is-dragging" : ""} ${
               input.includes("\n") || input.length > 70 ? "is-expanded" : ""

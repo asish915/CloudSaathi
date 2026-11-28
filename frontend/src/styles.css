@@ -13056,5 +13056,154 @@ body.sidebar-is-resizing {
   letter-spacing: 0;
 }
 
-/* Do not let the typography override affect the landing page. */
 
+/* ChatGPT-style message actions: compact, neutral, and theme-aware. */
+.app-shell .message-actions {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  min-height: 34px;
+  margin-top: 7px;
+  padding: 0 2px;
+  color: var(--muted, #8392ab);
+  opacity: 0.78;
+  transition: opacity 160ms ease;
+}
+
+.app-shell .message-row:hover .message-actions,
+.app-shell .message-actions:focus-within {
+  opacity: 1;
+}
+
+.app-shell .message-action-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  min-width: 32px;
+  padding: 0;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+  transition: color 150ms ease, background-color 150ms ease,
+    border-color 150ms ease, transform 150ms ease;
+}
+
+.app-shell .message-action-button svg {
+  display: block;
+  width: 18px;
+  height: 18px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.75;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.app-shell .message-action-button:hover:not(:disabled) {
+  color: var(--ui-color-5835693a2e, #e8f0fb);
+  background: rgba(127, 145, 170, 0.13);
+  border-color: rgba(127, 145, 170, 0.14);
+}
+
+.app-shell .message-action-button:active:not(:disabled) {
+  transform: scale(0.94);
+}
+
+.app-shell .message-action-button:focus-visible {
+  outline: 2px solid var(--blue, #55c8ff);
+  outline-offset: 2px;
+}
+
+.app-shell .message-action-button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.app-shell .message-action-button.is-speaking {
+  color: var(--blue, #55c8ff);
+  background: rgba(85, 200, 255, 0.1);
+}
+
+.app-shell .message-action-feedback {
+  margin-left: 3px;
+  color: var(--muted, #8392ab);
+  font-size: 11px;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.app-shell .message-row.user .message-actions {
+  justify-content: flex-end;
+}
+
+.app-shell .message-row.assistant .message-actions {
+  justify-content: flex-start;
+}
+
+.app-shell .message-editing-indicator {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  width: min(100%, 780px);
+  margin: 0 auto 8px;
+  padding: 8px 12px;
+  border: 1px solid var(--border, #1c2a43);
+  border-radius: 10px;
+  color: var(--muted, #8392ab);
+  font-size: 12px;
+}
+
+.app-shell .message-editing-indicator button {
+  border: 0;
+  padding: 4px 7px;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--blue, #55c8ff);
+  font: inherit;
+  cursor: pointer;
+}
+
+.app-shell .message-editing-indicator button:hover {
+  background: rgba(85, 200, 255, 0.1);
+}
+
+.app-shell.light-theme .message-action-button:hover:not(:disabled) {
+  color: #243247;
+  background: rgba(44, 62, 86, 0.08);
+  border-color: rgba(44, 62, 86, 0.08);
+}
+
+.app-shell.light-theme .message-action-feedback {
+  color: #68778d;
+}
+
+@media (hover: none) {
+  .app-shell .message-actions {
+    opacity: 1;
+  }
+}
+
+@media (max-width: 600px) {
+  .app-shell .message-actions {
+    gap: 3px;
+    min-height: 36px;
+  }
+
+  .app-shell .message-action-button {
+    width: 36px;
+    height: 36px;
+    min-width: 36px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .app-shell .message-actions,
+  .app-shell .message-action-button {
+    transition: none !important;
+  }
+}
