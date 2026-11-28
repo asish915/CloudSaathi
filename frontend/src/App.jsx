@@ -1446,6 +1446,17 @@ function App() {
   });
   const sidebarResizeRef = useRef({ active: false, startX: 0, startWidth: 260, currentWidth: 260 });
   const [libraryOpen, setLibraryOpen] = useState(false);
+  const [selectedLibraryStack, setSelectedLibraryStack] = useState("");
+  const [libraryClosing, setLibraryClosing] = useState(false);
+
+  useEffect(() => {
+    if (!libraryOpen) return undefined;
+    const handleKeyDown = (event) => {
+      if (event.key === "Escape") closeLibrary();
+    };
+    document.addEventListener("keydown", handleKeyDown);
+    return () => document.removeEventListener("keydown", handleKeyDown);
+  }, [libraryOpen]);
 
   useEffect(() => {
     const handlePointerMove = (event) => {
@@ -1980,6 +1991,18 @@ function App() {
     setActiveTopic("");
 
     setFilter("");
+    setLibraryOpen(false);
+    setSelectedLibraryStack("");
+  }
+
+  function closeLibrary() {
+    setLibraryClosing(true);
+    window.setTimeout(() => {
+      setLibraryOpen(false);
+      setLibraryClosing(false);
+      setSelectedLibraryStack("");
+      setFilter("");
+    }, 220);
   }
 
   function chooseTopic(topic) {
@@ -2167,10 +2190,11 @@ function App() {
               onClick={() => {
                 setSidebarCollapsed(false);
                 setShowRecentHistory(false);
+                setSelectedLibraryStack("");
+                setFilter("");
+                setLibraryClosing(false);
                 setLibraryOpen(true);
-                if (window.matchMedia("(max-width: 760px)").matches) {
-                  setMobileLibraryOpen(true);
-                }
+                setMobileLibraryOpen(false);
               }}
               aria-label="Open Library"
               title="Library"
@@ -2208,15 +2232,20 @@ function App() {
           </div>
 
           <button
-            className={`sidebar-section-toggle library-section-toggle ${libraryOpen ? "is-open" : ""}`}
+            className="sidebar-section-toggle library-section-toggle"
             type="button"
             onClick={() => {
               setShowRecentHistory(false);
-              setLibraryOpen((open) => !open);
+              setSidebarCollapsed(false);
+              setSelectedLibraryStack("");
+              setFilter("");
+              setLibraryClosing(false);
+              setLibraryOpen(true);
+              setMobileLibraryOpen(false);
             }}
             aria-expanded={libraryOpen}
-            aria-controls="technology-library-content"
-            title={libraryOpen ? "Collapse Library" : "Expand Library"}
+            aria-controls="helmora-library-modal"
+            title="Open Library"
           >
             <span className="sidebar-section-icon" aria-hidden="true">
               <svg viewBox="0 0 24 24">
@@ -2231,100 +2260,6 @@ function App() {
               <path d="m9 6 6 6-6 6" />
             </svg>
           </button>
-          {libraryOpen && (
-            <>
-              <input
-                className="topic-search"
-                value={filter}
-                onChange={(e) => setFilter(e.target.value)}
-                placeholder="Search technologies..."
-                aria-label="Search technologies"
-              />
-
-              <nav id="technology-library-content" className="topics-scroll" aria-label="Technology library">
-            {filteredTopics.map((stack) => {
-              const stackOpen = normalizedFilter
-                ? true
-                : expandedStacks.includes(stack.name);
-              return (
-                <div className="stack-group" key={stack.name}>
-                  <div
-                    className={`stack-heading ${stackOpen ? "expanded" : ""}`}
-                  >
-                    <button
-                      className="stack-toggle"
-                      type="button"
-                      onClick={() => toggleStack(stack.name)}
-                      aria-expanded={stackOpen}
-                      aria-label={`${stack.name} technology stack`}
-                      title={stack.name}
-                    >
-                      <StackBrandIcon name={stack.name} fallback={stack.icon} />
-                      <span className="stack-name">{stack.name}</span>
-                      <span className="stack-chevron">
-                        {stackOpen ? "▾" : "▸"}
-                      </span>
-                    </button>
-                  </div>
-                  {stackOpen && (
-                    <div className="stack-children">
-                      {stack.categories.map((category) => {
-                        const key = `${stack.name}::${category.name}`;
-                        const open = normalizedFilter
-                          ? true
-                          : expandedCategories.includes(key);
-                        return (
-                          <div className="library-category" key={key}>
-                            <button
-                              className="category-toggle"
-                              type="button"
-                              onClick={() => toggleCategory(key)}
-                              aria-expanded={open}
-                            >
-                              <span className="category-chevron">
-                                {open ? "▾" : "▸"}
-                              </span>
-                              <span>{category.name}</span>
-                              <span className="category-count">
-                                {category.items.length}
-                              </span>
-                            </button>
-                            {open && (
-                              <div className="resource-list">
-                                {category.items.map((topic) => (
-                                  <button
-                                    className={`topic-button ${activeTopic === topic ? "active" : ""}`}
-                                    key={topic}
-                                    type="button"
-                                    onClick={() => {
-                                      chooseTopic(topic);
-                                      setMobileLibraryOpen(false);
-                                    }}
-                                    title={`Ask Helmora about ${topic}`}
-                                  >
-                                    <span className="topic-dot" />
-                                    <span className="resource-name">
-                                      {topic}
-                                    </span>
-                                    <span className="topic-arrow">↗</span>
-                                  </button>
-                                ))}
-                              </div>
-                            )}
-                          </div>
-                        );
-                      })}
-                    </div>
-                  )}
-                </div>
-              );
-            })}
-            {filteredTopics.length === 0 && (
-              <p className="no-topics">No topics match your search.</p>
-            )}
-              </nav>
-            </>
-          )}
 
           <button
             className={`sidebar-section-toggle ${showRecentHistory ? "is-open" : ""}`}
@@ -2899,6 +2834,145 @@ function App() {
           </form>
         </main>
       </div>
+      {libraryOpen && createPortal(
+        <div
+          className="library-modal-backdrop"
+          data-theme={theme}
+          style={{ "--library-offset": `${sidebarCollapsed ? 76 : sidebarWidth}px` }}
+          role="presentation"
+          onMouseDown={(event) => {
+            if (event.target === event.currentTarget) {
+              closeLibrary();
+            }
+          }}
+        >
+          <section
+            className={`library-glass-panel ${libraryClosing ? "is-closing" : ""}`}
+            id="helmora-library-modal"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="helmora-library-title"
+            onMouseDown={(event) => event.stopPropagation()}
+          >
+            <header className="library-modal-header">
+              <div className="library-modal-heading">
+                <span className="library-modal-mark" aria-hidden="true">▥</span>
+                <div>
+                  <h2 id="helmora-library-title">Explore technologies</h2>
+                  <p>Choose a technology and explore its learning topics.</p>
+                </div>
+              </div>
+              <div className="library-modal-controls">
+                <span className="library-modal-tag">Library <b>{topicCount}</b></span>
+                <button
+                  className="library-modal-close"
+                  type="button"
+                  onClick={closeLibrary}
+                  aria-label="Close Library"
+                  title="Close Library"
+                >×</button>
+              </div>
+            </header>
+
+            <div className="library-modal-search-wrap">
+              {selectedLibraryStack && (
+                <button
+                  className="library-back-button"
+                  type="button"
+                  onClick={() => setSelectedLibraryStack("")}
+                >
+                  <span aria-hidden="true">←</span> All technologies
+                </button>
+              )}
+              <label className="library-modal-search">
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                  <circle cx="10.8" cy="10.8" r="6.8" />
+                  <path d="m16 16 4.5 4.5" />
+                </svg>
+                <input
+                  value={filter}
+                  onChange={(event) => setFilter(event.target.value)}
+                  placeholder={selectedLibraryStack ? "Search topics..." : "Search technologies..."}
+                  aria-label={selectedLibraryStack ? "Search topics" : "Search technologies"}
+                  autoFocus
+                />
+                {filter && (
+                  <button type="button" onClick={() => setFilter("")} aria-label="Clear search">×</button>
+                )}
+              </label>
+            </div>
+
+            <div className="library-modal-content">
+              {!selectedLibraryStack ? (
+                <div className="library-tech-grid">
+                  {filteredTopics.map((stack) => {
+                    const count = stack.categories.reduce((total, category) => total + category.items.length, 0);
+                    return (
+                      <button
+                        className="library-tech-card"
+                        type="button"
+                        key={stack.name}
+                        onClick={() => setSelectedLibraryStack(stack.name)}
+                      >
+                        <StackBrandIcon name={stack.name} fallback={stack.icon} />
+                        <span className="library-tech-card-copy">
+                          <strong>{stack.name}</strong>
+                          <small>{count} learning topics</small>
+                        </span>
+                        <span className="library-card-arrow" aria-hidden="true">↗</span>
+                      </button>
+                    );
+                  })}
+                  {filteredTopics.length === 0 && <p className="library-empty">No technologies match your search.</p>}
+                </div>
+              ) : (
+                <div className="library-topic-view">
+                  {filteredTopics.filter((stack) => stack.name === selectedLibraryStack).map((stack) => (
+                    <div className="library-topic-stack" key={stack.name}>
+                      <div className="library-selected-tech">
+                        <StackBrandIcon name={stack.name} fallback={stack.icon} />
+                        <div><strong>{stack.name}</strong><small>{stack.categories.reduce((total, category) => total + category.items.length, 0)} topics available</small></div>
+                      </div>
+                      <div className="library-category-grid">
+                        {stack.categories.map((category) => (
+                          <section className="library-topic-category" key={category.name}>
+                            <header><strong>{category.name}</strong><span>{category.items.length}</span></header>
+                            <div className="library-topic-list">
+                              {category.items.map((topic) => (
+                                <button
+                                  className={`library-topic-card ${activeTopic === topic ? "active" : ""}`}
+                                  type="button"
+                                  key={topic}
+                                  onClick={() => {
+                                    chooseTopic(topic);
+                                    closeLibrary();
+                                    setMobileLibraryOpen(false);
+                                  }}
+                                  title={`Ask Helmora about ${topic}`}
+                                >
+                                  <span>{topic}</span><span aria-hidden="true">↗</span>
+                                </button>
+                              ))}
+                            </div>
+                          </section>
+                        ))}
+                      </div>
+                    </div>
+                  ))}
+                  {filteredTopics.every((stack) => stack.name !== selectedLibraryStack) && (
+                    <p className="library-empty">No topics match your search in this technology.</p>
+                  )}
+                </div>
+              )}
+            </div>
+            <footer className="library-modal-footer">
+              <span>Helmora Learning Library</span>
+              <span>{topicCount} curated topics</span>
+            </footer>
+          </section>
+        </div>,
+        document.body
+      )}
     </>
   );
 }
