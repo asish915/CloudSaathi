@@ -3249,76 +3249,6 @@ button {
   }
 }
 
-/* FINAL OVERRIDE: compact composer and column-aligned comparison tables */
-
-.chat-main > .composer {
-  box-sizing: border-box !important;
-
-  flex: 0 0 60px !important;
-
-  height: 60px !important;
-
-  min-height: 60px !important;
-
-  max-height: 60px !important;
-
-  margin: 5px auto 7px !important;
-
-  padding: 4px 9px 21px !important;
-
-  align-content: start !important;
-
-  grid-template-columns: minmax(0, 1fr) 34px !important;
-
-  gap: 7px !important;
-}
-
-.chat-main > .composer textarea {
-  box-sizing: border-box !important;
-
-  display: block !important;
-
-  height: 27px !important;
-
-  min-height: 27px !important;
-
-  max-height: 27px !important;
-
-  padding: 4px 3px !important;
-
-  margin: 0 !important;
-
-  resize: none !important;
-
-  overflow-y: auto !important;
-
-  line-height: 1.4 !important;
-}
-
-.chat-main > .composer .send-button {
-  width: 32px !important;
-
-  height: 31px !important;
-
-  min-height: 31px !important;
-
-  padding: 0 !important;
-
-  line-height: 1 !important;
-}
-
-.chat-main > .composer .composer-hint {
-  left: 11px !important;
-
-  bottom: 4px !important;
-
-  line-height: 11px !important;
-
-  font-size: 8px !important;
-
-  white-space: nowrap !important;
-}
-
 .table-scroll {
   display: block !important;
 
@@ -3382,94 +3312,6 @@ button {
   .chat-main > .composer .composer-secure {
     display: none !important;
   }
-}
-
-/* Final layout fixes: compact composer and aligned Markdown comparison tables */
-
-.composer {
-  grid-template-columns: minmax(0, 1fr) 40px;
-
-  min-height: 76px;
-
-  padding: 12px 12px 28px;
-
-  align-items: start;
-}
-
-.composer textarea {
-  display: block;
-
-  height: 36px;
-
-  min-height: 36px;
-
-  max-height: 120px;
-
-  resize: vertical;
-
-  overflow-y: auto;
-}
-
-.table-scroll {
-  width: 100%;
-
-  max-width: 100%;
-
-  overflow-x: auto;
-
-  margin: 12px 0 18px;
-
-  border: 1px solid var(--ui-color-2b2f624bb0);
-
-  border-radius: 10px;
-}
-
-.answer-table {
-  width: 100%;
-
-  min-width: 560px;
-
-  border-collapse: collapse;
-
-  table-layout: fixed;
-
-  background: var(--ui-color-c72ff859a8);
-}
-
-.answer-table th,
-.answer-table td {
-  width: auto;
-
-  padding: 12px 14px;
-
-  text-align: left;
-
-  vertical-align: top;
-
-  overflow-wrap: anywhere;
-
-  border-right: 1px solid var(--ui-color-2b2f624bb0);
-
-  border-bottom: 1px solid var(--ui-color-2b2f624bb0);
-
-  line-height: 1.65;
-}
-
-.answer-table th {
-  color: var(--ui-color-f9b4ac0b80);
-
-  background: var(--ui-color-120ac42110);
-
-  font-weight: 700;
-}
-
-.answer-table tr:last-child td {
-  border-bottom: 0;
-}
-
-.answer-table th:last-child,
-.answer-table td:last-child {
-  border-right: 0;
 }
 
 .inline-code {
@@ -3978,16 +3820,6 @@ body {
   .starter-card {
     min-height: 112px;
     padding: 12px;
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  *,
-  *::before,
-  *::after {
-    animation-duration: 0.01ms !important;
-    transition-duration: 0.01ms !important;
-    scroll-behavior: auto !important;
   }
 }
 
