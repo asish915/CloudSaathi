@@ -31,12 +31,30 @@ function HelmoraLogo({ small = false }) {
 const API_URL = (import.meta.env.VITE_API_URL || "").replace(/\/+$/, "");
 
 const DEFAULT_MODEL_ID = "global.amazon.nova-2-lite-v1:0";
+
 const MODEL_OPTIONS = [
-  { id: "amazon.nova-lite-v1:0", name: "Amazon Nova Lite", tag: "FAST" },
-  { id: "global.amazon.nova-2-lite-v1:0", name: "Amazon Nova 2 Lite", tag: "REASONING" },
-  { id: "amazon.nova-pro-v1:0", name: "Amazon Nova Pro", tag: "PRO" },
-  { id: "global.anthropic.claude-haiku-4-5-20251001-v1:0", name: "Claude Haiku 4.5", tag: "CODE & SEC" },
+  {
+    id: "apac.amazon.nova-lite-v1:0",
+    name: "Amazon Nova Lite",
+    tag: "FAST",
+  },
+  {
+    id: "global.amazon.nova-2-lite-v1:0",
+    name: "Amazon Nova 2 Lite",
+    tag: "REASONING",
+  },
+  {
+    id: "apac.amazon.nova-pro-v1:0",
+    name: "Amazon Nova Pro",
+    tag: "PRO",
+  },
+  {
+    id: "in.anthropic.claude-haiku-4-5-20251001-v1:0",
+    name: "Claude Haiku 4.5",
+    tag: "CODE & SECURITY",
+  },
 ];
+
 const MODEL_STORAGE_KEY = "helmora-selected-model";
 const getSavedModel = () => {
   try {
