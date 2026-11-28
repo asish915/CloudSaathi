@@ -7,7 +7,6 @@ import dockerLogo from "./assets/logos/docker.svg";
 import kubernetesLogo from "./assets/logos/kubernetes.svg";
 import terraformLogo from "./assets/logos/terraform.svg";
 import jenkinsLogo from "./assets/logos/jenkins.svg";
-import githubLogo from "./assets/logos/github.svg";
 import gitLogo from "./assets/logos/git.svg";
 import githubActionsLogo from "./assets/logos/githubactions.svg";
 import linuxLogo from "./assets/logos/linux.svg";
@@ -200,12 +199,6 @@ function StackBrandIcon({ name, fallback }) {
 
 const topics = libraryTopics;;
 
-function formatMessageTime(value) {
-  return new Intl.DateTimeFormat(undefined, {
-    hour: "numeric",
-    minute: "2-digit",
-  }).format(new Date(value || Date.now()));
-}
 
 function formatConversationDate(value) {
   return new Intl.DateTimeFormat(undefined, {
@@ -826,8 +819,6 @@ function LandingPage({
 }
 
 function App() {
-  const user = "Learner";
-
   const [showLanding, setShowLanding] = useState(true);
 
   const [landingExiting, setLandingExiting] = useState(false);
@@ -928,10 +919,6 @@ function App() {
   const [activeTopic, setActiveTopic] = useState("");
 
   const [filter, setFilter] = useState("");
-
-  const [expandedStacks, setExpandedStacks] = useState([]);
-
-  const [expandedCategories, setExpandedCategories] = useState([]);
 
   const messagesEndRef = useRef(null);
 
@@ -1441,19 +1428,7 @@ function App() {
     0,
   );
 
-  const toggleStack = (name) =>
-    setExpandedStacks((current) =>
-      current.includes(name)
-        ? current.filter((x) => x !== name)
-        : [...current, name],
-    );
 
-  const toggleCategory = (key) =>
-    setExpandedCategories((current) =>
-      current.includes(key)
-        ? current.filter((x) => x !== key)
-        : [...current, key],
-    );
 
   const beginMentorTransition = () => {
     if (landingExiting) return;
