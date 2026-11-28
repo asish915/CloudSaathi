@@ -12875,3 +12875,95 @@ body.sidebar-is-resizing {
   to { opacity: 0; transform: translate3d(-34px, 8px, 0) scale(.9); }
 }
 @keyframes helmora-library-backdrop-out { to { opacity: 0; } }
+
+
+/* Interactive Bedrock model selector in the composer attachment popover. */
+.app-shell .model-details-list {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  margin: 3px 8px 10px;
+}
+.app-shell .model-details-option {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  width: 100%;
+  min-height: 43px;
+  margin: 0;
+  padding: 9px 10px;
+  border: 1px solid transparent;
+  border-radius: 10px;
+  background: transparent;
+  color: var(--text-primary);
+  text-align: left;
+  cursor: pointer;
+  transition: background 160ms ease, border-color 160ms ease, transform 160ms ease;
+}
+.app-shell .model-details-option:hover,
+.app-shell .model-details-option:focus-visible {
+  border-color: var(--border-subtle);
+  background: var(--bg-hover);
+  outline: none;
+}
+.app-shell .model-details-option:active { transform: scale(.99); }
+.app-shell .model-details-option strong {
+  min-width: 0;
+  color: var(--text-primary);
+  font-size: 12px;
+  font-weight: 650;
+}
+.app-shell .model-details-option .model-status-dot {
+  width: 8px;
+  height: 8px;
+  flex: 0 0 8px;
+  border-radius: 50%;
+}
+.app-shell .model-details-option .model-status-dot.is-active {
+  background: #55dca3;
+  box-shadow: 0 0 9px rgba(85, 220, 163, .75);
+}
+.app-shell .model-details-option .model-status-dot.is-inactive {
+  background: var(--text-secondary);
+  opacity: .55;
+  box-shadow: none;
+}
+.app-shell .model-capability-tag {
+  margin-left: auto;
+  padding: 3px 6px;
+  border: 1px solid var(--border-subtle);
+  border-radius: 5px;
+  color: var(--text-secondary);
+  font-size: 8px;
+  font-weight: 800;
+  letter-spacing: .45px;
+  white-space: nowrap;
+}
+.app-shell .model-details-option .model-active-label {
+  margin-left: 0;
+  padding: 3px 6px;
+  border: 1px solid rgba(85, 220, 163, .48);
+  border-radius: 5px;
+  background: rgba(85, 220, 163, .08);
+  color: #55dca3;
+  font-size: 8px;
+  font-weight: 800;
+  letter-spacing: .45px;
+}
+.app-shell .model-details-option.is-active {
+  border-color: var(--border-subtle);
+  background: var(--bg-hover);
+}
+.app-shell[data-theme="light"] .model-details-option:hover,
+.app-shell[data-theme="light"] .model-details-option:focus-visible,
+.app-shell[data-theme="light"] .model-details-option.is-active {
+  border-color: var(--ui-color-6c0d45f2c5);
+  background: var(--ui-color-ae7cebd483);
+}
+.app-shell[data-theme="light"] .model-capability-tag {
+  border-color: var(--ui-color-6c0d45f2c5);
+  color: var(--ui-color-e6256ec5b9);
+}
+@media (prefers-reduced-motion: reduce) {
+  .app-shell .model-details-option { transition: none; }
+}

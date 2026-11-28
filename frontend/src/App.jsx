@@ -29,6 +29,24 @@ function HelmoraLogo({ small = false }) {
 }
 
 const API_URL = (import.meta.env.VITE_API_URL || "").replace(/\/+$/, "");
+
+const DEFAULT_MODEL_ID = "global.amazon.nova-2-lite-v1:0";
+const MODEL_OPTIONS = [
+  { id: "amazon.nova-lite-v1:0", name: "Amazon Nova Lite", tag: "FAST" },
+  { id: "global.amazon.nova-2-lite-v1:0", name: "Amazon Nova 2 Lite", tag: "REASONING" },
+  { id: "amazon.nova-pro-v1:0", name: "Amazon Nova Pro", tag: "PRO" },
+  { id: "global.anthropic.claude-haiku-4-5-20251001-v1:0", name: "Claude Haiku 4.5", tag: "CODE & SEC" },
+];
+const MODEL_STORAGE_KEY = "helmora-selected-model";
+const getSavedModel = () => {
+  try {
+    const saved = localStorage.getItem(MODEL_STORAGE_KEY);
+    return MODEL_OPTIONS.some((model) => model.id === saved) ? saved : DEFAULT_MODEL_ID;
+  } catch {
+    return DEFAULT_MODEL_ID;
+  }
+};
+
 const MAX_ATTACHMENTS = 5;
 const MAX_ATTACHMENT_BYTES = 4 * 1024 * 1024;
 const MAX_ATTACHMENT_TEXT_CHARS = 30000;
@@ -899,6 +917,7 @@ function App() {
   const [isAttachmentMenuOpen, setIsAttachmentMenuOpen] = useState(false);
 
   const [showModelDetails, setShowModelDetails] = useState(false);
+  const [selectedModel, setSelectedModel] = useState(getSavedModel);
 
   const [isDraggingFiles, setIsDraggingFiles] = useState(false);
 
@@ -1297,6 +1316,7 @@ function App() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           message: teachingInstructions,
+          modelId: selectedModel,
           attachments: requestAttachments,
           history: messages.slice(-8).map(({ role, text }) => ({
             role,
@@ -2079,14 +2099,36 @@ function App() {
                   </button>
                   {showModelDetails && (
                     <div
-                      className="model-details-option"
+                      className="model-details-list"
                       id="composer-model-details"
-                      role="status"
-                      aria-label="Active model: Amazon Nova Lite"
+                      role="group"
+                      aria-label="Select an AI model"
                     >
-                      <span className="model-status-dot" aria-hidden="true" />
-                      <strong>Amazon Nova Lite</strong>
-                      <span className="model-active-label">ACTIVE</span>
+                      {MODEL_OPTIONS.map((model) => {
+                        const isActive = selectedModel === model.id;
+                        return (
+                          <button
+                            key={model.id}
+                            type="button"
+                            className={`model-details-option${isActive ? " is-active" : ""}`}
+                            onClick={() => {
+                              setSelectedModel(model.id);
+                              try {
+                                localStorage.setItem(MODEL_STORAGE_KEY, model.id);
+                              } catch (error) {
+                                console.warn("Could not save model preference.", error);
+                              }
+                            }}
+                            aria-pressed={isActive}
+                            title={`Use ${model.name}`}
+                          >
+                            <span className={`model-status-dot${isActive ? " is-active" : " is-inactive"}`} aria-hidden="true" />
+                            <strong>{model.name}</strong>
+                            <span className="model-capability-tag">{model.tag}</span>
+                            {isActive && <span className="model-active-label">ACTIVE</span>}
+                          </button>
+                        );
+                      })}
                     </div>
                   )}
                   <button

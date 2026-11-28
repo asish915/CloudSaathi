@@ -11,7 +11,15 @@ from urllib.request import Request, urlopen
 
 import boto3  # type: ignore[import-not-found]
 
-MODEL_ID = os.environ.get("MODEL_ID", "apac.amazon.nova-lite-v1:0")
+DEFAULT_MODEL_ID = "global.amazon.nova-2-lite-v1:0"
+ALLOWED_MODEL_IDS = {
+    "amazon.nova-lite-v1:0",
+    "global.amazon.nova-2-lite-v1:0",
+    "amazon.nova-2-lite-v1:0",
+    "amazon.nova-pro-v1:0",
+    "global.anthropic.claude-haiku-4-5-20251001-v1:0",
+    "in.anthropic.claude-haiku-4-5-20251001-v1:0",
+}
 AWS_REGION = os.environ.get("AWS_REGION", "ap-south-1")
 MAX_MESSAGE_LENGTH = 4000
 MAX_RAW_MESSAGE_LENGTH = 12000
@@ -586,6 +594,13 @@ def lambda_handler(event, context):
         if not isinstance(payload, dict):
             return make_response(400, {"error": "request body must be a JSON object"})
 
+        requested_model_id = payload.get("modelId", DEFAULT_MODEL_ID)
+        if requested_model_id is None or requested_model_id == "":
+            requested_model_id = DEFAULT_MODEL_ID
+        if not isinstance(requested_model_id, str) or requested_model_id not in ALLOWED_MODEL_IDS:
+            return make_response(400, {"error": "Unsupported modelId. Select one of the available Helmora models."})
+        model_id = requested_model_id
+
         try:
             attachments = normalize_attachments(payload.get("attachments"))
         except RequestValidationError as exc:
@@ -692,12 +707,12 @@ Latest learner question:
         )
         messages = history + [{"role": "user", "content": content}]
         result = bedrock.converse(
-            modelId=MODEL_ID,
+            modelId=model_id,
             system=[{"text": SYSTEM_PROMPT}],
             messages=messages,
             inferenceConfig={
                 "maxTokens": int(os.environ.get("MAX_TOKENS", "2400")),
-                "temperature": float(os.environ.get("TEMPERATURE", "0.3")),
+                "temperature": 0.15,
             },
         )
 
@@ -721,7 +736,7 @@ Latest learner question:
                 "Ask me to continue if you need the rest."
             )
 
-        return make_response(200, {"answer": answer, "model": MODEL_ID})
+        return make_response(200, {"answer": answer, "model": model_id})
 
 
     except json.JSONDecodeError:
