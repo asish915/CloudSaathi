@@ -49,7 +49,7 @@ const MODEL_OPTIONS = [
     tag: "PRO",
   },
   {
-    id: "in.anthropic.claude-haiku-4-5-20251001-v1:0",
+    id: "global.anthropic.claude-haiku-4-5-20251001-v1:0",
     name: "Claude Haiku 4.5",
     tag: "CODE & SECURITY",
   },

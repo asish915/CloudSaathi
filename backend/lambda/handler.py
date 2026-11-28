@@ -17,7 +17,7 @@ ALLOWED_MODEL_IDS = {
     "apac.amazon.nova-lite-v1:0",
     "global.amazon.nova-2-lite-v1:0",
     "apac.amazon.nova-pro-v1:0",
-    "in.anthropic.claude-haiku-4-5-20251001-v1:0",
+    "global.anthropic.claude-haiku-4-5-20251001-v1:0",
 }
 
 AWS_REGION = os.environ.get("AWS_REGION", "ap-south-1")
