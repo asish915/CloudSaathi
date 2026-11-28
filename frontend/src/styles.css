@@ -15062,3 +15062,157 @@ body.sidebar-is-resizing {
 .app-shell.light-theme .helmora-logo {
   filter: brightness(0) saturate(100%) !important;
 }
+
+
+
+/* ==========================================
+   HELMORA SIDEBAR — FINAL COLLAPSE FIX
+   ========================================== */
+
+/* Keep sidebar toggle anchored independently of the logo */
+.app-shell {
+  position: relative;
+  transition: grid-template-columns 240ms
+    cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+.app-shell .sidebar {
+  position: relative !important;
+  transition:
+    width 240ms cubic-bezier(0.4, 0, 0.2, 1),
+    padding 240ms cubic-bezier(0.4, 0, 0.2, 1),
+    transform 240ms cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+/* Expanded toggle: top-right inside sidebar */
+.app-shell .brand .sidebar-toggle {
+  position: absolute !important;
+  top: 12px !important;
+  left: calc(var(--sidebar-width) - 51px) !important;
+  right: auto !important;
+  z-index: 100 !important;
+  transition:
+    opacity 220ms ease,
+    transform 240ms cubic-bezier(0.4, 0, 0.2, 1),
+    background-color 160ms ease,
+    border-color 160ms ease !important;
+}
+
+/* Collapsed toggle: pinned beside the narrow sidebar */
+.app-shell.sidebar-collapsed .brand .sidebar-toggle {
+  position: absolute !important;
+  top: 12px !important;
+  left: 76px !important;
+  right: auto !important;
+  margin: 0 !important;
+  z-index: 100 !important;
+}
+
+/* Keep logo at the top */
+.app-shell.sidebar-collapsed .brand {
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: center !important;
+  justify-content: center !important;
+  position: relative !important;
+  width: 40px !important;
+  min-width: 40px !important;
+  margin: 0 0 14px !important;
+  gap: 0 !important;
+}
+
+/* Hide Home completely in minimized mode */
+.app-shell.sidebar-collapsed .sidebar-back-button {
+  display: none !important;
+}
+
+/* Keep primary navigation visible and in order */
+.app-shell.sidebar-collapsed .new-chat-button,
+.app-shell.sidebar-collapsed .sidebar-quick-actions,
+.app-shell.sidebar-collapsed .sidebar-quick-action {
+  display: flex !important;
+}
+
+.app-shell.sidebar-collapsed .sidebar-quick-actions {
+  flex-direction: column !important;
+  align-items: center !important;
+  width: 40px !important;
+  margin: 2px 0 8px !important;
+  gap: 4px !important;
+}
+
+.app-shell.sidebar-collapsed .sidebar-quick-action {
+  align-items: center !important;
+  justify-content: center !important;
+  width: 40px !important;
+  min-width: 40px !important;
+  height: 38px !important;
+  padding: 0 !important;
+}
+
+/* Center New Chat icon */
+.app-shell.sidebar-collapsed .new-chat-button {
+  justify-content: center !important;
+  width: 40px !important;
+  min-width: 40px !important;
+  padding: 0 !important;
+}
+
+/* Hide navigation text without abrupt visual transitions */
+.app-shell .new-chat-label,
+.app-shell .sidebar-quick-action > span:not(.sidebar-quick-icon-slot),
+.app-shell .brand-copy,
+.app-shell .sidebar-section-label,
+.app-shell .sidebar-footer-label,
+.app-shell .account-details,
+.app-shell .account-status-dot {
+  transition:
+    opacity 240ms cubic-bezier(0.4, 0, 0.2, 1),
+    transform 240ms cubic-bezier(0.4, 0, 0.2, 1),
+    max-width 240ms cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+.app-shell.sidebar-collapsed .new-chat-label,
+.app-shell.sidebar-collapsed .sidebar-quick-action > span:not(.sidebar-quick-icon-slot) {
+  opacity: 0 !important;
+  visibility: hidden !important;
+  max-width: 0 !important;
+  overflow: hidden !important;
+  transform: translateX(-6px);
+}
+
+/* Keep theme and account at the bottom */
+.app-shell.sidebar-collapsed .sidebar-footer {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  margin-top: auto !important;
+  gap: 8px !important;
+}
+
+.app-shell.sidebar-collapsed .sidebar-theme-toggle,
+.app-shell.sidebar-collapsed .sidebar-account {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: 40px !important;
+  min-width: 40px !important;
+  max-width: 40px !important;
+}
+
+/* Smooth sidebar content transitions */
+.app-shell .sidebar > * {
+  transition:
+    opacity 240ms cubic-bezier(0.4, 0, 0.2, 1),
+    transform 240ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Do not animate when reduced motion is requested */
+@media (prefers-reduced-motion: reduce) {
+  .app-shell,
+  .app-shell .sidebar,
+  .app-shell .sidebar > *,
+  .app-shell .brand .sidebar-toggle {
+    transition: none !important;
+  }
+}
