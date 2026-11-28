@@ -711,7 +711,7 @@ Latest learner question:
             system=[{"text": SYSTEM_PROMPT}],
             messages=messages,
             inferenceConfig={
-                "maxTokens": int(os.environ.get("MAX_TOKENS", "2400")),
+                "maxTokens": int(os.environ.get("MAX_TOKENS", "8192")),
                 "temperature": 0.15,
             },
         )
