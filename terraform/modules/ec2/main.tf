@@ -1,6 +1,6 @@
 resource "aws_security_group" "frontend" {
   name        = "${var.project_name}-frontend-sg"
-  description = "Allow HTTP access directly to the Helmora frontend EC2"
+  description = "Allow HTTP access directly to the Helmora's frontend EC2"
   vpc_id      = var.vpc_id
 
   ingress {
