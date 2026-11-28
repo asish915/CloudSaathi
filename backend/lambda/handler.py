@@ -12,14 +12,14 @@ from urllib.request import Request, urlopen
 import boto3  # type: ignore[import-not-found]
 
 DEFAULT_MODEL_ID = "global.amazon.nova-2-lite-v1:0"
+
 ALLOWED_MODEL_IDS = {
-    "amazon.nova-lite-v1:0",
+    "apac.amazon.nova-lite-v1:0",
     "global.amazon.nova-2-lite-v1:0",
-    "amazon.nova-2-lite-v1:0",
-    "amazon.nova-pro-v1:0",
-    "global.anthropic.claude-haiku-4-5-20251001-v1:0",
+    "apac.amazon.nova-pro-v1:0",
     "in.anthropic.claude-haiku-4-5-20251001-v1:0",
 }
+
 AWS_REGION = os.environ.get("AWS_REGION", "ap-south-1")
 MAX_MESSAGE_LENGTH = 4000
 MAX_RAW_MESSAGE_LENGTH = 12000
